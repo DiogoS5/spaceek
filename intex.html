@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas de Estudo - Universidade</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>UniEstudo</h1>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Início</a></li>
+                    <li><a href="#">Mapa</a></li>
+                    <li><a href="#">Reservas</a></li>
+                    <li><a href="#">Ajuda</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Encontre o melhor local para estudar</h2>
+                <p>Pesquise salas de estudo disponíveis, verifique condições em tempo real e reserve seu espaço.</p>
+                
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="search" placeholder="Pesquisar salas de estudo...">
+                        <button type="submit" class="search-button">Buscar</button>
+                    </div>
+                    <button class="map-button">Ver no Mapa</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="results">
+            <div class="container">
+                <h2>Salas Disponíveis</h2>
+                <p>Encontre a sala ideal para suas necessidades de estudo.</p>
+                
+                <div class="filter-tabs">
+                    <button class="tab active">Todos</button>
+                    <button class="tab">Biblioteca</button>
+                    <button class="tab">Laboratórios</button>
+                    <button class="tab">Salas de Aula</button>
+                </div>
+                
+                <div class="study-rooms">
+                    <div class="room-card">
+                        <div class="room-header">
+                            <h3>Sala 101</h3>
+                            <p>Bloco A</p>
+                        </div>
+                        <div class="room-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Ocupação:</span>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: 30%; background-color: #22c55e;"></div>
+                                </div>
+                                <span class="indicator-value">30%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Temperatura:</span>
+                                <span class="badge">22°C</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Nível de Ruído:</span>
+                                <span class="badge noise low">Baixo</span>
+                            </div>
+                        </div>
+                        <div class="room-actions">
+                            <button class="button secondary">Detalhes</button>
+                            <button class="button primary">Reservar</button>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <div class="room-header">
+                            <h3>Biblioteca Central</h3>
+                            <p>Piso 2</p>
+                        </div>
+                        <div class="room-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Ocupação:</span>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: 75%; background-color: #eab308;"></div>
+                                </div>
+                                <span class="indicator-value">75%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Temperatura:</span>
+                                <span class="badge">24°C</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Nível de Ruído:</span>
+                                <span class="badge noise medium">Médio</span>
+                            </div>
+                        </div>
+                        <div class="room-actions">
+                            <button class="button secondary">Detalhes</button>
+                            <button class="button primary">Reservar</button>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <div class="room-header">
+                            <h3>Laboratório 3</h3>
+                            <p>Bloco C</p>
+                        </div>
+                        <div class="room-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Ocupação:</span>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: 10%; background-color: #22c55e;"></div>
+                                </div>
+                                <span class="indicator-value">10%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Temperatura:</span>
+                                <span class="badge">21°C</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Nível de Ruído:</span>
+                                <span class="badge noise very-low">Muito Baixo</span>
+                            </div>
+                        </div>
+                        <div class="room-actions">
+                            <button class="button secondary">Detalhes</button>
+                            <button class="button primary">Reservar</button>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <div class="room-header">
+                            <h3>Sala 205</h3>
+                            <p>Bloco B</p>
+                        </div>
+                        <div class="room-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Ocupação:</span>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: 50%; background-color: #eab308;"></div>
+                                </div>
+                                <span class="indicator-value">50%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Temperatura:</span>
+                                <span class="badge">23°C</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Nível de Ruído:</span>
+                                <span class="badge noise medium">Médio</span>
+                            </div>
+                        </div>
+                        <div class="room-actions">
+                            <button class="button secondary">Detalhes</button>
+                            <button class="button primary">Reservar</button>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <div class="room-header">
+                            <h3>Espaço Colaborativo</h3>
+                            <p>Centro Estudantil</p>
+                        </div>
+                        <div class="room-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Ocupação:</span>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: 90%; background-color: #ef4444;"></div>
+                                </div>
+                                <span class="indicator-value">90%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Temperatura:</span>
+                                <span class="badge">25°C</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Nível de Ruído:</span>
+                                <span class="badge noise high">Alto</span>
+                            </div>
+                        </div>
+                        <div class="room-actions">
+                            <button class="button secondary">Detalhes</button>
+                            <button class="button primary">Reservar</button>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <div class="room-header">
+                            <h3>Sala Silenciosa</h3>
+                            <p>Biblioteca</p>
+                        </div>
+                        <div class="room-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Ocupação:</span>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: 40%; background-color: #22c55e;"></div>
+                                </div>
+                                <span class="indicator-value">40%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Temperatura:</span>
+                                <span class="badge">22°C</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Nível de Ruído:</span>
+                                <span class="badge noise very-low">Muito Baixo</span>
+                            </div>
+                        </div>
+                        <div class="room-actions">
+                            <button class="button secondary">Detalhes</button>
+                            <button class="button primary">Reservar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 UniEstudo. Todos os direitos reservados.</p>
+            <nav>
+                <a href="#">Termos de Serviço</a>
+                <a href="#">Privacidade</a>
+            </nav>
+        </div>
+    </footer>
+</body>
+</html>
