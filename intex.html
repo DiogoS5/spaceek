@@ -4,22 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salas de Estudo - Universidade</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <div class="container">
-            <h1>UniEstudo</h1>
-            <nav>
-                <ul>
-                    <li><a href="#" class="active">Início</a></li>
-                    <li><a href="#">Mapa</a></li>
-                    <li><a href="#">Reservas</a></li>
-                    <li><a href="#">Ajuda</a></li>
-                </ul>
-            </nav>
+        <div class="container-header">
+          <div class="logo-area">
+            <img src="imagens/logo.png" alt="Logo do Spaceek" class="logo">
+            <span class="nome-empresa">Spaceek</span>
+          </div>
+          <nav class="menu">
+            <a href="index.html">Início</a>
+            <a href="ficheiros_html/mapa.html">Mapa</a>
+            <a href="ficheiros_html/sobre.html">Sobre</a>
+            <a href="ficheiros_html/contacto.html">Contacto</a>
+          </nav>
+          <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
+
         </div>
-    </header>
+      </header>
+      
 
     <main>
         <section class="hero">
@@ -231,5 +235,6 @@
             </nav>
         </div>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html>
