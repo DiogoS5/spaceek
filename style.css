@@ -55,9 +55,11 @@ ul {
 header {
     background-color: #1e293b;
     color: white;
-    padding: 1rem 2rem;
+    padding: 2rem 0 1.5rem 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: relative;
+    position: center;
+    text-align: center;
+    padding: 1rem 0;
     width: 100%;
     
 }
@@ -97,8 +99,19 @@ header {
     font-weight: 500;
 }
 
+.menu a.active {
+
+    color: #EEE8AA;
+    transform: scale(1.15);
+    pointer-events: none;
+    cursor: default;
+}
+
+
 .menu a:hover {
-    text-decoration: underline;
+
+    transform: scale(1.15);
+    transition: transform 0.15s;
 }
 
 /*Estilo para o botão hamburger*/
