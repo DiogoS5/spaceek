@@ -45,13 +45,13 @@
             <div class="container">
                 <h2>Salas Disponíveis</h2>
                 <p>Encontre a sala ideal para suas necessidades de estudo.</p>
-                
                 <div class="filter-tabs">
                     <button class="tab active">Todos</button>
                     <button class="tab">Biblioteca</button>
                     <button class="tab">Laboratórios</button>
                     <button class="tab">Salas de Aula</button>
                 </div>
+                <div id="firebase-names"></div>
                 
                 <div class="study-rooms">
                     <div class="room-card">
@@ -236,5 +236,45 @@
         </div>
     </footer>
     <script src="script.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZrf6QJGbHiYzkmhm_hhBnb-hlfWAl9OM",
+            authDomain: "spaceek-5869c.firebaseapp.com",
+            projectId: "spaceek-5869c",
+            storageBucket: "spaceek-5869c.firebasestorage.app",
+            messagingSenderId: "174315041988",
+            appId: "1:174315041988:web:37ba8e2b2227ae395f8591",
+            measurementId: "G-DJC1QL37JV"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        async function getNames() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "salas"));
+                const container = document.getElementById('firebase-names');
+                container.innerHTML = "<h3>Nomes do Firebase:</h3>";
+                const ul = document.createElement('ul');
+                querySnapshot.forEach((doc) => {
+                    const li = document.createElement('li');
+                    li.textContent = doc.data().name;
+                    ul.appendChild(li);
+                });
+                container.appendChild(ul);
+            } catch (error) {
+                console.error("Error fetching study rooms:", error);
+                const container = document.getElementById('firebase-names');
+                container.innerHTML = "<span style='color:red'>Erro ao buscar nomes do Firebase.</span>";
+            }
+        }
+        getNames();
+    </script>
 </body>
 </html>

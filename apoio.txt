@@ -1,2 +1,0 @@
-para a integração da google deveremos utilizar os próprios serviços da google cloud.
-https://console.cloud.google.com/google/maps-hosted/build?inv=1&invt=AbxX5Q&project=ornate-keel-459813-e8
