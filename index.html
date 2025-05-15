@@ -20,11 +20,9 @@
             <a href="ficheiros_html/contacto.html">Contacto</a>
           </nav>
           <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
-
         </div>
-      </header>
+    </header>
       
-
     <main>
         <section class="hero">
             <div class="container">
@@ -33,10 +31,10 @@
                 
                 <div class="search-container">
                     <div class="search-box">
-                        <input type="search" placeholder="Pesquisar salas de estudo...">
-                        <button type="submit" class="search-button">Buscar</button>
+                        <input type="search" id="search-input" placeholder="Pesquisar salas de estudo...">
+                        <button type="submit" class="search-button" id="search-button">Buscar</button>
                     </div>
-                    <button class="map-button">Ver no Mapa</button>
+                    <a href="ficheiros_html/mapa.html" class="map-button">Ver no Mapa</a>
                 </div>
             </div>
         </section>
@@ -46,181 +44,17 @@
                 <h2>Salas Disponíveis</h2>
                 <p>Encontre a sala ideal para suas necessidades de estudo.</p>
                 <div class="filter-tabs">
-                    <button class="tab active">Todos</button>
-                    <button class="tab">Biblioteca</button>
-                    <button class="tab">Laboratórios</button>
-                    <button class="tab">Salas de Aula</button>
+                    <button class="tab active" data-filter="todos">Todos</button>
+                    <button class="tab" data-filter="biblioteca">Biblioteca</button>
+                    <button class="tab" data-filter="laboratorio">Laboratórios</button>
+                    <button class="tab" data-filter="sala">Salas de Aula</button>
                 </div>
-                <div id="firebase-names"></div>
                 
-                <div class="study-rooms">
-                    <div class="room-card">
-                        <div class="room-header">
-                            <h3>Sala 101</h3>
-                            <p>Bloco A</p>
-                        </div>
-                        <div class="room-indicators">
-                            <div class="indicator">
-                                <span class="indicator-label">Ocupação:</span>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: 30%; background-color: #22c55e;"></div>
-                                </div>
-                                <span class="indicator-value">30%</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Temperatura:</span>
-                                <span class="badge">22°C</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise low">Baixo</span>
-                            </div>
-                        </div>
-                        <div class="room-actions">
-                            <button class="button secondary">Detalhes</button>
-                            <button class="button primary">Reservar</button>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <div class="room-header">
-                            <h3>Biblioteca Central</h3>
-                            <p>Piso 2</p>
-                        </div>
-                        <div class="room-indicators">
-                            <div class="indicator">
-                                <span class="indicator-label">Ocupação:</span>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: 75%; background-color: #eab308;"></div>
-                                </div>
-                                <span class="indicator-value">75%</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Temperatura:</span>
-                                <span class="badge">24°C</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise medium">Médio</span>
-                            </div>
-                        </div>
-                        <div class="room-actions">
-                            <button class="button secondary">Detalhes</button>
-                            <button class="button primary">Reservar</button>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <div class="room-header">
-                            <h3>Laboratório 3</h3>
-                            <p>Bloco C</p>
-                        </div>
-                        <div class="room-indicators">
-                            <div class="indicator">
-                                <span class="indicator-label">Ocupação:</span>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: 10%; background-color: #22c55e;"></div>
-                                </div>
-                                <span class="indicator-value">10%</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Temperatura:</span>
-                                <span class="badge">21°C</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise very-low">Muito Baixo</span>
-                            </div>
-                        </div>
-                        <div class="room-actions">
-                            <button class="button secondary">Detalhes</button>
-                            <button class="button primary">Reservar</button>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <div class="room-header">
-                            <h3>Sala 205</h3>
-                            <p>Bloco B</p>
-                        </div>
-                        <div class="room-indicators">
-                            <div class="indicator">
-                                <span class="indicator-label">Ocupação:</span>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: 50%; background-color: #eab308;"></div>
-                                </div>
-                                <span class="indicator-value">50%</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Temperatura:</span>
-                                <span class="badge">23°C</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise medium">Médio</span>
-                            </div>
-                        </div>
-                        <div class="room-actions">
-                            <button class="button secondary">Detalhes</button>
-                            <button class="button primary">Reservar</button>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <div class="room-header">
-                            <h3>Espaço Colaborativo</h3>
-                            <p>Centro Estudantil</p>
-                        </div>
-                        <div class="room-indicators">
-                            <div class="indicator">
-                                <span class="indicator-label">Ocupação:</span>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: 90%; background-color: #ef4444;"></div>
-                                </div>
-                                <span class="indicator-value">90%</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Temperatura:</span>
-                                <span class="badge">25°C</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise high">Alto</span>
-                            </div>
-                        </div>
-                        <div class="room-actions">
-                            <button class="button secondary">Detalhes</button>
-                            <button class="button primary">Reservar</button>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <div class="room-header">
-                            <h3>Sala Silenciosa</h3>
-                            <p>Biblioteca</p>
-                        </div>
-                        <div class="room-indicators">
-                            <div class="indicator">
-                                <span class="indicator-label">Ocupação:</span>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: 40%; background-color: #22c55e;"></div>
-                                </div>
-                                <span class="indicator-value">40%</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Temperatura:</span>
-                                <span class="badge">22°C</span>
-                            </div>
-                            <div class="indicator">
-                                <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise very-low">Muito Baixo</span>
-                            </div>
-                        </div>
-                        <div class="room-actions">
-                            <button class="button secondary">Detalhes</button>
-                            <button class="button primary">Reservar</button>
-                        </div>
-                    </div>
+                <div id="loading-message" class="loading-message">Carregando salas...</div>
+                <div id="error-message" class="error-message" style="display: none;">Erro ao carregar dados do Firebase.</div>
+                
+                <div class="study-rooms" id="study-rooms">
+                    <!-- Os cards das salas serão gerados dinamicamente pelo JavaScript -->
                 </div>
             </div>
         </section>
@@ -228,53 +62,239 @@
 
     <footer>
         <div class="container">
-            <p>© 2024 UniEstudo. Todos os direitos reservados.</p>
+            <p>© 2024 Spaceek. Todos os direitos reservados.</p>
             <nav>
                 <a href="#">Termos de Serviço</a>
                 <a href="#">Privacidade</a>
             </nav>
         </div>
     </footer>
+
     <script src="script.js"></script>
-
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBZrf6QJGbHiYzkmhm_hhBnb-hlfWAl9OM",
             authDomain: "spaceek-5869c.firebaseapp.com",
             projectId: "spaceek-5869c",
-            storageBucket: "spaceek-5869c.firebasestorage.app",
+            storageBucket: "spaceek-5869c.appspot.com",
             messagingSenderId: "174315041988",
             appId: "1:174315041988:web:37ba8e2b2227ae395f8591",
             measurementId: "G-DJC1QL37JV"
         };
-        
+
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        async function getNames() {
-            try {
-                const querySnapshot = await getDocs(collection(db, "salas"));
-                const container = document.getElementById('firebase-names');
-                container.innerHTML = "<h3>Nomes do Firebase:</h3>";
-                const ul = document.createElement('ul');
-                querySnapshot.forEach((doc) => {
-                    const li = document.createElement('li');
-                    li.textContent = doc.data().name;
-                    ul.appendChild(li);
-                });
-                container.appendChild(ul);
-            } catch (error) {
-                console.error("Error fetching study rooms:", error);
-                const container = document.getElementById('firebase-names');
-                container.innerHTML = "<span style='color:red'>Erro ao buscar nomes do Firebase.</span>";
+        // Função para obter a cor baseada na temperatura
+        function getTemperatureColor(temp) {
+            if (temp < 18) return "cold";
+            if (temp < 22) return "cool";
+            if (temp < 25) return "comfortable";
+            if (temp < 28) return "warm";
+            return "hot";
+        }
+
+        // Função para obter a cor baseada na ocupação
+        function getOccupancyColor(occupancy) {
+            if (occupancy < 30) return "#22c55e"; // Verde
+            if (occupancy < 70) return "#eab308"; // Amarelo
+            return "#ef4444"; // Vermelho
+        }
+
+        // Função para obter a classe baseada no nível de ruído
+        function getNoiseClass(noise) {
+            switch(noise.toLowerCase()) {
+                case "muito baixo": return "very-low";
+                case "baixo": return "low";
+                case "médio": return "medium";
+                case "alto": return "high";
+                default: return "medium";
             }
         }
-        getNames();
+
+        // Função para criar um card de sala
+        function createRoomCard(room) {
+            const tempColor = getTemperatureColor(room.temperatura);
+            const occupancyColor = getOccupancyColor(room.ocupacao);
+            const noiseClass = getNoiseClass(room.ruido);
+            
+            return `
+                <div class="room-card" data-type="${room.tipo || 'sala'}">
+                    <div class="room-header">
+                        <h3>${room.nome}</h3>
+                        <p>${room.local}</p>
+                    </div>
+                    <div class="room-indicators">
+                        <div class="indicator">
+                            <span class="indicator-label">Ocupação:</span>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${room.ocupacao}%; background-color: ${occupancyColor};"></div>
+                            </div>
+                            <span class="indicator-value">${room.ocupacao}%</span>
+                        </div>
+                        <div class="indicator">
+                            <span class="indicator-label">Temperatura:</span>
+                            <span class="badge temperature ${tempColor}">${room.temperatura}°C</span>
+                        </div>
+                        <div class="indicator">
+                            <span class="indicator-label">Nível de Ruído:</span>
+                            <span class="badge noise ${noiseClass}">${room.ruido}</span>
+                        </div>
+                    </div>
+                    <div class="room-actions">
+                        <button class="button secondary">Detalhes</button>
+                        <a href="ficheiros_html/mapa.html?sala=${encodeURIComponent(room.nome)}&local=${encodeURIComponent(room.local)}" class="button primary">Ver no Mapa</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Dados de exemplo caso o Firebase falhe
+        const sampleRooms = [
+            {
+                nome: "Sala 101",
+                local: "Bloco A",
+                ocupacao: 30,
+                temperatura: 22,
+                ruido: "Baixo",
+                tipo: "sala"
+            },
+            {
+                nome: "Biblioteca Central",
+                local: "Piso 2",
+                ocupacao: 75,
+                temperatura: 24,
+                ruido: "Médio",
+                tipo: "biblioteca"
+            },
+            {
+                nome: "Laboratório 3",
+                local: "Bloco C",
+                ocupacao: 10,
+                temperatura: 21,
+                ruido: "Muito Baixo",
+                tipo: "laboratorio"
+            },
+            {
+                nome: "Sala 205",
+                local: "Bloco B",
+                ocupacao: 50,
+                temperatura: 23,
+                ruido: "Médio",
+                tipo: "sala"
+            },
+            {
+                nome: "Espaço Colaborativo",
+                local: "Centro Estudantil",
+                ocupacao: 90,
+                temperatura: 27,
+                ruido: "Alto",
+                tipo: "sala"
+            },
+            {
+                nome: "Sala Silenciosa",
+                local: "Biblioteca",
+                ocupacao: 40,
+                temperatura: 19,
+                ruido: "Muito Baixo",
+                tipo: "biblioteca"
+            }
+        ];
+
+        // Função para carregar as salas
+        // Função para carregar as salas
+function loadRooms() {
+    const roomsContainer = document.getElementById('study-rooms');
+    const loadingMessage = document.getElementById('loading-message');
+    
+    // Esconde a mensagem de carregamento
+    loadingMessage.style.display = "none";
+    
+    // Carrega os dados de exemplo diretamente
+    sampleRooms.forEach(room => {
+        roomsContainer.innerHTML += createRoomCard(room);
+    });
+    
+    // Adiciona os event listeners para os filtros
+    setupFilters();
+}
+        // Função para configurar os filtros
+        function setupFilters() {
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove a classe active de todas as tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Adiciona a classe active na tab clicada
+                    tab.classList.add('active');
+                    
+                    // Filtra as salas
+                    const filter = tab.getAttribute('data-filter');
+                    filterRooms(filter);
+                });
+            });
+        }
+
+        // Função para filtrar as salas
+        function filterRooms(filter) {
+            const rooms = document.querySelectorAll('.room-card');
+            
+            rooms.forEach(room => {
+                if (filter === 'todos' || room.getAttribute('data-type') === filter) {
+                    room.style.display = 'block';
+                } else {
+                    room.style.display = 'none';
+                }
+            });
+        }
+
+        // Função para pesquisar salas
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+            
+            searchButton.addEventListener('click', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                searchRooms(searchTerm);
+            });
+            
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    searchRooms(searchTerm);
+                }
+            });
+        }
+
+        // Função para pesquisar salas
+        function searchRooms(term) {
+            const rooms = document.querySelectorAll('.room-card');
+            
+            rooms.forEach(room => {
+                const roomName = room.querySelector('h3').textContent.toLowerCase();
+                const roomLocation = room.querySelector('.room-header p').textContent.toLowerCase();
+                
+                if (roomName.includes(term) || roomLocation.includes(term)) {
+                    room.style.display = 'block';
+                } else {
+                    room.style.display = 'none';
+                }
+            });
+        }
+
+        // Carrega as salas quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRooms();
+            setupSearch();
+        });
     </script>
 </body>
 </html>

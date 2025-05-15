@@ -3,8 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salas de Estudo - Universidade</title>
+    <title>Mapa de Salas - Spaceek</title>
     <link rel="stylesheet" href="../style.css">
+    <!-- Adicione o CSS do Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <style>
+        #map-container {
+            width: 100%;
+            height: 500px;
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--border-radius);
+        }
+        
+        .map-info {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .map-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .map-legend {
+            background-color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .legend-low {
+            background-color: var(--color-success);
+        }
+
+        .legend-medium {
+            background-color: var(--color-warning);
+        }
+
+        .legend-high {
+            background-color: var(--color-danger);
+        }
+        
+        .custom-marker {
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -20,32 +101,266 @@
             <a href="contacto.html">Contacto</a>
           </nav>
           <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
-
         </div>
     </header>
-
+    
     <main>
-      <section>
-          <h2>Localização</h2>
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!..." 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
-      </section>
+        <section class="hero">
+            <div class="container">
+                <h2>Mapa de Salas de Estudo</h2>
+                <p>Visualize a localização das salas de estudo no Instituto Superior Técnico - Alameda.</p>
+                
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="search" id="map-search" placeholder="Pesquisar no mapa...">
+                        <button type="submit" class="search-button" id="map-search-button">Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="results">
+            <div class="container">
+                <div id="map-container">
+                    <div id="map"></div>
+                </div>
+
+                <div class="map-legend">
+                    <h3>Legenda</h3>
+                    <div class="legend-item">
+                        <div class="legend-color legend-low"></div>
+                        <span>Baixa ocupação (< 30%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-medium"></div>
+                        <span>Média ocupação (30% - 70%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-high"></div>
+                        <span>Alta ocupação (> 70%)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
-
-
+    
     <footer>
         <div class="container">
-            <p>© 2024 UniEstudo. Todos os direitos reservados.</p>
+            <p>© 2024 Spaceek. Todos os direitos reservados.</p>
             <nav>
                 <a href="#">Termos de Serviço</a>
                 <a href="#">Privacidade</a>
             </nav>
         </div>
     </footer>
-    <script src="script.js"></script>
+    
+    <!-- Adicione o JavaScript do Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    <script src="../script.js"></script>
+    <script>
+        // Coordenadas do Instituto Superior Técnico - Alameda
+        const istCoordinates = [38.7369, -9.1366];
+
+        // Dados de exemplo para as salas
+        const roomsData = [
+            {
+                id: 1,
+                nome: "Sala 101",
+                local: "Pavilhão de Civil",
+                ocupacao: 30,
+                temperatura: 22,
+                ruido: "Baixo",
+                tipo: "sala",
+                lat: 38.7375,
+                lng: -9.1390
+            },
+            {
+                id: 2,
+                nome: "Biblioteca Central",
+                local: "Pavilhão Central",
+                ocupacao: 75,
+                temperatura: 24,
+                ruido: "Médio",
+                tipo: "biblioteca",
+                lat: 38.7369,
+                lng: -9.1376
+            },
+            {
+                id: 3,
+                nome: "Laboratório 3",
+                local: "Torre Norte",
+                ocupacao: 10,
+                temperatura: 21,
+                ruido: "Muito Baixo",
+                tipo: "laboratorio",
+                lat: 38.7380,
+                lng: -9.1380
+            },
+            {
+                id: 4,
+                nome: "Sala 205",
+                local: "Pavilhão de Informática",
+                ocupacao: 50,
+                temperatura: 23,
+                ruido: "Médio",
+                tipo: "sala",
+                lat: 38.7365,
+                lng: -9.1385
+            },
+            {
+                id: 5,
+                nome: "Espaço Colaborativo",
+                local: "Pavilhão de Mecânica",
+                ocupacao: 90,
+                temperatura: 27,
+                ruido: "Alto",
+                tipo: "sala",
+                lat: 38.7360,
+                lng: -9.1370
+            },
+            {
+                id: 6,
+                nome: "Sala Silenciosa",
+                local: "Biblioteca",
+                ocupacao: 40,
+                temperatura: 19,
+                ruido: "Muito Baixo",
+                tipo: "biblioteca",
+                lat: 38.7372,
+                lng: -9.1360
+            }
+        ];
+
+        // Função para obter a cor baseada na ocupação
+        function getOccupancyColor(occupancy) {
+            if (occupancy < 30) return "#22c55e"; // Verde
+            if (occupancy < 70) return "#eab308"; // Amarelo
+            return "#ef4444"; // Vermelho
+        }
+
+        // Função para inicializar o mapa quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cria o mapa centrado no IST
+            const map = L.map('map').setView(istCoordinates, 17);
+
+            // Adiciona o layer do OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Verifica se há parâmetros na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const salaName = urlParams.get('sala');
+            const localName = urlParams.get('local');
+            
+            // Array para armazenar os marcadores
+            const markers = [];
+            
+            // Adiciona marcadores para cada sala
+            roomsData.forEach(room => {
+                // Cria um elemento div para o marcador personalizado
+                const markerIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background-color: ${getOccupancyColor(room.ocupacao)}; width: 100%; height: 100%;"></div>`,
+                    iconSize: [20, 20]
+                });
+                
+                // Cria o marcador
+                const marker = L.marker([room.lat, room.lng], {
+                    icon: markerIcon,
+                    title: room.nome
+                }).addTo(map);
+                
+                // Cria o popup com informações da sala
+                const popupContent = `
+                    <div style="padding: 10px; max-width: 200px;">
+                        <h3 style="margin-top: 0;">${room.nome}</h3>
+                        <p>${room.local}</p>
+                        <p>Ocupação: ${room.ocupacao}%</p>
+                        <p>Temperatura: ${room.temperatura}°C</p>
+                        <p>Ruído: ${room.ruido}</p>
+                    </div>
+                `;
+                
+                // Adiciona o popup ao marcador
+                marker.bindPopup(popupContent);
+                
+                // Armazena o marcador e os dados da sala
+                markers.push({
+                    marker: marker,
+                    data: room
+                });
+                
+                // Se esta sala corresponde aos parâmetros da URL, abre o popup
+                if (salaName && room.nome === decodeURIComponent(salaName)) {
+                    marker.openPopup();
+                    map.setView([room.lat, room.lng], 18);
+                }
+            });
+            
+            // Adiciona botão para centralizar no IST
+            const customControl = L.control({position: 'topright'});
+            
+            customControl.onAdd = function(map) {
+                const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                div.innerHTML = `<a href="#" title="Centralizar no IST" style="display: block; padding: 5px 10px; background: white; text-decoration: none; color: black;">IST</a>`;
+                
+                div.onclick = function() {
+                    map.setView(istCoordinates, 17);
+                    return false;
+                };
+                
+                return div;
+            };
+            
+            customControl.addTo(map);
+            
+            // Adiciona funcionalidade de pesquisa
+            const searchInput = document.getElementById('map-search');
+            const searchButton = document.getElementById('map-search-button');
+            
+            function searchRooms(term) {
+                let found = false;
+                
+                markers.forEach(item => {
+                    const room = item.data;
+                    const marker = item.marker;
+                    const roomName = room.nome.toLowerCase();
+                    const roomLocation = room.local.toLowerCase();
+                    
+                    if (roomName.includes(term) || roomLocation.includes(term)) {
+                        // Fecha todos os popups
+                        map.closePopup();
+                        
+                        // Abre o popup deste marcador
+                        marker.openPopup();
+                        
+                        // Centraliza o mapa no marcador
+                        map.setView([room.lat, room.lng], 18);
+                        
+                        found = true;
+                    }
+                });
+                
+                if (!found) {
+                    alert("Nenhuma sala encontrada com esse termo.");
+                }
+            }
+            
+            searchButton.addEventListener('click', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                searchRooms(searchTerm);
+            });
+            
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    searchRooms(searchTerm);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

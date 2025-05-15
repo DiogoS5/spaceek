@@ -19,6 +19,13 @@
     --border-radius: 0.375rem;
     --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    
+    /* Cores para temperatura */
+    --color-temp-cold: #3b82f6;      /* Azul - Frio */
+    --color-temp-cool: #60a5fa;      /* Azul claro - Fresco */
+    --color-temp-comfortable: #22c55e; /* Verde - Confortável */
+    --color-temp-warm: #f59e0b;      /* Laranja - Quente */
+    --color-temp-hot: #ef4444;       /* Vermelho - Muito quente */
 }
 
 /* Reset e estilos base */
@@ -69,6 +76,9 @@ header {
     justify-content: space-between;
     align-items: center;
     height: auto;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
 .logo-area {
@@ -77,9 +87,9 @@ header {
 }
 
 .logo {
-    width: 40px;
+    width: 100px;
     height: auto;
-    margin: 10px;
+    margin: 12px;
 }
 
 .nome-empresa {
@@ -100,22 +110,18 @@ header {
 }
 
 .menu a.active {
-
     color: #EEE8AA;
     transform: scale(1.15);
     pointer-events: none;
     cursor: default;
 }
 
-
 .menu a:hover {
-
     transform: scale(1.15);
     transition: transform 0.15s;
 }
 
 /*Estilo para o botão hamburger*/
-
 .menu-hamburger {
     display: none;
     font-size: 30px;
@@ -124,7 +130,6 @@ header {
 }
 
 /* Estilo do menu quando foi clicado*/
-
 .menu.active {
     display: block;
     position: absolute;
@@ -134,6 +139,7 @@ header {
     padding: 1rem;
     width: 200px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
 }
 
 /* Menu responsivo (para telas pequenas) */
@@ -150,21 +156,6 @@ header {
     .menu-hamburger {
       display: block;  /* Aparece o botão hamburger */
     }
-}
-
-header h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-}
-
-header nav ul {
-    display: flex;
-    gap: 1.5rem;
-}
-
-header nav a.active {
-    color: var(--color-primary);
 }
 
 /* Hero section */
@@ -242,6 +233,7 @@ header nav a.active {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
 }
 
 .map-button:hover {
@@ -292,6 +284,18 @@ header nav a.active {
     background-color: var(--color-primary);
     color: white;
     border-color: var(--color-primary);
+}
+
+/* Loading e Error messages */
+.loading-message, .error-message {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1rem;
+    color: var(--color-text-light);
+}
+
+.error-message {
+    color: var(--color-danger);
 }
 
 /* Study rooms grid */
@@ -371,6 +375,44 @@ header nav a.active {
     border: 1px solid var(--color-border);
 }
 
+/* Estilos para os badges de temperatura */
+.temperature {
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.temperature::before {
+    content: "";
+    position: absolute;
+    left: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+}
+
+.temperature.cold::before {
+    background-color: var(--color-temp-cold);
+}
+
+.temperature.cool::before {
+    background-color: var(--color-temp-cool);
+}
+
+.temperature.comfortable::before {
+    background-color: var(--color-temp-comfortable);
+}
+
+.temperature.warm::before {
+    background-color: var(--color-temp-warm);
+}
+
+.temperature.hot::before {
+    background-color: var(--color-temp-hot);
+}
+
+/* Estilos para os badges de ruído */
 .noise {
     padding-left: 1.5rem;
     position: relative;
@@ -417,6 +459,9 @@ header nav a.active {
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
 .button.primary {
@@ -486,10 +531,6 @@ footer a:hover {
 }
 
 @media (max-width: 768px) {
-    header nav {
-        display: none;
-    }
-    
     .hero h2 {
         font-size: 1.875rem;
     }
