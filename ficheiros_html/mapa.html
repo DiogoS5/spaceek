@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa de Salas - Spaceek</title>
@@ -159,79 +160,22 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
             crossorigin=""></script>
     <script src="../script.js"></script>
-    <script>
-        // Coordenadas do Instituto Superior Técnico - Alameda
-        const istCoordinates = [38.7369, -9.1366];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Dados de exemplo para as salas
-        const roomsData = [
-            {
-                id: 1,
-                nome: "Sala 101",
-                local: "Pavilhão de Civil",
-                ocupacao: 30,
-                temperatura: 22,
-                ruido: "Baixo",
-                tipo: "sala",
-                lat: 38.7375,
-                lng: -9.1390
-            },
-            {
-                id: 2,
-                nome: "Biblioteca Central",
-                local: "Pavilhão Central",
-                ocupacao: 75,
-                temperatura: 24,
-                ruido: "Médio",
-                tipo: "biblioteca",
-                lat: 38.7369,
-                lng: -9.1376
-            },
-            {
-                id: 3,
-                nome: "Laboratório 3",
-                local: "Torre Norte",
-                ocupacao: 10,
-                temperatura: 21,
-                ruido: "Muito Baixo",
-                tipo: "laboratorio",
-                lat: 38.7380,
-                lng: -9.1380
-            },
-            {
-                id: 4,
-                nome: "Sala 205",
-                local: "Pavilhão de Informática",
-                ocupacao: 50,
-                temperatura: 23,
-                ruido: "Médio",
-                tipo: "sala",
-                lat: 38.7365,
-                lng: -9.1385
-            },
-            {
-                id: 5,
-                nome: "Espaço Colaborativo",
-                local: "Pavilhão de Mecânica",
-                ocupacao: 90,
-                temperatura: 27,
-                ruido: "Alto",
-                tipo: "sala",
-                lat: 38.7360,
-                lng: -9.1370
-            },
-            {
-                id: 6,
-                nome: "Sala Silenciosa",
-                local: "Biblioteca",
-                ocupacao: 40,
-                temperatura: 19,
-                ruido: "Muito Baixo",
-                tipo: "biblioteca",
-                lat: 38.7372,
-                lng: -9.1360
-            }
-        ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZrf6QJGbHiYzkmhm_hhBnb-hlfWAl9OM",
+            authDomain: "spaceek-5869c.firebaseapp.com",
+            projectId: "spaceek-5869c",
+            storageBucket: "spaceek-5869c.appspot.com",
+            messagingSenderId: "174315041988",
+            appId: "1:174315041988:web:37ba8e2b2227ae395f8591",
+            measurementId: "G-DJC1QL37JV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         // Função para obter a cor baseada na ocupação
         function getOccupancyColor(occupancy) {
@@ -240,126 +184,79 @@
             return "#ef4444"; // Vermelho
         }
 
-        // Função para inicializar o mapa quando o DOM estiver carregado
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cria o mapa centrado no IST
+        // Função para inicializar o mapa com dados do Firebase
+        async function initMapWithFirebase() {
+            // Coordenadas do IST
+            const istCoordinates = [38.7369, -9.1366];
             const map = L.map('map').setView(istCoordinates, 17);
-
-            // Adiciona o layer do OpenStreetMap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Verifica se há parâmetros na URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const salaName = urlParams.get('sala');
-            const localName = urlParams.get('local');
-            
-            // Array para armazenar os marcadores
-            const markers = [];
-            
+            // Busca dados do Firebase
+            let roomsData = [];
+            try {
+                const querySnapshot = await getDocs(collection(db, "salas"));
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // DEBUG: Print data.location to the console
+                    console.log('Room:', data.name || data.nome, 'Location:', data.location);
+                    roomsData.push(data);
+                });
+            } catch (error) {
+                alert("Erro ao buscar salas do Firebase para o mapa.");
+                return;
+            }
+
             // Adiciona marcadores para cada sala
+            const locationsList = document.createElement('div');
+            locationsList.id = 'locations-list';
+            locationsList.style.margin = '2rem 0';
+            locationsList.innerHTML = '<h3>Localizações das Salas (GeoPoint)</h3>';
+            let anyLocation = false;
             roomsData.forEach(room => {
-                // Cria um elemento div para o marcador personalizado
+                const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
                 const markerIcon = L.divIcon({
                     className: 'custom-marker',
-                    html: `<div style="background-color: ${getOccupancyColor(room.ocupacao)}; width: 100%; height: 100%;"></div>`,
+                    html: `<div style="background-color: ${getOccupancyColor(ocupacao)}; width: 100%; height: 100%;"></div>`,
                     iconSize: [20, 20]
                 });
-                
-                // Cria o marcador
-                const marker = L.marker([room.lat, room.lng], {
-                    icon: markerIcon,
-                    title: room.nome
-                }).addTo(map);
-                
-                // Cria o popup com informações da sala
-                const popupContent = `
-                    <div style="padding: 10px; max-width: 200px;">
-                        <h3 style="margin-top: 0;">${room.nome}</h3>
-                        <p>${room.local}</p>
-                        <p>Ocupação: ${room.ocupacao}%</p>
-                        <p>Temperatura: ${room.temperatura}°C</p>
-                        <p>Ruído: ${room.ruido}</p>
-                    </div>
-                `;
-                
-                // Adiciona o popup ao marcador
-                marker.bindPopup(popupContent);
-                
-                // Armazena o marcador e os dados da sala
-                markers.push({
-                    marker: marker,
-                    data: room
-                });
-                
-                // Se esta sala corresponde aos parâmetros da URL, abre o popup
-                if (salaName && room.nome === decodeURIComponent(salaName)) {
-                    marker.openPopup();
-                    map.setView([room.lat, room.lng], 18);
+
+                // Se location é um GeoPoint do Firestore
+                if (room.location && typeof room.location.latitude === 'number' && typeof room.location.longitude === 'number') {
+                    anyLocation = true;
+                    // Adiciona à lista de localizações
+                    const locDiv = document.createElement('div');
+                    locDiv.textContent = `${room.name || room.nome || 'Sala'}: (${room.location.latitude}, ${room.location.longitude})`;
+                    locationsList.appendChild(locDiv);
+
+                    const marker = L.marker([room.location.latitude, room.location.longitude], {
+                        icon: markerIcon,
+                        title: room.name || room.nome || 'Sala'
+                    }).addTo(map);
+                    const popupContent = `
+                        <div style="padding: 10px; max-width: 200px;">
+                            <h3 style="margin-top: 0;">${room.name || room.nome || 'Sala'}</h3>
+                            <p>${room.building || room.local || ''}</p>
+                            <p>Ocupação: ${ocupacao}%</p>
+                            ${room.temperature !== undefined ? `<p>Temperatura: ${room.temperature}°C</p>` : ''}
+                            ${room.noise_lvl !== undefined ? `<p>Ruído: ${room.noise_lvl}</p>` : ''}
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
                 }
             });
-            
-            // Adiciona botão para centralizar no IST
-            const customControl = L.control({position: 'topright'});
-            
-            customControl.onAdd = function(map) {
-                const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                div.innerHTML = `<a href="#" title="Centralizar no IST" style="display: block; padding: 5px 10px; background: white; text-decoration: none; color: black;">IST</a>`;
-                
-                div.onclick = function() {
-                    map.setView(istCoordinates, 17);
-                    return false;
-                };
-                
-                return div;
-            };
-            
-            customControl.addTo(map);
-            
-            // Adiciona funcionalidade de pesquisa
-            const searchInput = document.getElementById('map-search');
-            const searchButton = document.getElementById('map-search-button');
-            
-            function searchRooms(term) {
-                let found = false;
-                
-                markers.forEach(item => {
-                    const room = item.data;
-                    const marker = item.marker;
-                    const roomName = room.nome.toLowerCase();
-                    const roomLocation = room.local.toLowerCase();
-                    
-                    if (roomName.includes(term) || roomLocation.includes(term)) {
-                        // Fecha todos os popups
-                        map.closePopup();
-                        
-                        // Abre o popup deste marcador
-                        marker.openPopup();
-                        
-                        // Centraliza o mapa no marcador
-                        map.setView([room.lat, room.lng], 18);
-                        
-                        found = true;
-                    }
-                });
-                
-                if (!found) {
-                    alert("Nenhuma sala encontrada com esse termo.");
-                }
+            // Mostra a lista de localizações abaixo do mapa
+            if (anyLocation) {
+                document.querySelector('#map-container').after(locationsList);
+            } else {
+                locationsList.innerHTML += '<div>Nenhuma localização encontrada.</div>';
+                document.querySelector('#map-container').after(locationsList);
             }
-            
-            searchButton.addEventListener('click', () => {
-                const searchTerm = searchInput.value.toLowerCase();
-                searchRooms(searchTerm);
-            });
-            
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const searchTerm = searchInput.value.toLowerCase();
-                    searchRooms(searchTerm);
-                }
-            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMapWithFirebase();
         });
     </script>
 </body>

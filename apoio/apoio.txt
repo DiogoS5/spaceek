@@ -13,7 +13,10 @@ https://decibelpro.app/blog/how-many-decibels-does-a-human-speak-normally/
 40db e 60db mais 10
 
 
-
+problema com os marcadores estarem muito em cima uns dos outros
+The best solution is to use a marker clustering plugin like ~
+Leaflet.markercluster. This groups nearby markers into a single 
+cluster icon, which expands when zoomed in or clicked.
 
 para a integração com a firebase
 
