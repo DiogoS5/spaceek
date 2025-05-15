@@ -43,19 +43,19 @@
             <div class="container">
                 <h2>Salas Disponíveis</h2>
                 <p>Encontre a sala ideal para suas necessidades de estudo.</p>
-                <div class="filter-tabs">
-                    <button class="tab active" data-filter="todos">Todos</button>
-                    <button class="tab" data-filter="biblioteca">Biblioteca</button>
-                    <button class="tab" data-filter="laboratorio">Laboratórios</button>
-                    <button class="tab" data-filter="sala">Salas de Aula</button>
+                <div class="filter-tabs" id="filterTabs">
+                    <div class="filter-group">
+                        <button class="tab active" data-filter="all">Todos</button>
+                        <button class="tab" data-filter="library">Bibliotecas</button>
+                        <button class="tab" data-filter="study">Salas de Estudo</button>
+                    </div>
+                    <button class="tab ocupacao-btn" id="ocupacaoBtn">
+                        Ocupação <img id="ocupacaoArrow" src="imagens/upwardarrow.png" alt="Seta Ocupação" style="width:1em;height:1em;vertical-align:middle;transition:transform 0.2s;">
+                    </button>
                 </div>
+                <div id="firebase-names"></div>
                 
-                <div id="loading-message" class="loading-message">Carregando salas...</div>
-                <div id="error-message" class="error-message" style="display: none;">Erro ao carregar dados do Firebase.</div>
-                
-                <div class="study-rooms" id="study-rooms">
-                    <!-- Os cards das salas serão gerados dinamicamente pelo JavaScript -->
-                </div>
+                <div class="study-rooms" id="study-rooms"></div>
             </div>
         </section>
     </main>
@@ -91,210 +91,135 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Função para obter a cor baseada na temperatura
-        function getTemperatureColor(temp) {
-            if (temp < 18) return "cold";
-            if (temp < 22) return "cool";
-            if (temp < 25) return "comfortable";
-            if (temp < 28) return "warm";
-            return "hot";
-        }
+        let allRooms = [];
+        let ocupacaoOrder = 'menor';
 
-        // Função para obter a cor baseada na ocupação
-        function getOccupancyColor(occupancy) {
-            if (occupancy < 30) return "#22c55e"; // Verde
-            if (occupancy < 70) return "#eab308"; // Amarelo
-            return "#ef4444"; // Vermelho
-        }
-
-        // Função para obter a classe baseada no nível de ruído
-        function getNoiseClass(noise) {
-            switch(noise.toLowerCase()) {
-                case "muito baixo": return "very-low";
-                case "baixo": return "low";
-                case "médio": return "medium";
-                case "alto": return "high";
-                default: return "medium";
+        async function getNames() 
+        {
+            try {
+                const querySnapshot = await getDocs(collection(db, "salas"));
+                allRooms = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    allRooms.push(data);
+                });
+                renderRooms('all');
+            } catch (error) {
+                console.error("Error fetching study rooms:", error);
+                const studyRooms = document.getElementById('study-rooms');
+                studyRooms.innerHTML = "<span style='color:red'>Erro ao buscar salas do Firebase.</span>";
             }
         }
 
-        // Função para criar um card de sala
-        function createRoomCard(room) {
-            const tempColor = getTemperatureColor(room.temperatura);
-            const occupancyColor = getOccupancyColor(room.ocupacao);
-            const noiseClass = getNoiseClass(room.ruido);
-            
-            return `
-                <div class="room-card" data-type="${room.tipo || 'sala'}">
+        const ocupacaoBtn = document.getElementById('ocupacaoBtn');
+        const ocupacaoArrow = document.getElementById('ocupacaoArrow');
+        ocupacaoBtn.addEventListener('click', function() {
+            ocupacaoOrder = ocupacaoOrder === 'menor' ? 'maior' : 'menor';
+            if (ocupacaoOrder === 'menor') {
+                ocupacaoArrow.style.transform = 'rotate(0deg)';
+                ocupacaoArrow.alt = 'Seta para cima';
+            } else {
+                ocupacaoArrow.style.transform = 'rotate(180deg)';
+                ocupacaoArrow.alt = 'Seta para baixo';
+            }
+            renderRooms(getCurrentFilter());
+        });
+
+        function getCurrentFilter() {
+            const activeTab = document.querySelector('.filter-group .tab.active');
+            return activeTab ? activeTab.getAttribute('data-filter') : 'all';
+        }
+
+        function setOcupacaoBtnActive() {
+            document.querySelectorAll('.tab.ocupacao-btn').forEach(btn => btn.classList.remove('active'));
+            ocupacaoBtn.classList.add('active');
+        }
+
+        function renderRooms(filterType) {
+            const studyRooms = document.getElementById('study-rooms');
+            studyRooms.innerHTML = '';
+            let filteredRooms = allRooms;
+            if (filterType === 'library') {
+                filteredRooms = allRooms.filter(room => room.type === 'library');
+            } else if (filterType === 'study') {
+                filteredRooms = allRooms.filter(room => room.type === 'study');
+            }
+            // Sort by ocupacao
+            filteredRooms = filteredRooms.slice(); // clone array
+            filteredRooms.sort((a, b) => {
+                const aOcc = (a.curOcc && a.maxOcc) ? a.curOcc / a.maxOcc : 0;
+                const bOcc = (b.curOcc && b.maxOcc) ? b.curOcc / b.maxOcc : 0;
+                if (ocupacaoOrder === 'maior') {
+                    return bOcc - aOcc;
+                } else {
+                    return aOcc - bOcc;
+                }
+            });
+            filteredRooms.forEach((data) => {
+                const name = data.name || 'Sala';
+                const bloco = data.building || '';
+                const curOcc = data.curOcc || 0;
+                const maxOcc = data.maxOcc || 0;
+                const ocupacao = (data.curOcc !== 0 && data.maxOcc !== 0)
+                    ? Math.round((curOcc / maxOcc) * 100)
+                    : null;
+                let ocupacaoColor = '#22c55e';
+                if (ocupacao >= 75) ocupacaoColor = '#ef4444';
+                else if (ocupacao >= 50) ocupacaoColor = '#eab308';
+                const temperatura = data.temperature !== undefined ? data.temperature : null;
+                const ruido = data.noise_lvl !== undefined ? data.noise_lvl : null;
+                let ruidoClass = '';
+                let ruidoLabel = '';
+                if (ruido >= 70) { ruidoClass = 'high'; ruidoLabel = 'Alto'; }
+                else if (ruido >= 50) { ruidoClass = 'medium'; ruidoLabel = 'Médio'; }
+                else if (ruido >= 30) { ruidoClass = 'low'; ruidoLabel = 'Baixo'; }
+                else if (ruido < 30) { ruidoClass = 'very-low'; ruidoLabel = 'Muito Baixo'; }
+                const card = document.createElement('div');
+                card.className = 'room-card';
+                card.innerHTML = `
                     <div class="room-header">
-                        <h3>${room.nome}</h3>
-                        <p>${room.local}</p>
+                        <h3>${name}</h3>
+                        <p>${bloco}</p>
                     </div>
                     <div class="room-indicators">
+                        ${ocupacao !== null ? `
                         <div class="indicator">
                             <span class="indicator-label">Ocupação:</span>
                             <div class="progress-container">
-                                <div class="progress-bar" style="width: ${room.ocupacao}%; background-color: ${occupancyColor};"></div>
+                                <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${ocupacaoColor};"></div>
                             </div>
-                            <span class="indicator-value">${room.ocupacao}%</span>
-                        </div>
+                            <span class="indicator-value">${ocupacao}%</span>
+                        </div>` : ''}
+                        ${temperatura !== null ? `
                         <div class="indicator">
                             <span class="indicator-label">Temperatura:</span>
-                            <span class="badge temperature ${tempColor}">${room.temperatura}°C</span>
-                        </div>
+                            <span class="badge">${temperatura}°C</span>
+                        </div>` : ''}
+                        ${ruido !== null ? `
                         <div class="indicator">
                             <span class="indicator-label">Nível de Ruído:</span>
-                            <span class="badge noise ${noiseClass}">${room.ruido}</span>
-                        </div>
+                            <span class="badge noise ${ruidoClass}">${ruidoLabel}</span>
+                        </div>` : ''}
                     </div>
                     <div class="room-actions">
                         <button class="button secondary">Detalhes</button>
-                        <a href="ficheiros_html/mapa.html?sala=${encodeURIComponent(room.nome)}&local=${encodeURIComponent(room.local)}" class="button primary">Ver no Mapa</a>
+                        <button class="button primary">Reservar</button>
                     </div>
-                </div>
-            `;
-        }
-
-        // Dados de exemplo caso o Firebase falhe
-        const sampleRooms = [
-            {
-                nome: "Sala 101",
-                local: "Bloco A",
-                ocupacao: 30,
-                temperatura: 22,
-                ruido: "Baixo",
-                tipo: "sala"
-            },
-            {
-                nome: "Biblioteca Central",
-                local: "Piso 2",
-                ocupacao: 75,
-                temperatura: 24,
-                ruido: "Médio",
-                tipo: "biblioteca"
-            },
-            {
-                nome: "Laboratório 3",
-                local: "Bloco C",
-                ocupacao: 10,
-                temperatura: 21,
-                ruido: "Muito Baixo",
-                tipo: "laboratorio"
-            },
-            {
-                nome: "Sala 205",
-                local: "Bloco B",
-                ocupacao: 50,
-                temperatura: 23,
-                ruido: "Médio",
-                tipo: "sala"
-            },
-            {
-                nome: "Espaço Colaborativo",
-                local: "Centro Estudantil",
-                ocupacao: 90,
-                temperatura: 27,
-                ruido: "Alto",
-                tipo: "sala"
-            },
-            {
-                nome: "Sala Silenciosa",
-                local: "Biblioteca",
-                ocupacao: 40,
-                temperatura: 19,
-                ruido: "Muito Baixo",
-                tipo: "biblioteca"
-            }
-        ];
-
-        // Função para carregar as salas
-        // Função para carregar as salas
-function loadRooms() {
-    const roomsContainer = document.getElementById('study-rooms');
-    const loadingMessage = document.getElementById('loading-message');
-    
-    // Esconde a mensagem de carregamento
-    loadingMessage.style.display = "none";
-    
-    // Carrega os dados de exemplo diretamente
-    sampleRooms.forEach(room => {
-        roomsContainer.innerHTML += createRoomCard(room);
-    });
-    
-    // Adiciona os event listeners para os filtros
-    setupFilters();
-}
-        // Função para configurar os filtros
-        function setupFilters() {
-            const tabs = document.querySelectorAll('.tab');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove a classe active de todas as tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    
-                    // Adiciona a classe active na tab clicada
-                    tab.classList.add('active');
-                    
-                    // Filtra as salas
-                    const filter = tab.getAttribute('data-filter');
-                    filterRooms(filter);
-                });
+                `;
+                studyRooms.appendChild(card);
             });
         }
 
-        // Função para filtrar as salas
-        function filterRooms(filter) {
-            const rooms = document.querySelectorAll('.room-card');
-            
-            rooms.forEach(room => {
-                if (filter === 'todos' || room.getAttribute('data-type') === filter) {
-                    room.style.display = 'block';
-                } else {
-                    room.style.display = 'none';
-                }
+        // Tab click event
+        document.querySelectorAll('.filter-group .tab').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-group .tab').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderRooms(getCurrentFilter());
             });
-        }
-
-        // Função para pesquisar salas
-        function setupSearch() {
-            const searchInput = document.getElementById('search-input');
-            const searchButton = document.getElementById('search-button');
-            
-            searchButton.addEventListener('click', () => {
-                const searchTerm = searchInput.value.toLowerCase();
-                searchRooms(searchTerm);
-            });
-            
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const searchTerm = searchInput.value.toLowerCase();
-                    searchRooms(searchTerm);
-                }
-            });
-        }
-
-        // Função para pesquisar salas
-        function searchRooms(term) {
-            const rooms = document.querySelectorAll('.room-card');
-            
-            rooms.forEach(room => {
-                const roomName = room.querySelector('h3').textContent.toLowerCase();
-                const roomLocation = room.querySelector('.room-header p').textContent.toLowerCase();
-                
-                if (roomName.includes(term) || roomLocation.includes(term)) {
-                    room.style.display = 'block';
-                } else {
-                    room.style.display = 'none';
-                }
-            });
-        }
-
-        // Carrega as salas quando a página carregar
-        document.addEventListener('DOMContentLoaded', () => {
-            loadRooms();
-            setupSearch();
         });
+
+        getNames();
     </script>
 </body>
 </html>

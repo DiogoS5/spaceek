@@ -245,6 +245,218 @@ header {
     margin-right: 0.5rem;
 }
 
+/* Custom filter button */
+.filtro-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    position: relative;
+    margin-left: auto;
+    margin-right: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    height: 2.5rem;
+    min-width: 120px;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+.filtro-btn .filtro-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    height: 1.5em;
+    margin: 0 0.5em 0 0;
+}
+.filtro-btn .hamburger-line {
+    display: block;
+    width: 22px;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: 2px;
+    margin: 2.5px 0;
+    transition: background 0.2s;
+}
+.filtro-btn .filtro-label {
+    display: inline-block;
+    margin-left: 0.25em;
+    font-weight: 500;
+    color: var(--color-text);
+    font-size: 1em;
+}
+.filtro-btn span.filtro-label {
+    display: inline-block;
+}
+.filtro-btn span:not(.filtro-icon):not(.filtro-label) {
+    display: none;
+}
+/* Remove old wifi icon styles */
+.filtro-btn .wifi1, .filtro-btn .wifi2, .filtro-btn .wifi3 {
+    display: none !important;
+}
+.filtro-btn .filtro-icon.filtro-menu-icon {
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 1.5em;
+    height: 1.5em;
+    margin: 0 0.5em 0 0;
+}
+.filtro-btn .filtro-icon .menu-line {
+    display: block;
+    width: 22px;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: 2px;
+    margin: 2.5px 0;
+}
+.filtro-btn .filtro-label {
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-left: 0.1em;
+}
+.filtro-btn span:not(.filtro-label):not(.filtro-icon) {
+    display: none;
+}
+.filtro-dropdown {
+    display: none;
+    position: static;
+    width: 100%;
+    margin-top: 0.25rem;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+.filtro-btn.active .filtro-dropdown {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    margin-top: 0.25rem;
+    padding: 0;
+}
+.filtro-option {
+    flex: 1 1 0;
+    min-width: 80px;
+    max-width: 140px;
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--color-text);
+    background: var(--color-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    width: 100%;
+    text-align: center;
+    transition: background 0.2s, box-shadow 0.2s;
+    margin: 0;
+}
+.filtro-option.selected {
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 0 0 2px var(--color-primary);
+    font-weight: bold;
+}
+.filtro-option:hover {
+    background: #f3f4f6;
+    color: var(--color-text);
+}
+
+/* Espaço extra entre os botões e os cards quando o filtro está aberto */
+.filter-tabs.filtro-aberto {
+    min-height: unset;
+    gap: 0.5rem;
+}
+
+.filter-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 0.5rem;
+    position: relative;
+    flex-wrap: wrap;
+}
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
+}
+.tab {
+    padding: 0.5rem 1rem;
+    background-color: var(--color-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.tab.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.tab.ocupacao-btn {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 500;
+    font-size: 0.875rem;
+    background-color: var(--color-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    color: var(--color-text);
+    min-width: 110px;
+    user-select: none;
+}
+.tab.ocupacao-btn.active, .tab.ocupacao-btn.selected {
+    background-color: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+}
+.tab.ocupacao-btn span {
+    font-size: 1.1em;
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+@media (max-width: 600px) {
+    .filtro-dropdown {
+        right: 1rem;
+        min-width: 110px;
+        top: 110%;
+    }
+    .filter-tabs {
+        min-height: 7.5rem;
+    }
+    .filter-tabs.filtro-aberto {
+        min-height: 12rem;
+    }
+}
+
 /* Results section */
 .results {
     padding: 3rem 0;
@@ -267,23 +479,9 @@ header {
     margin-bottom: 2rem;
     overflow-x: auto;
     padding-bottom: 0.5rem;
-}
-
-.tab {
-    padding: 0.5rem 1rem;
-    background-color: var(--color-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius);
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.tab.active {
-    background-color: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
 }
 
 /* Loading e Error messages */
