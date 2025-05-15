@@ -2,6 +2,19 @@ para a integração da google deveremos utilizar os próprios serviços da googl
 https://console.cloud.google.com/google/maps-hosted/build?inv=1&invt=AbxX5Q&project=ornate-keel-459813-e8
 
 
+para o nivel de Ocupação falamos do intervalo de ocupação como
+menos de 50% - verde
+50% a 75% - amarelo
+maior ou igual a 75% - vermelho
+
+para os níveis de ruído, segue-se o link seguinte como base científica
+https://decibelpro.app/blog/how-many-decibels-does-a-human-speak-normally/
+
+40db e 60db mais 10
+
+
+
+
 para a integração com a firebase
 
 <script type="module">
