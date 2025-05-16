@@ -3,9 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salas de Estudo - Universidade</title>
+    <title>Spaceek - Salas de Estudo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Novo estilo para o header */
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 0.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+        }
+        
+        .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: auto;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 0.75rem;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-area:hover .logo {
+            transform: scale(1.05);
+        }
+        
+        .nome-empresa {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Novo estilo para o menu */
+        .menu {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .menu a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .menu a:hover {
+            color: #f8fafc;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .menu a.active {
+            color: #f8fafc;
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .menu a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background-color: #3b82f6;
+            border-radius: 2px;
+        }
+        
+        .menu a.login-btn {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+        }
+        
+        .menu a.login-btn:hover {
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
+        }
+        
+        /* User profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            display: none;
+            z-index: 100;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            animation: fadeInDown 0.2s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-avatar:hover + .user-dropdown,
+        .user-dropdown:hover {
+            display: block;
+        }
+        
+        .user-dropdown a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #334155;
+            transition: background-color 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .user-dropdown a:hover {
+            background-color: #f1f5f9;
+            color: #2563eb;
+        }
+        
+        .user-dropdown a#favoritesLink {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .user-dropdown a#logoutBtn {
+            color: #ef4444;
+        }
+        
+        .user-dropdown a#logoutBtn:hover {
+            background-color: #fef2f2;
+        }
+        
+        /*Estilo para o botão hamburger*/
+        .menu-hamburger {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color 0.2s ease;
+        }
+        
+        .menu-hamburger:hover {
+            color: #f8fafc;
+        }
+        
+        /* Estilo do menu quando foi clicado*/
+        .menu.active {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: #1e293b;
+            padding: 1rem;
+            width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            border-radius: 0 0 0.5rem 0.5rem;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .menu.active a {
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+        
+        /* Menu responsivo (para telas pequenas) */
+        @media screen and (max-width: 768px) {
+            .menu {
+                display: none;
+                flex-direction: column;
+            }
+        
+            .menu.active {
+                display: flex;
+            }
+        
+            .menu-hamburger {
+                display: block; /* Aparece o botão hamburger */
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -18,7 +263,17 @@
             <a class="active">Início</a>
             <a href="ficheiros_html/mapa.html">Mapa</a>
             <a href="https://group4pic.wixstudio.com/spaceseek">Sobre</a>
+            <a href="#" id="loginBtn" class="login-btn">Login</a>
           </nav>
+          <div class="user-profile" style="display: none;">
+            <div class="user-avatar">
+              <span id="userInitial">A</span>
+            </div>
+            <div class="user-dropdown">
+              <a href="#" id="favoritesLink"><i class="fas fa-star fa-fw"></i> Meus Favoritos</a>
+              <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt fa-fw"></i> Sair</a>
+            </div>
+          </div>
           <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
         </div>
     </header>
@@ -37,16 +292,21 @@
                         <button class="tab" data-filter="study">Salas de Estudo</button>
                         <div class="tab search-tab" tabindex="0">
                             <form style="display:flex;align-items:center;gap:0;" onsubmit="return false;">
-                                <button type="button" class="search-icon-btn" id="search-icon-btn" aria-label="Pesquisa" title="Pesquisa" tabindex="-1" style="background:none;border:none;padding:0;margin:0;cursor:pointer;display:flex;align-items:center;justify-content:center;height:2.5rem;width:2.5rem;">
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="7" stroke="#000" stroke-width="2"/><path d="M15 15L18 18" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
+                                <button type="button" class="search-icon-btn" id="search-icon-btn" aria-label="Pesquisa" title="Pesquisa" tabindex="-1">
+                                    <i class="fas fa-search"></i>
                                 </button>
-                                <input type="search" id="search-input" placeholder="Pesquisar salas de estudo..." style="border:none;background:transparent;width:0;transition:width 0.3s,opacity 0.3s;padding:0;opacity:0;outline:none;font-size:0.95em;" autocomplete="off">
+                                <input type="search" id="search-input" placeholder="Pesquisar salas de estudo..." autocomplete="off">
                             </form>
                         </div>
                     </div>
-                    <button class="tab ocupacao-btn" id="ocupacaoBtn">
-                        Ocupação <img id="ocupacaoArrow" src="imagens/upwardarrow.png" alt="Seta Ocupação" style="width:1em;height:1em;vertical-align:middle;transition:transform 0.2s;">
-                    </button>
+                    <div class="filter-options">
+                        <button class="tab ocupacao-btn" id="ocupacaoBtn">
+                            Ocupação <i class="fas fa-sort-amount-down" id="ocupacaoIcon"></i>
+                        </button>
+                        <button class="tab" id="favoritesFilterBtn">
+                            <i class="far fa-star"></i> Favoritos
+                        </button>
+                    </div>
                 </div>
                 <div id="firebase-names"></div>
                 <div class="study-rooms" id="study-rooms"></div>
@@ -65,12 +325,63 @@
         </div>
     </footer>
 
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="login">Login</button>
+                <button class="modal-tab" data-tab="register">Registrar</button>
+            </div>
+            <div class="modal-body" id="loginTab">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="button primary">Entrar</button>
+                </form>
+                <div class="social-login">
+                    <button class="button google-btn"><i class="fab fa-google"></i> Entrar com Google</button>
+                </div>
+            </div>
+            <div class="modal-body" id="registerTab" style="display: none;">
+                <h2>Criar Conta</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Nome</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Senha</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirmar Senha</label>
+                        <input type="password" id="registerConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="button primary">Registrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -86,9 +397,96 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
         let allRooms = [];
         let ocupacaoOrder = 'menor';
+        let currentUser = null;
+        let userFavorites = [];
+        let showOnlyFavorites = false;
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                currentUser = user;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.querySelector('.user-profile').style.display = 'flex';
+                document.getElementById('userInitial').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
+                
+                // Load user favorites
+                loadUserFavorites();
+            } else {
+                // User is signed out
+                currentUser = null;
+                document.getElementById('loginBtn').style.display = 'block';
+                document.querySelector('.user-profile').style.display = 'none';
+                userFavorites = [];
+                showOnlyFavorites = false;
+                document.getElementById('favoritesFilterBtn').classList.remove('active');
+                renderRooms(getCurrentFilter());
+            }
+        });
+
+        // Load user favorites
+        async function loadUserFavorites() {
+            if (!currentUser) return;
+            
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (userDoc.exists() && userDoc.data().favorites) {
+                    userFavorites = userDoc.data().favorites;
+                } else {
+                    // Create user document if it doesn't exist
+                    await setDoc(userDocRef, { 
+                        email: currentUser.email,
+                        displayName: currentUser.displayName || '',
+                        favorites: []
+                    });
+                    userFavorites = [];
+                }
+                
+                // Re-render rooms to show favorites
+                renderRooms(getCurrentFilter());
+            } catch (error) {
+                console.error("Error loading favorites:", error);
+            }
+        }
+
+        // Toggle favorite
+        async function toggleFavorite(roomId) {
+            if (!currentUser) {
+                // Show login modal if user is not logged in
+                document.getElementById('loginModal').style.display = 'block';
+                return;
+            }
+            
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                
+                if (userFavorites.includes(roomId)) {
+                    // Remove from favorites
+                    await updateDoc(userDocRef, {
+                        favorites: arrayRemove(roomId)
+                    });
+                    userFavorites = userFavorites.filter(id => id !== roomId);
+                } else {
+                    // Add to favorites
+                    await updateDoc(userDocRef, {
+                        favorites: arrayUnion(roomId)
+                    });
+                    userFavorites.push(roomId);
+                }
+                
+                // Re-render rooms to update favorite icons
+                renderRooms(getCurrentFilter());
+            } catch (error) {
+                console.error("Error updating favorites:", error);
+            }
+        }
 
         async function getNames() 
         {
@@ -97,6 +495,8 @@
                 allRooms = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
+                    // Add document ID to the data
+                    data.id = doc.id;
                     allRooms.push(data);
                 });
                 renderRooms('all');
@@ -108,38 +508,52 @@
         }
 
         const ocupacaoBtn = document.getElementById('ocupacaoBtn');
-        const ocupacaoArrow = document.getElementById('ocupacaoArrow');
+        const ocupacaoIcon = document.getElementById('ocupacaoIcon');
         ocupacaoBtn.addEventListener('click', function() {
             ocupacaoOrder = ocupacaoOrder === 'menor' ? 'maior' : 'menor';
             if (ocupacaoOrder === 'menor') {
-                ocupacaoArrow.style.transform = 'rotate(0deg)';
-                ocupacaoArrow.alt = 'Seta para cima';
+                ocupacaoIcon.className = 'fas fa-sort-amount-down';
             } else {
-                ocupacaoArrow.style.transform = 'rotate(180deg)';
-                ocupacaoArrow.alt = 'Seta para baixo';
+                ocupacaoIcon.className = 'fas fa-sort-amount-up';
             }
             renderRooms(getCurrentFilter());
         });
 
-        function getCurrentFilter() {
-            const activeTab = document.querySelector('.filter-group .tab.active');
-            return activeTab ? activeTab.getAttribute('data-filter') : 'all';
-        }
+        // Favorites filter button
+        document.getElementById('favoritesFilterBtn').addEventListener('click', function() {
+            if (!currentUser) {
+                // Show login modal if user is not logged in
+                document.getElementById('loginModal').style.display = 'block';
+                return;
+            }
+            
+            this.classList.toggle('active');
+            showOnlyFavorites = this.classList.contains('active');
+            renderRooms(getCurrentFilter());
+        });
 
-        function setOcupacaoBtnActive() {
-            document.querySelectorAll('.tab.ocupacao-btn').forEach(btn => btn.classList.remove('active'));
-            ocupacaoBtn.classList.add('active');
+        function getCurrentFilter() {
+            const activeTab = document.querySelector('.filter-group .tab.active:not(.search-tab)');
+            return activeTab ? activeTab.getAttribute('data-filter') : 'all';
         }
 
         function renderRooms(filterType) {
             const studyRooms = document.getElementById('study-rooms');
             studyRooms.innerHTML = '';
+            
+            // Apply filters
             let filteredRooms = allRooms;
             if (filterType === 'library') {
                 filteredRooms = allRooms.filter(room => room.type === 'library');
             } else if (filterType === 'study') {
                 filteredRooms = allRooms.filter(room => room.type === 'study');
             }
+            
+            // Filter by favorites if needed
+            if (showOnlyFavorites) {
+                filteredRooms = filteredRooms.filter(room => userFavorites.includes(room.id));
+            }
+            
             // Sort by ocupacao
             filteredRooms = filteredRooms.slice(); // clone array
             filteredRooms.sort((a, b) => {
@@ -151,6 +565,18 @@
                     return aOcc - bOcc;
                 }
             });
+            
+            // Check if no rooms match the filters
+            if (filteredRooms.length === 0) {
+                studyRooms.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <p>Nenhuma sala encontrada com os filtros selecionados.</p>
+                    </div>
+                `;
+                return;
+            }
+            
             filteredRooms.forEach((data, idx) => {
                 const name = data.name || 'Sala';
                 const bloco = data.building || '';
@@ -170,11 +596,20 @@
                 else if (ruido >= 50) { ruidoClass = 'medium'; ruidoLabel = 'Médio'; }
                 else if (ruido >= 30) { ruidoClass = 'low'; ruidoLabel = 'Baixo'; }
                 else if (ruido < 30) { ruidoClass = 'very-low'; ruidoLabel = 'Muito Baixo'; }
+                
+                // Check if room is in favorites
+                const isFavorite = userFavorites.includes(data.id);
+                
                 const card = document.createElement('div');
                 card.className = 'room-card';
                 card.innerHTML = `
                     <div class="room-header">
-                        <h3 class="room-name" style="color:var(--color-primary)">${name}</h3>
+                        <div class="room-title">
+                            <h3 class="room-name" style="color:var(--color-primary)">${name}</h3>
+                            <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${data.id}">
+                                <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
+                            </button>
+                        </div>
                         <p>${bloco}</p>
                     </div>
                     <div class="room-indicators">
@@ -189,25 +624,57 @@
                         ${temperatura !== null ? `
                         <div class="indicator">
                             <span class="indicator-label">Temperatura:</span>
-                            <span class="badge">${temperatura}°C</span>
+                            <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(temperatura)}">
+                                <i class="fas fa-thermometer-half"></i> ${temperatura}°C
+                            </span>
                         </div>` : ''}
                         ${ruido !== null ? `
                         <div class="indicator">
                             <span class="indicator-label">Nível de Ruído:</span>
-                            <span class="badge noise ${ruidoClass}">${ruidoLabel}</span>
+                            <span class="badge noise ${ruidoClass}">
+                                <i class="fas ${getRuidoIcon(ruido)}"></i> ${ruidoLabel}
+                            </span>
                         </div>` : ''}
                     </div>
                     <div class="room-actions">
-                        <button class="button secondary detalhes-btn">Detalhes</button>
-                        <button class="button primary">Reservar</button>
+                        <button class="button secondary detalhes-btn">
+                            <i class="fas fa-info-circle"></i> Detalhes
+                        </button>
+                        <a href="ficheiros_html/mapa.html?sala=${encodeURIComponent(name)}&id=${data.id}" class="button primary">
+                            <i class="fas fa-map-marker-alt"></i> Ver no Mapa
+                        </a>
                     </div>
                 `;
+                
                 // Add click event to Detalhes button for split view
                 card.querySelector('.detalhes-btn').addEventListener('click', function(e) {
                     showSplitView(data);
                 });
+                
+                // Add click event to favorite button
+                card.querySelector('.favorite-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const roomId = this.getAttribute('data-room-id');
+                    toggleFavorite(roomId);
+                });
+                
                 studyRooms.appendChild(card);
             });
+        }
+
+        // Helper functions
+        function getTemperatureColor(temp) {
+            if (temp < 18) return '#3b82f6'; // cold
+            if (temp < 22) return '#60a5fa'; // cool
+            if (temp < 25) return '#22c55e'; // comfortable
+            if (temp < 28) return '#f59e0b'; // warm
+            return '#ef4444'; // hot
+        }
+        
+        function getRuidoIcon(ruido) {
+            if (ruido >= 70) return 'fa-volume-up';
+            if (ruido >= 50) return 'fa-volume-down';
+            return 'fa-volume-off';
         }
 
         // Split view logic
@@ -216,12 +683,23 @@
             document.getElementById('filterTabs').style.display = 'none';
             const splitView = document.getElementById('split-view');
             splitView.style.display = 'flex';
+            
+            // Check if room is in favorites
+            const isFavorite = userFavorites.includes(roomData.id);
+            
             splitView.innerHTML = `
                 <div class="split-card">
-                    <button class="button secondary voltar-btn" style="margin-bottom:1rem;">Voltar</button>
+                    <button class="button secondary voltar-btn" style="margin-bottom:1rem;">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </button>
                     <div class="room-card">
                         <div class="room-header">
-                            <h3>${roomData.name || 'Sala'}</h3>
+                            <div class="room-title">
+                                <h3 class="room-name" style="color:var(--color-primary)">${roomData.name || 'Sala'}</h3>
+                                <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${roomData.id}">
+                                    <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
+                                </button>
+                            </div>
                             <p>${roomData.building || ''}</p>
                         </div>
                         <div class="room-indicators">
@@ -234,12 +712,24 @@
                             </div>` : ''}
                             ${roomData.temperature !== undefined ? `<div class="indicator">
                                 <span class="indicator-label">Temperatura:</span>
-                                <span class="badge">${roomData.temperature}°C</span>
+                                <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(roomData.temperature)}">
+                                    <i class="fas fa-thermometer-half"></i> ${roomData.temperature}°C
+                                </span>
                             </div>` : ''}
                             ${roomData.noise_lvl !== undefined ? `<div class="indicator">
                                 <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise ${getRuidoClass(roomData.noise_lvl)}">${getRuidoLabel(roomData.noise_lvl)}</span>
+                                <span class="badge noise ${getRuidoClass(roomData.noise_lvl)}">
+                                    <i class="fas ${getRuidoIcon(roomData.noise_lvl)}"></i> ${getRuidoLabel(roomData.noise_lvl)}
+                                </span>
                             </div>` : ''}
+                        </div>
+                        <div class="room-details">
+                            <h4>Detalhes da Sala</h4>
+                            <ul>
+                                <li><i class="fas fa-users"></i> Capacidade: ${roomData.maxOcc || 'N/A'} pessoas</li>
+                                <li><i class="fas fa-plug"></i> Tomadas: ${roomData.outlets ? 'Disponíveis' : 'Não disponíveis'}</li>
+                                <li><i class="fas fa-wifi"></i> Wi-Fi: ${roomData.wifi ? 'Disponível' : 'Não disponível'}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -247,12 +737,27 @@
                     <div id="split-map"></div>
                 </div>
             `;
+            
             // Add back button event
             splitView.querySelector('.voltar-btn').addEventListener('click', function() {
                 splitView.style.display = 'none';
                 document.querySelector('.results .study-rooms').style.display = '';
                 document.getElementById('filterTabs').style.display = '';
             });
+            
+            // Add favorite button event
+            splitView.querySelector('.favorite-btn').addEventListener('click', function() {
+                const roomId = this.getAttribute('data-room-id');
+                toggleFavorite(roomId);
+                this.classList.toggle('active');
+                const icon = this.querySelector('i');
+                if (this.classList.contains('active')) {
+                    icon.className = 'fas fa-star';
+                } else {
+                    icon.className = 'far fa-star';
+                }
+            });
+            
             // Render map for this room
             setTimeout(() => renderSplitMap(roomData), 0);
         }
@@ -262,18 +767,21 @@
             if (ocupacao >= 50) return '#eab308';
             return '#22c55e';
         }
+        
         function getRuidoClass(ruido) {
             if (ruido >= 70) return 'high';
             if (ruido >= 50) return 'medium';
             if (ruido >= 30) return 'low';
             return 'very-low';
         }
+        
         function getRuidoLabel(ruido) {
             if (ruido >= 70) return 'Alto';
             if (ruido >= 50) return 'Médio';
             if (ruido >= 30) return 'Baixo';
             return 'Muito Baixo';
         }
+        
         function renderSplitMap(roomData) {
             const mapDiv = document.getElementById('split-map');
             mapDiv.innerHTML = '';
@@ -294,28 +802,27 @@
                 const marker = L.marker([lat, lng], { icon: markerIcon, title: roomData.name || 'Sala' }).addTo(map);
                 marker.bindPopup(`<b>${roomData.name || 'Sala'}</b><br>${roomData.building || ''}`).openPopup();
             } else {
-                mapDiv.innerHTML = '<div style="padding:2rem;text-align:center;">Localização não disponível para esta sala.</div>';
+                mapDiv.innerHTML = '<div style="padding:2rem;text-align:center;"><i class="fas fa-map-marked-alt fa-3x" style="color:#ccc;margin-bottom:1rem;"></i><p>Localização não disponível para esta sala.</p></div>';
             }
         }
 
+        // Search functionality
         document.addEventListener('DOMContentLoaded', function() {
             const searchTab = document.querySelector('.search-tab');
             const searchInput = document.getElementById('search-input');
-            const searchLabel = searchTab.querySelector('.search-label');
             const searchIconBtn = document.getElementById('search-icon-btn');
+            
             function expandSearch() {
-                searchInput.style.width = '180px';
-                searchInput.style.opacity = '1';
-                searchInput.style.padding = '0.5em 0.7em';
+                searchTab.classList.add('expanded');
                 searchInput.focus();
             }
+            
             function collapseSearch() {
                 if (!searchInput.value) {
-                    searchInput.style.width = '0';
-                    searchInput.style.opacity = '0';
-                    searchInput.style.padding = '0';
+                    searchTab.classList.remove('expanded');
                 }
             }
+            
             searchTab.addEventListener('mouseenter', expandSearch);
             searchTab.addEventListener('mouseleave', collapseSearch);
             searchIconBtn.addEventListener('focus', expandSearch);
@@ -324,8 +831,335 @@
             searchTab.addEventListener('focusin', expandSearch);
             searchTab.addEventListener('focusout', collapseSearch);
             searchIconBtn.addEventListener('click', expandSearch);
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm.length > 0) {
+                    const filteredRooms = allRooms.filter(room => {
+                        const name = (room.name || '').toLowerCase();
+                        const building = (room.building || '').toLowerCase();
+                        return name.includes(searchTerm) || building.includes(searchTerm);
+                    });
+                    
+                    // Clear active filter tabs
+                    document.querySelectorAll('.filter-group .tab').forEach(tab => {
+                        if (!tab.classList.contains('search-tab')) {
+                            tab.classList.remove('active');
+                        }
+                    });
+                    
+                    // Render filtered rooms
+                    renderSearchResults(filteredRooms);
+                } else {
+                    // Reset to default filter
+                    document.querySelector('.filter-group .tab[data-filter="all"]').classList.add('active');
+                    renderRooms('all');
+                }
+            });
         });
 
+        function renderSearchResults(rooms) {
+            const studyRooms = document.getElementById('study-rooms');
+            studyRooms.innerHTML = '';
+            
+            // Apply favorites filter if active
+            if (showOnlyFavorites) {
+                rooms = rooms.filter(room => userFavorites.includes(room.id));
+            }
+            
+            // Check if no rooms match the search
+            if (rooms.length === 0) {
+                studyRooms.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <p>Nenhuma sala encontrada com os termos pesquisados.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by ocupacao
+            rooms.sort((a, b) => {
+                const aOcc = (a.curOcc && a.maxOcc) ? a.curOcc / a.maxOcc : 0;
+                const bOcc = (b.curOcc && b.maxOcc) ? b.curOcc / b.maxOcc : 0;
+                if (ocupacaoOrder === 'maior') {
+                    return bOcc - aOcc;
+                } else {
+                    return aOcc - bOcc;
+                }
+            });
+            
+            // Render rooms
+            rooms.forEach((data) => {
+                // Same rendering logic as in renderRooms function
+                const name = data.name || 'Sala';
+                const bloco = data.building || '';
+                const curOcc = data.curOcc || 0;
+                const maxOcc = data.maxOcc || 0;
+                const ocupacao = (data.curOcc !== 0 && data.maxOcc !== 0)
+                    ? Math.round((curOcc / maxOcc) * 100)
+                    : null;
+                let ocupacaoColor = '#22c55e';
+                if (ocupacao >= 75) ocupacaoColor = '#ef4444';
+                else if (ocupacao >= 50) ocupacaoColor = '#eab308';
+                const temperatura = data.temperature !== undefined ? data.temperature : null;
+                const ruido = data.noise_lvl !== undefined ? data.noise_lvl : null;
+                let ruidoClass = '';
+                let ruidoLabel = '';
+                if (ruido >= 70) { ruidoClass = 'high'; ruidoLabel = 'Alto'; }
+                else if (ruido >= 50) { ruidoClass = 'medium'; ruidoLabel = 'Médio'; }
+                else if (ruido >= 30) { ruidoClass = 'low'; ruidoLabel = 'Baixo'; }
+                else if (ruido < 30) { ruidoClass = 'very-low'; ruidoLabel = 'Muito Baixo'; }
+                
+                // Check if room is in favorites
+                const isFavorite = userFavorites.includes(data.id);
+                
+                const card = document.createElement('div');
+                card.className = 'room-card';
+                card.innerHTML = `
+                    <div class="room-header">
+                        <div class="room-title">
+                            <h3 class="room-name" style="color:var(--color-primary)">${name}</h3>
+                            <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${data.id}">
+                                <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
+                            </button>
+                        </div>
+                        <p>${bloco}</p>
+                    </div>
+                    <div class="room-indicators">
+                        ${ocupacao !== null ? `
+                        <div class="indicator">
+                            <span class="indicator-label">Ocupação:</span>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${ocupacaoColor};"></div>
+                            </div>
+                            <span class="indicator-value">${ocupacao}%</span>
+                        </div>` : ''}
+                        ${temperatura !== null ? `
+                        <div class="indicator">
+                            <span class="indicator-label">Temperatura:</span>
+                            <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(temperatura)}">
+                                <i class="fas fa-thermometer-half"></i> ${temperatura}°C
+                            </span>
+                        </div>` : ''}
+                        ${ruido !== null ? `
+                        <div class="indicator">
+                            <span class="indicator-label">Nível de Ruído:</span>
+                            <span class="badge noise ${ruidoClass}">
+                                <i class="fas ${getRuidoIcon(ruido)}"></i> ${ruidoLabel}
+                            </span>
+                        </div>` : ''}
+                    </div>
+                    <div class="room-actions">
+                        <button class="button secondary detalhes-btn">
+                            <i class="fas fa-info-circle"></i> Detalhes
+                        </button>
+                        <a href="ficheiros_html/mapa.html?sala=${encodeURIComponent(name)}&id=${data.id}" class="button primary">
+                            <i class="fas fa-map-marker-alt"></i> Ver no Mapa
+                        </a>
+                    </div>
+                `;
+                
+                // Add click event to Detalhes button for split view
+                card.querySelector('.detalhes-btn').addEventListener('click', function(e) {
+                    showSplitView(data);
+                });
+                
+                // Add click event to favorite button
+                card.querySelector('.favorite-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const roomId = this.getAttribute('data-room-id');
+                    toggleFavorite(roomId);
+                });
+                
+                studyRooms.appendChild(card);
+            });
+        }
+
+        // Filter tabs functionality
+        document.querySelectorAll('.filter-group .tab:not(.search-tab)').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Clear search input
+                document.getElementById('search-input').value = '';
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.filter-group .tab:not(.search-tab)').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Render rooms with selected filter
+                renderRooms(this.getAttribute('data-filter'));
+            });
+        });
+
+        // Login modal functionality
+        const loginModal = document.getElementById('loginModal');
+        const loginBtn = document.getElementById('loginBtn');
+        const closeBtn = document.querySelector('.close');
+        
+        loginBtn.addEventListener('click', function() {
+            loginModal.style.display = 'block';
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            loginModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target === loginModal) {
+                loginModal.style.display = 'none';
+            }
+        });
+        
+        // Modal tabs
+        document.querySelectorAll('.modal-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.modal-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab content
+                document.querySelectorAll('.modal-body').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Show selected tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}Tab`).style.display = 'block';
+            });
+        });
+        
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                loginModal.style.display = 'none';
+                showNotification('Login realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error signing in:", error);
+                showNotification('Erro ao fazer login. Verifique suas credenciais.', 'error');
+            }
+        });
+        
+        // Register form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showNotification('As senhas não coincidem.', 'error');
+                return;
+            }
+            
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Create user document
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    email: email,
+                    displayName: name,
+                    favorites: []
+                });
+                
+                loginModal.style.display = 'none';
+                showNotification('Conta criada com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error registering:", error);
+                showNotification('Erro ao criar conta. Tente novamente.', 'error');
+            }
+        });
+        
+        // Google sign in
+        document.querySelector('.google-btn').addEventListener('click', async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                
+                // Check if user document exists
+                const userDocRef = doc(db, "users", result.user.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (!userDoc.exists()) {
+                    // Create user document if it doesn't exist
+                    await setDoc(userDocRef, {
+                        email: result.user.email,
+                        displayName: result.user.displayName || '',
+                        favorites: []
+                    });
+                }
+                
+                loginModal.style.display = 'none';
+                showNotification('Login com Google realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error signing in with Google:", error);
+                showNotification('Erro ao fazer login com Google.', 'error');
+            }
+        });
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                await signOut(auth);
+                showNotification('Logout realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error signing out:", error);
+                showNotification('Erro ao fazer logout.', 'error');
+            }
+        });
+        
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close">&times;</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+            
+            // Close button
+            notification.querySelector('.notification-close').addEventListener('click', function() {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+        }
+
+        // Initialize
         getNames();
     </script>
     <style>
