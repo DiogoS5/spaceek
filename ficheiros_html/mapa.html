@@ -98,8 +98,7 @@
           <nav class="menu">
             <a href="../index.html">Início</a>
             <a class="active">Mapa</a>
-            <a href="sobre.html">Sobre</a>
-            <a href="contacto.html">Contacto</a>
+            <a href="https://group4pic.wixstudio.com/spaceseek">Sobre</a>
           </nav>
           <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
         </div>
@@ -187,7 +186,7 @@
         // Função para inicializar o mapa com dados do Firebase
         async function initMapWithFirebase() {
             // Coordenadas do IST
-            const istCoordinates = [38.7369, -9.1366];
+            const istCoordinates = [38.73667, -9.14052];
             const map = L.map('map').setView(istCoordinates, 17);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -225,9 +224,27 @@
                 // Se location é um GeoPoint do Firestore
                 if (room.location && typeof room.location.latitude === 'number' && typeof room.location.longitude === 'number') {
                     anyLocation = true;
+                    // Determina o nível de ruído e cor
+                    let ruidoLabel = 'Desconhecido';
+                    let ruidoColor = '#d1d5db'; // cinza
+                    if (typeof room.noise_lvl === 'number') {
+                        if (room.noise_lvl < 50) {
+                            ruidoLabel = 'Baixo';
+                            ruidoColor = '#22c55e'; // verde
+                            if(room.noise_lvl < 30) 
+                                ruidoLabel = 'Muito Baixo';
+                        } else if (room.noise_lvl < 70) {
+                            ruidoLabel = 'Médio';
+                            ruidoColor = '#eab308'; // amarelo
+                        } else {
+                            ruidoLabel = 'Alto';
+                            ruidoColor = '#ef4444'; // vermelho
+                        }
+                    }
                     // Adiciona à lista de localizações
                     const locDiv = document.createElement('div');
-                    locDiv.textContent = `${room.name || room.nome || 'Sala'}: (${room.location.latitude}, ${room.location.longitude})`;
+                    locDiv.innerHTML = `<strong>${room.name || room.nome || 'Sala'}</strong>: (${room.location.latitude}, ${room.location.longitude})<br>
+                        Ruído: <span style="color: white; background: ${ruidoColor}; padding: 2px 8px; border-radius: 8px; font-weight: bold;">${ruidoLabel}</span>`;
                     locationsList.appendChild(locDiv);
 
                     const marker = L.marker([room.location.latitude, room.location.longitude], {
@@ -240,7 +257,7 @@
                             <p>${room.building || room.local || ''}</p>
                             <p>Ocupação: ${ocupacao}%</p>
                             ${room.temperature !== undefined ? `<p>Temperatura: ${room.temperature}°C</p>` : ''}
-                            ${room.noise_lvl !== undefined ? `<p>Ruído: ${room.noise_lvl}</p>` : ''}
+                            <p>Ruído: <span style="color: white; background: ${ruidoColor}; padding: 2px 8px; border-radius: 8px; font-weight: bold;">${ruidoLabel}</span></p>
                         </div>
                     `;
                     marker.bindPopup(popupContent);
@@ -261,3 +278,4 @@
     </script>
 </body>
 </html>
+``` 
