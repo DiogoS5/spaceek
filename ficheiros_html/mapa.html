@@ -86,6 +86,35 @@
             font-weight: bold;
             border: 2px solid white;
         }
+
+        .hero-flex {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .hero-title-search {
+            flex: 1 1 300px;
+            min-width: 250px;
+        }
+        .search-container {
+            flex: 0 0 350px;
+            max-width: 350px;
+            min-width: 220px;
+            margin-bottom: 0;
+        }
+        @media (max-width: 900px) {
+            .hero-flex {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.5rem;
+            }
+            .search-container {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -105,24 +134,24 @@
     </header>
     
     <main>
-        <section class="hero">
-            <div class="container">
-                <h2>Mapa de Salas de Estudo</h2>
-                <p>Visualize a localização das salas de estudo no Instituto Superior Técnico - Alameda.</p>
-                
-                <div class="search-container">
-                    <div class="search-box">
-                        <input type="search" id="map-search" placeholder="Pesquisar no mapa...">
-                        <button type="submit" class="search-button" id="map-search-button">Buscar</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
         <section class="results">
             <div class="container">
                 <div id="map-container">
                     <div id="map"></div>
+                </div>
+
+                <div class="filter-tabs" id="filterTabs">
+                    <div class="filter-group">
+                        <div class="tab search-tab" tabindex="0">
+                            <form style="display:flex;align-items:center;gap:0;" onsubmit="return false;">
+                                <button type="button" class="search-icon-btn" id="map-search-icon-btn" aria-label="Pesquisa" title="Pesquisa" tabindex="-1" style="background:none;border:none;padding:0 0.2em;cursor:pointer;display:flex;align-items:center;">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="7" stroke="#000" stroke-width="2"/><path d="M15 15L18 18" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
+                                    <span class="search-label" style="margin-left:0.5em;opacity:0;transition:opacity 0.2s;font-weight:500;white-space:nowrap;">Pesquisa</span>
+                                </button>
+                                <input type="search" id="map-search" placeholder="Pesquisar no mapa..." style="border:none;background:transparent;width:0;transition:width 0.3s,opacity 0.3s;padding:0;opacity:0;outline:none;font-size:0.95em;" autocomplete="off">
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="map-legend">
@@ -276,6 +305,36 @@
             initMapWithFirebase();
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchTab = document.querySelector('.search-tab');
+            const searchInput = document.getElementById('map-search');
+            const searchLabel = searchTab.querySelector('.search-label');
+            const searchIconBtn = document.getElementById('map-search-icon-btn');
+            function expandSearch() {
+                searchInput.style.width = '180px';
+                searchInput.style.opacity = '1';
+                searchInput.style.padding = '0.5em 0.7em';
+                searchLabel.style.opacity = '1';
+                searchInput.focus();
+            }
+            function collapseSearch() {
+                if (!searchInput.value) {
+                    searchInput.style.width = '0';
+                    searchInput.style.opacity = '0';
+                    searchInput.style.padding = '0';
+                    searchLabel.style.opacity = '0';
+                }
+            }
+            searchTab.addEventListener('mouseenter', expandSearch);
+            searchTab.addEventListener('mouseleave', collapseSearch);
+            searchIconBtn.addEventListener('focus', expandSearch);
+            searchInput.addEventListener('focus', expandSearch);
+            searchInput.addEventListener('blur', collapseSearch);
+            searchTab.addEventListener('focusin', expandSearch);
+            searchTab.addEventListener('focusout', collapseSearch);
+            searchIconBtn.addEventListener('click', expandSearch);
+        });
+    </script>
 </body>
 </html>
-``` 

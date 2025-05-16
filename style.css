@@ -501,6 +501,16 @@ header {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
+    align-items: start;
+}
+
+.study-rooms::after {
+    content: '';
+    flex: auto;
+    min-width: 300px;
+    height: 0;
+    visibility: hidden;
+    grid-column: 1 / -1;
 }
 
 .room-card {
@@ -510,6 +520,9 @@ header {
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .room-card:hover {
@@ -648,6 +661,28 @@ header {
     display: flex;
     justify-content: space-between;
     border-top: 1px solid var(--color-border);
+}
+
+.room-dropdown-details {
+    display: none;
+    padding: 1rem 1.25rem 1rem 1.25rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-secondary);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    margin-top: -1px;
+    height: auto;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.room-dropdown-details.open {
+    display: block;
+    animation: dropdownFadeIn 0.2s;
+}
+
+@keyframes dropdownFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .button {
