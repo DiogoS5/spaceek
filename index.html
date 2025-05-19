@@ -52,6 +52,7 @@
             font-weight: 700;
             background: linear-gradient(90deg, #60a5fa, #3b82f6);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: 0.5px;
         }
@@ -250,6 +251,23 @@
                 display: block; /* Aparece o botão hamburger */
             }
         }
+
+        /* Footer styles */
+        .footer-spaceek {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f8fafc;
+            padding: 1.2rem 0 1rem 0;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.07);
+            margin-top: 2rem;
+        }
+        .footer-spaceek .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
     </style>
 </head>
 <body>
@@ -315,14 +333,10 @@
         </section>
     </main>
 
-    <footer>
-        <div class="container">
-            <p>© 2024 Spaceek. Todos os direitos reservados.</p>
-            <nav>
-                <a href="#">Termos de Serviço</a>
-                <a href="#">Privacidade</a>
-            </nav>
-        </div>
+    <footer class="footer-spaceek">
+      <div class="container">
+        <span>© 2025 Spaceek. Todos os direitos reservados.</span>
+      </div>
     </footer>
 
     <!-- Modal de Login -->
@@ -355,19 +369,19 @@
                 <form id="registerForm">
                     <div class="form-group">
                         <label for="registerName">Nome</label>
-                        <input type="text" id="registerName" required>
+                        <input type="text" id="registerName" name="registerName" required>
                     </div>
                     <div class="form-group">
                         <label for="registerEmail">Email</label>
-                        <input type="email" id="registerEmail" required>
+                        <input type="email" id="registerEmail" name="registerEmail" required>
                     </div>
                     <div class="form-group">
                         <label for="registerPassword">Senha</label>
-                        <input type="password" id="registerPassword" required>
+                        <input type="password" id="registerPassword" name="registerPassword" required>
                     </div>
                     <div class="form-group">
                         <label for="registerConfirmPassword">Confirmar Senha</label>
-                        <input type="password" id="registerConfirmPassword" required>
+                        <input type="password" id="registerConfirmPassword" name="registerConfirmPassword" required>
                     </div>
                     <button type="submit" class="button primary">Registrar</button>
                 </form>
@@ -381,7 +395,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -1040,44 +1054,74 @@
         // Login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                loginModal.style.display = 'none';
-                showNotification('Login realizado com sucesso!', 'success');
+                // Search Firestore users collection for matching email and password
+                const usersCol = collection(db, "users");
+                const usersSnap = await getDocs(usersCol);
+                let foundUser = null;
+                usersSnap.forEach(docu => {
+                    const data = docu.data();
+                    if (data.email && data.email.toLowerCase() === email.toLowerCase() && data.password === password) {
+                        foundUser = { id: docu.id, ...data };
+                    }
+                });
+                if (foundUser) {
+                    // Simulate login: set currentUser and update UI
+                    currentUser = foundUser;
+                    document.getElementById('loginBtn').style.display = 'none';
+                    document.querySelector('.user-profile').style.display = 'flex';
+                    document.getElementById('userInitial').textContent = foundUser.displayName ? foundUser.displayName.charAt(0).toUpperCase() : foundUser.email.charAt(0).toUpperCase();
+                    userFavorites = foundUser.favorites || [];
+                    loginModal.style.display = 'none';
+                    showNotification('Login realizado com sucesso!', 'success');
+                    renderRooms(getCurrentFilter());
+                } else {
+                    showNotification('Email ou senha incorretos.', 'error');
+                }
             } catch (error) {
-                console.error("Error signing in:", error);
-                showNotification('Erro ao fazer login. Verifique suas credenciais.', 'error');
+                console.error("Error logging in:", error);
+                showNotification('Erro ao fazer login. Tente novamente.', 'error');
             }
         });
         
         // Register form submission
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
             if (password !== confirmPassword) {
                 showNotification('As senhas não coincidem.', 'error');
                 return;
             }
-            
             try {
+                // Check if email already exists in Firestore
+                const usersCol = collection(db, "users");
+                const usersSnap = await getDocs(usersCol);
+                let emailExists = false;
+                usersSnap.forEach(docu => {
+                    if (docu.data().email && docu.data().email.toLowerCase() === email.toLowerCase()) {
+                        emailExists = true;
+                    }
+                });
+                if (emailExists) {
+                    showNotification('Este email já está registado.', 'error');
+                    return;
+                }
+                // Register user in Firebase Auth
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Create user document
+                // Set displayName for the user (modular)
+                await updateProfile(userCredential.user, { displayName: name });
+                // Create user document in Firestore with UID as ID
                 await setDoc(doc(db, "users", userCredential.user.uid), {
                     email: email,
                     displayName: name,
+                    password: password,
                     favorites: []
                 });
-                
                 loginModal.style.display = 'none';
                 showNotification('Conta criada com sucesso!', 'success');
             } catch (error) {
@@ -1090,20 +1134,18 @@
         document.querySelector('.google-btn').addEventListener('click', async function() {
             try {
                 const result = await signInWithPopup(auth, provider);
-                
                 // Check if user document exists
                 const userDocRef = doc(db, "users", result.user.uid);
                 const userDoc = await getDoc(userDocRef);
-                
                 if (!userDoc.exists()) {
                     // Create user document if it doesn't exist
                     await setDoc(userDocRef, {
                         email: result.user.email,
                         displayName: result.user.displayName || '',
+                        password: '',
                         favorites: []
                     });
                 }
-                
                 loginModal.style.display = 'none';
                 showNotification('Login com Google realizado com sucesso!', 'success');
             } catch (error) {
