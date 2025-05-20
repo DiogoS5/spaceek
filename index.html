@@ -7,268 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Novo estilo para o header */
-        header {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            padding: 0.5rem 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            width: 100%;
-        }
-        
-        .container-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: auto;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        
-        .logo-area {
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo {
-            width: 40px;
-            height: 40px;
-            margin-right: 0.75rem;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-        }
-        
-        .logo-area:hover .logo {
-            transform: scale(1.05);
-        }
-        
-        .nome-empresa {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #60a5fa, #3b82f6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Novo estilo para o menu */
-        .menu {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .menu a {
-            color: #94a3b8;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            transition: all 0.2s ease;
-            position: relative;
-            font-size: 0.95rem;
-        }
-        
-        .menu a:hover {
-            color: #f8fafc;
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
-        }
-        
-        .menu a.active {
-            color: #f8fafc;
-            background-color: rgba(59, 130, 246, 0.2);
-        }
-        
-        .menu a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 2px;
-            background-color: #3b82f6;
-            border-radius: 2px;
-        }
-        
-        .menu a.login-btn {
-            background: linear-gradient(90deg, #3b82f6, #2563eb);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            margin-left: 0.5rem;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
-        }
-        
-        .menu a.login-btn:hover {
-            background: linear-gradient(90deg, #2563eb, #1d4ed8);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
-        }
-        
-        /* User profile */
-        .user-profile {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .user-avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: 120%;
-            right: 0;
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 0.5rem 0;
-            min-width: 180px;
-            display: none;
-            z-index: 100;
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            animation: fadeInDown 0.2s ease;
-        }
-        
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .user-avatar:hover + .user-dropdown,
-        .user-dropdown:hover {
-            display: block;
-        }
-        
-        .user-dropdown a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: #334155;
-            transition: background-color 0.2s;
-            font-size: 0.9rem;
-        }
-        
-        .user-dropdown a:hover {
-            background-color: #f1f5f9;
-            color: #2563eb;
-        }
-        
-        .user-dropdown a#favoritesLink {
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .user-dropdown a#logoutBtn {
-            color: #ef4444;
-        }
-        
-        .user-dropdown a#logoutBtn:hover {
-            background-color: #fef2f2;
-        }
-        
-        /*Estilo para o botão hamburger*/
-        .menu-hamburger {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #94a3b8;
-            transition: color 0.2s ease;
-        }
-        
-        .menu-hamburger:hover {
-            color: #f8fafc;
-        }
-        
-        /* Estilo do menu quando foi clicado*/
-        .menu.active {
-            display: flex;
-            flex-direction: column;
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background-color: #1e293b;
-            padding: 1rem;
-            width: 200px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            border-radius: 0 0 0.5rem 0.5rem;
-            animation: fadeIn 0.2s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .menu.active a {
-            margin-bottom: 0.5rem;
-            width: 100%;
-        }
-        
-        /* Menu responsivo (para telas pequenas) */
-        @media screen and (max-width: 768px) {
-            .menu {
-                display: none;
-                flex-direction: column;
-            }
-        
-            .menu.active {
-                display: flex;
-            }
-        
-            .menu-hamburger {
-                display: block; /* Aparece o botão hamburger */
-            }
-        }
-
-        /* Footer styles */
-        .footer-spaceek {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: #f8fafc;
-            padding: 1.2rem 0 1rem 0;
-            text-align: center;
-            font-size: 1rem;
-            font-weight: 500;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.07);
-            margin-top: 2rem;
-        }
-        .footer-spaceek .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -288,8 +26,8 @@
               <span id="userInitial">A</span>
             </div>
             <div class="user-dropdown">
-              <a href="#" id="favoritesLink"><i class="fas fa-star fa-fw"></i> Meus Favoritos</a>
-              <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt fa-fw"></i> Sair</a>
+              <a href="#" id="favoritesLink">Meus Favoritos</a>
+              <a href="#" id="logoutBtn">Sair</a>
             </div>
           </div>
           <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
@@ -303,9 +41,9 @@
                     <h2>Salas Disponíveis</h2>
                 </div>
                 <p>Encontre a sala ideal para suas necessidades de estudo.</p>
+                <div id="banner"></div>
                 <div class="filter-tabs" id="filterTabs">
                     <div class="filter-group">
-                        <button class="tab active" data-filter="all">Todos</button>
                         <button class="tab" data-filter="library">Bibliotecas</button>
                         <button class="tab" data-filter="study">Salas de Estudo</button>
                         <div class="tab search-tab" tabindex="0">
@@ -333,10 +71,14 @@
         </section>
     </main>
 
-    <footer class="footer-spaceek">
-      <div class="container">
-        <span>© 2025 Spaceek. Todos os direitos reservados.</span>
-      </div>
+    <footer>
+        <div class="container">
+            <p>© 2024 Spaceek. Todos os direitos reservados.</p>
+            <nav>
+                <a href="#">Termos de Serviço</a>
+                <a href="#">Privacidade</a>
+            </nav>
+        </div>
     </footer>
 
     <!-- Modal de Login -->
@@ -369,19 +111,19 @@
                 <form id="registerForm">
                     <div class="form-group">
                         <label for="registerName">Nome</label>
-                        <input type="text" id="registerName" name="registerName" required>
+                        <input type="text" id="registerName" required>
                     </div>
                     <div class="form-group">
                         <label for="registerEmail">Email</label>
-                        <input type="email" id="registerEmail" name="registerEmail" required>
+                        <input type="email" id="registerEmail" required>
                     </div>
                     <div class="form-group">
                         <label for="registerPassword">Senha</label>
-                        <input type="password" id="registerPassword" name="registerPassword" required>
+                        <input type="password" id="registerPassword" required>
                     </div>
                     <div class="form-group">
                         <label for="registerConfirmPassword">Confirmar Senha</label>
-                        <input type="password" id="registerConfirmPassword" name="registerConfirmPassword" required>
+                        <input type="password" id="registerConfirmPassword" required>
                     </div>
                     <button type="submit" class="button primary">Registrar</button>
                 </form>
@@ -395,7 +137,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -815,6 +557,13 @@
                 });
                 const marker = L.marker([lat, lng], { icon: markerIcon, title: roomData.name || 'Sala' }).addTo(map);
                 marker.bindPopup(`<b>${roomData.name || 'Sala'}</b><br>${roomData.building || ''}`).openPopup();
+                
+                const pulseCircle = L.circle([lat, lng], {
+                    color: 'blue',
+                    fillColor: '#blue',
+                    fillOpacity: 0.5,
+                    radius: 200
+                }).addTo(map);
             } else {
                 mapDiv.innerHTML = '<div style="padding:2rem;text-align:center;"><i class="fas fa-map-marked-alt fa-3x" style="color:#ccc;margin-bottom:1rem;"></i><p>Localização não disponível para esta sala.</p></div>';
             }
@@ -1054,74 +803,44 @@
         // Login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            
             try {
-                // Search Firestore users collection for matching email and password
-                const usersCol = collection(db, "users");
-                const usersSnap = await getDocs(usersCol);
-                let foundUser = null;
-                usersSnap.forEach(docu => {
-                    const data = docu.data();
-                    if (data.email && data.email.toLowerCase() === email.toLowerCase() && data.password === password) {
-                        foundUser = { id: docu.id, ...data };
-                    }
-                });
-                if (foundUser) {
-                    // Simulate login: set currentUser and update UI
-                    currentUser = foundUser;
-                    document.getElementById('loginBtn').style.display = 'none';
-                    document.querySelector('.user-profile').style.display = 'flex';
-                    document.getElementById('userInitial').textContent = foundUser.displayName ? foundUser.displayName.charAt(0).toUpperCase() : foundUser.email.charAt(0).toUpperCase();
-                    userFavorites = foundUser.favorites || [];
-                    loginModal.style.display = 'none';
-                    showNotification('Login realizado com sucesso!', 'success');
-                    renderRooms(getCurrentFilter());
-                } else {
-                    showNotification('Email ou senha incorretos.', 'error');
-                }
+                await signInWithEmailAndPassword(auth, email, password);
+                loginModal.style.display = 'none';
+                showNotification('Login realizado com sucesso!', 'success');
             } catch (error) {
-                console.error("Error logging in:", error);
-                showNotification('Erro ao fazer login. Tente novamente.', 'error');
+                console.error("Error signing in:", error);
+                showNotification('Erro ao fazer login. Verifique suas credenciais.', 'error');
             }
         });
         
         // Register form submission
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
             const name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
             if (password !== confirmPassword) {
                 showNotification('As senhas não coincidem.', 'error');
                 return;
             }
+            
             try {
-                // Check if email already exists in Firestore
-                const usersCol = collection(db, "users");
-                const usersSnap = await getDocs(usersCol);
-                let emailExists = false;
-                usersSnap.forEach(docu => {
-                    if (docu.data().email && docu.data().email.toLowerCase() === email.toLowerCase()) {
-                        emailExists = true;
-                    }
-                });
-                if (emailExists) {
-                    showNotification('Este email já está registado.', 'error');
-                    return;
-                }
-                // Register user in Firebase Auth
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                // Set displayName for the user (modular)
-                await updateProfile(userCredential.user, { displayName: name });
-                // Create user document in Firestore with UID as ID
+                
+                // Create user document
                 await setDoc(doc(db, "users", userCredential.user.uid), {
                     email: email,
                     displayName: name,
-                    password: password,
                     favorites: []
                 });
+                
                 loginModal.style.display = 'none';
                 showNotification('Conta criada com sucesso!', 'success');
             } catch (error) {
@@ -1134,18 +853,20 @@
         document.querySelector('.google-btn').addEventListener('click', async function() {
             try {
                 const result = await signInWithPopup(auth, provider);
+                
                 // Check if user document exists
                 const userDocRef = doc(db, "users", result.user.uid);
                 const userDoc = await getDoc(userDocRef);
+                
                 if (!userDoc.exists()) {
                     // Create user document if it doesn't exist
                     await setDoc(userDocRef, {
                         email: result.user.email,
                         displayName: result.user.displayName || '',
-                        password: '',
                         favorites: []
                     });
                 }
+                
                 loginModal.style.display = 'none';
                 showNotification('Login com Google realizado com sucesso!', 'success');
             } catch (error) {
@@ -1203,6 +924,16 @@
 
         // Initialize
         getNames();
+
+        // Banner logic
+        function updateBanner(room) {
+            const banner = document.getElementById('banner');
+            banner.innerHTML = `
+                <strong>${room.name || 'Sala'}</strong> - ${room.building || ''}
+                <br>
+                Ocupação: ... 
+            `;
+        }
     </script>
     <style>
     /* Split view styles */

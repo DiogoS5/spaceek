@@ -1,1878 +1,1527 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mapa de Salas - Spaceek</title>
-  <link rel="stylesheet" href="../style.css">
-  <!-- Adicione o CSS do Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-        crossorigin=""/>
-  <!-- Adicione o CSS do MarkerCluster -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-      /* Novo estilo para o header */
-      header {
-          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-          color: white;
-          padding: 0.5rem 0;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          position: sticky;
-          top: 0;
-          z-index: 1000 !important;
-          width: 100%;
-      }
-      
-      .container-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          height: auto;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 1rem;
-      }
-      
-      .logo-area {
-          display: flex;
-          align-items: center;
-      }
-      
-      .logo {
-          width: 40px;
-          height: 40px;
-          margin-right: 0.75rem;
-          object-fit: contain;
-          transition: transform 0.3s ease;
-      }
-      
-      .logo-area:hover .logo {
-          transform: scale(1.05);
-      }
-      
-      .nome-empresa {
-          font-size: 1.5rem;
-          font-weight: 700;
-          background: linear-gradient(90deg, #60a5fa, #3b82f6);
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          letter-spacing: 0.5px;
-      }
-      
-      /* Novo estilo para o menu */
-      .menu {
-          display: flex;
-          gap: 0.5rem;
-          align-items: center;
-      }
-      
-      .menu a {
-          color: #94a3b8;
-          text-decoration: none;
-          font-weight: 500;
-          padding: 0.5rem 0.75rem;
-          border-radius: 0.5rem;
-          transition: all 0.2s ease;
-          position: relative;
-          font-size: 0.95rem;
-      }
-      
-      .menu a:hover {
-          color: #f8fafc;
-          background-color: rgba(255, 255, 255, 0.1);
-          transform: translateY(-1px);
-      }
-      
-      .menu a.active {
-          color: #f8fafc;
-          background-color: rgba(59, 130, 246, 0.2);
-      }
-      
-      .menu a.active::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 20px;
-          height: 2px;
-          background-color: #3b82f6;
-          border-radius: 2px;
-      }
-      
-      .menu a.login-btn {
-          background: linear-gradient(90deg, #3b82f6, #2563eb);
-          color: white;
-          padding: 0.5rem 1rem;
-          border-radius: 0.5rem;
-          margin-left: 0.5rem;
-          font-weight: 600;
-          box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
-      }
-      
-      .menu a.login-btn:hover {
-          background: linear-gradient(90deg, #2563eb, #1d4ed8);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
-      }
-      
-      /* User profile */
-      .user-profile {
-          position: relative;
-          display: flex;
-          align-items: center;
-      }
-      
-      .user-avatar {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #3b82f6, #2563eb);
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          cursor: pointer;
-          box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-      }
-      
-      .user-avatar:hover {
-          transform: scale(1.05);
-          box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
-      }
-      
-      .user-dropdown {
-          position: absolute;
-          top: 120%;
-          right: 0;
-          background-color: white;
-          border-radius: 0.5rem;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          padding: 0.5rem 0;
-          min-width: 180px;
-          display: none;
-          z-index: 100;
-          border: 1px solid rgba(226, 232, 240, 0.8);
-          animation: fadeInDown 0.2s ease;
-      }
-      
-      @keyframes fadeInDown {
-          from {
-              opacity: 0;
-              transform: translateY(-10px);
-          }
-          to {
-              opacity: 1;
-              transform: translateY(0);
-          }
-      }
-      
-      .user-avatar:hover + .user-dropdown,
-      .user-dropdown:hover {
-          display: block;
-      }
-      
-      .user-dropdown a {
-          display: block;
-          padding: 0.75rem 1rem;
-          color: #334155;
-          transition: background-color 0.2s;
-          font-size: 0.9rem;
-      }
-      
-      .user-dropdown a:hover {
-          background-color: #f1f5f9;
-          color: #2563eb;
-      }
-      
-      .user-dropdown a#favoritesLink {
-          border-bottom: 1px solid #e2e8f0;
-      }
-      
-      .user-dropdown a#logoutBtn {
-          color: #ef4444;
-      }
-      
-      .user-dropdown a#logoutBtn:hover {
-          background-color: #fef2f2;
-      }
-      
-      /*Estilo para o botão hamburger*/
-      .menu-hamburger {
-          display: none;
-          font-size: 24px;
-          cursor: pointer;
-          color: #94a3b8;
-          transition: color 0.2s ease;
-      }
-      
-      .menu-hamburger:hover {
-          color: #f8fafc;
-      }
-      
-      /* Estilo do menu quando foi clicado*/
-      .menu.active {
-          display: flex;
-          flex-direction: column;
-          position: absolute;
-          top: 60px;
-          right: 0;
-          background-color: #1e293b;
-          padding: 1rem;
-          width: 200px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          z-index: 100;
-          border-radius: 0 0 0.5rem 0.5rem;
-          animation: fadeIn 0.2s ease;
-      }
-      
-      @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-      }
-      
-      .menu.active a {
-          margin-bottom: 0.5rem;
-          width: 100%;
-      }
-      
-      /* Menu responsivo (para telas pequenas) */
-      @media screen and (max-width: 768px) {
-          .menu {
-              display: none;
-              flex-direction: column;
-          }
-      
-          .menu.active {
-              display: flex;
-          }
-      
-          .menu-hamburger {
-              display: block; /* Aparece o botão hamburger */
-          }
-      }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Salas - Spaceek</title>
+    <link rel="stylesheet" href="../style.css">
+    <!-- Adicione o CSS do Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        #map-container {
+            width: 100%;
+            height: 500px;
+            border-radius: var(--border-radius);
+            margin-top: 90px; /* Ajusta conforme a altura real do teu header */
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--border-radius);
+        }
+        
+        .map-info {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .map-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+        
+        .map-control-btn {
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .map-control-btn:hover {
+            background-color: var(--color-secondary);
+        }
 
-      #map-container {
-          width: 100%;
-          height: calc(100vh - 64px - 2rem);
-          border-radius: var(--border-radius);
-          margin-top: 1rem;
-          position: relative;
-      }
-      
-      #map {
-          width: 100%;
-          height: 100%;
-          border-radius: var(--border-radius);
-          z-index: 1; /* Garantir que o mapa tenha um z-index baixo */
-      }
-      
-      .map-layout {
-          display: flex;
-          gap: 1rem;
-          height: calc(100vh - 64px - 2rem);
-      }
-      
-      .map-sidebar {
-          width: 300px;
-          background-color: white;
-          border-radius: var(--border-radius);
-          box-shadow: var(--shadow);
-          padding: 1rem;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-      }
-      
-      .map-main {
-          flex: 1;
-          position: relative;
-          height: 100%;
-      }
-      
-      .sala-item {
-          padding: 0.75rem;
-          border-radius: var(--border-radius);
-          border: 1px solid var(--color-border);
-          margin-bottom: 0.75rem;
-          cursor: pointer;
-          transition: all 0.2s;
-      }
-      
-      .sala-item:hover {
-          background-color: var(--color-secondary);
-          transform: translateY(-2px);
-      }
-      
-      .sala-item.active {
-          border-color: var(--color-primary);
-          background-color: rgba(59, 130, 246, 0.1);
-      }
-      
-      .sala-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 0.5rem;
-      }
-      
-      .sala-title {
-          font-weight: 600;
-          font-size: 1rem;
-      }
-      
-      .sala-location {
-          font-size: 0.8rem;
-          color: var(--color-text-light);
-      }
-      
-      .sala-stats {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.8rem;
-      }
-      
-      .sala-stat {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-      }
-      
-      .stat-indicator {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-      }
-      
-      .map-controls {
-          position: absolute;
-          bottom: 1rem;
-          right: 1rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          z-index: 500;
-      }
-      
-      .map-control-btn {
-          background-color: white;
-          border: none;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: var(--shadow);
-          cursor: pointer;
-          transition: background-color 0.2s;
-      }
-      
-      .map-control-btn:hover {
-          background-color: var(--color-secondary);
-      }
+        .map-legend {
+            background-color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-      .map-legend {
-          background-color: white;
-          padding: 0.75rem;
-          border-radius: var(--border-radius);
-          box-shadow: var(--shadow);
-          position: absolute;
-          bottom: 1rem;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 1rem;
-          z-index: 500;
-      }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex: 1 1 200px;
+        }
 
-      .legend-item {
-          display: flex;
-          align-items: center;
-          font-size: 0.75rem;
-      }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
 
-      .legend-color {
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          margin-right: 0.25rem;
-      }
+        .legend-low {
+            background-color: var(--color-success);
+        }
 
-      .legend-low {
-          background-color: var(--color-success);
-      }
+        .legend-medium {
+            background-color: var(--color-warning);
+        }
 
-      .legend-medium {
-          background-color: var(--color-warning);
-      }
+        .legend-high {
+            background-color: var(--color-danger);
+        }
+        
+        .custom-marker {
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-weight: bold;
+            border: 2px solid white;
+        }
 
-      .legend-high {
-          background-color: var(--color-danger);
-      }
-      
-      .custom-marker {
-          border-radius: 50%;
-          width: 20px;
-          height: 20px;
-          text-align: center;
-          line-height: 20px;
-          color: white;
-          font-weight: bold;
-          border: 2px solid white;
-      }
+        /* Estilo para o marcador destacado */
+        .highlighted-marker {
+            width: 40px !important;
+            height: 40px !important;
+            z-index: 1001 !important;
+        }
 
-      .filter-chip {
-          display: inline-flex;
-          align-items: center;
-          background-color: var(--color-secondary);
-          border: 1px solid var(--color-border);
-          border-radius: 9999px;
-          padding: 0.5rem 1rem;
-          margin-right: 0.5rem;
-          margin-bottom: 0.5rem;
-          font-size: 0.875rem;
-          cursor: pointer;
-          transition: background-color 0.2s;
-      }
-      
-      .filter-chip.active {
-          background-color: var(--color-primary);
-          color: white;
-          border-color: var(--color-primary);
-      }
-      
-      .filter-chip i {
-          margin-right: 0.5rem;
-      }
-      
-      .filter-chips {
-          margin-bottom: 1rem;
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-      }
-      
-      .filter-label {
-          margin-right: 0.5rem;
-          font-weight: 500;
-          font-size: 0.875rem;
-      }
-      
-      .user-location-btn {
-          position: absolute;
-          bottom: 1rem;
-          left: 1rem;
-          background-color: white;
-          border: none;
-          border-radius: var(--border-radius);
-          padding: 0.5rem 1rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          box-shadow: var(--shadow);
-          cursor: pointer;
-          z-index: 500;
-          font-size: 0.875rem;
-          font-weight: 500;
-          transition: background-color 0.2s;
-      }
-      
-      .user-location-btn:hover {
-          background-color: var(--color-secondary);
-      }
-      
-      .user-location-btn i {
-          color: var(--color-primary);
-      }
-      
-      /* Painel de detalhes da sala */
-      #sala-details {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background-color: white;
-          border-radius: var(--border-radius) var(--border-radius) 0 0;
-          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-          padding: 1rem;
-          z-index: 500;
-          transform: translateY(100%);
-          transition: transform 0.3s ease-in-out;
-          max-height: 60%;
-          overflow-y: auto;
-      }
-      
-      #sala-details.active {
-          transform: translateY(0);
-      }
-      
-      .details-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 1rem;
-      }
-      
-      .details-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin: 0;
-      }
-      
-      .details-location {
-          font-size: 0.875rem;
-          color: var(--color-text-light);
-          margin-top: 0.25rem;
-      }
-      
-      .details-close {
-          background: none;
-          border: none;
-          font-size: 1.25rem;
-          cursor: pointer;
-          color: var(--color-text-light);
-      }
-      
-      .details-content {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 1rem;
-      }
-      
-      .details-section {
-          margin-bottom: 1rem;
-      }
-      
-      .details-section-title {
-          font-size: 0.875rem;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-      }
-      
-      .details-stat {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 0.5rem;
-      }
-      
-      .details-stat-label {
-          font-size: 0.875rem;
-      }
-      
-      .details-stat-value {
-          font-size: 0.875rem;
-          font-weight: 500;
-      }
-      
-      .progress-bar-container {
-          height: 0.5rem;
-          background-color: #e5e7eb;
-          border-radius: 9999px;
-          overflow: hidden;
-          margin-top: 0.25rem;
-      }
-      
-      .progress-bar {
-          height: 100%;
-          border-radius: 9999px;
-      }
-      
-      .details-actions {
-          display: flex;
-          justify-content: flex-end;
-          gap: 0.5rem;
-          margin-top: 1rem;
-          border-top: 1px solid var(--color-border);
-          padding-top: 1rem;
-      }
-      
-      .details-badge {
-          display: inline-flex;
-          align-items: center;
-          padding: 0.25rem 0.5rem;
-          border-radius: 9999px;
-          font-size: 0.75rem;
-          font-weight: 500;
-      }
-      
-      .badge-success {
-          background-color: rgba(34, 197, 94, 0.1);
-          color: #22c55e;
-      }
-      
-      .badge-warning {
-          background-color: rgba(234, 179, 8, 0.1);
-          color: #eab308;
-      }
-      
-      .badge-danger {
-          background-color: rgba(239, 68, 68, 0.1);
-          color: #ef4444;
-      }
-      
-      /* Responsividade */
-      @media (max-width: 768px) {
-          .map-layout {
-              flex-direction: column;
-          }
-          
-          .map-sidebar {
-              width: 100%;
-              height: auto;
-              max-height: 200px;
-          }
-          
-          #map-container {
-              height: calc(100vh - 64px - 200px - 3rem);
-          }
-          
-          .map-legend {
-              padding: 0.5rem;
-              font-size: 0.7rem;
-          }
-          
-          .legend-item {
-              margin-right: 0.5rem;
-          }
-          
-          .user-location-btn {
-              padding: 0.35rem 0.75rem;
-              font-size: 0.75rem;
-          }
-          
-          .map-control-btn {
-              width: 32px;
-              height: 32px;
-          }
-      }
-      
-      /* Notification styles */
-      .notification {
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          background-color: white;
-          border-radius: var(--border-radius);
-          box-shadow: var(--shadow-md);
-          padding: 1rem;
-          max-width: 350px;
-          z-index: 2000;
-          transform: translateY(100px);
-          opacity: 0;
-          transition: transform 0.3s, opacity 0.3s;
-      }
-      
-      .notification.show {
-          transform: translateY(0);
-          opacity: 1;
-      }
-      
-      .notification-content {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-      }
-      
-      .notification.success .notification-content i {
-          color: var(--color-success);
-      }
-      
-      .notification.error .notification-content i {
-          color: var(--color-danger);
-      }
-      
-      .notification-close {
-          position: absolute;
-          top: 0.5rem;
-          right: 0.5rem;
-          background: none;
-          border: none;
-          font-size: 1rem;
-          cursor: pointer;
-          color: var(--color-text-light);
-      }
-      
-      /* Modal styles */
-      .modal {
-          display: none;
-          position: fixed;
-          z-index: 2000;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          overflow: auto;
-          background-color: rgba(0, 0, 0, 0.5);
-          animation: fadeIn 0.3s;
-      }
-      
-      .modal-content {
-          background-color: #fefefe;
-          margin: 10% auto;
-          padding: 2rem;
-          border-radius: var(--border-radius);
-          box-shadow: var(--shadow-md);
-          width: 90%;
-          max-width: 500px;
-          animation: slideIn 0.3s;
-      }
-      
-      @keyframes slideIn {
-          from { transform: translateY(-50px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-      }
-      
-      .close {
-          color: #aaa;
-          float: right;
-          font-size: 28px;
-          font-weight: bold;
-          cursor: pointer;
-          line-height: 1;
-      }
-      
-      .close:hover,
-      .close:focus {
-          color: black;
-          text-decoration: none;
-      }
-      
-      .modal-tabs {
-          display: flex;
-          border-bottom: 1px solid var(--color-border);
-          margin-bottom: 1.5rem;
-      }
-      
-      .modal-tab {
-          padding: 0.75rem 1.5rem;
-          background: none;
-          border: none;
-          border-bottom: 2px solid transparent;
-          cursor: pointer;
-          font-weight: 500;
-          transition: border-color 0.2s, color 0.2s;
-          color: var(--color-text-light);
-      }
-      
-      .modal-tab.active {
-          border-bottom-color: var(--color-primary);
-          color: var(--color-primary);
-      }
-      
-      .modal-body {
-          padding: 1rem 0;
-      }
-      
-      .modal-body h2 {
-          margin-bottom: 1.5rem;
-          font-size: 1.5rem;
-          text-align: center;
-      }
-      
-      .form-group {
-          margin-bottom: 1.5rem;
-      }
-      
-      .form-group label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
-      }
-      
-      .form-group input {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid var(--color-border);
-          border-radius: var(--border-radius);
-          font-size: 1rem;
-      }
-      
-      .form-group input:focus {
-          outline: none;
-          border-color: var(--color-primary);
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-      }
-      
-      .social-login {
-          margin-top: 1.5rem;
-          text-align: center;
-          padding-top: 1.5rem;
-          border-top: 1px solid var(--color-border);
-      }
-      
-      .google-btn {
-          background-color: white;
-          color: #333;
-          border: 1px solid #ddd;
-          padding: 0.75rem 1.5rem;
-      }
-      
-      /* User location marker pulse animation */
-      @keyframes pulse {
-          0% { transform: scale(1); opacity: 1; }
-          70% { transform: scale(3); opacity: 0; }
-          100% { transform: scale(1); opacity: 0; }
-      }
-      
-      .user-location-marker::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          background-color: #3b82f6;
-          z-index: -1;
-          animation: pulse 2s infinite;
-      }
-      
-      /* Esconder popups padrão do Leaflet */
-      .leaflet-popup {
-          display: none !important;
-      }
+        /* Animação de pulsação para o círculo ao redor do marcador selecionado */
+        .pulse-circle {
+            animation: mapPulse 2s infinite;
+        }
 
-      footer {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  color: #f8fafc;
-  padding: 1.2rem 0 1rem 0;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 500;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.07);
-  margin-top: 2rem;
-}
+        @keyframes mapPulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(3);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
 
-.footer-spaceek .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-  </style>
+        /* Estilo para o banner de sala selecionada */
+        .selected-room-banner {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(59, 130, 246, 0.95);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            animation: fadeInDown 0.5s ease-out, pulse-light 2s infinite;
+            max-width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 2px solid white;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        @keyframes pulse-light {
+            0% {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.5);
+            }
+            50% {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0 25px rgba(59, 130, 246, 0.8);
+            }
+            100% {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.5);
+            }
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .filter-chip.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .filter-chip i {
+            margin-right: 0.5rem;
+        }
+        
+        .filter-chips {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-label {
+            margin-right: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .user-location-btn {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background-color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .user-location-btn:hover {
+            background-color: var(--color-secondary);
+        }
+        
+        .user-location-btn i {
+            color: var(--color-primary);
+        }
+
+        /* Estilo para o painel de salas próximas */
+        .nearby-rooms-panel {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .nearby-rooms-panel.visible {
+            display: block;
+        }
+
+        .nearby-rooms-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nearby-rooms-list {
+            padding: 0.5rem;
+        }
+
+        .nearby-room-item {
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid var(--color-border);
+        }
+
+        .nearby-room-item:hover {
+            background-color: var(--color-secondary);
+        }
+
+        .nearby-room-item.selected {
+            border-color: var(--color-primary);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .nearby-room-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .nearby-room-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--color-text-light);
+        }
+
+        /* Painel lateral para desktop, modal para mobile */
+        .room-details-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 340px;
+            max-width: 95vw;
+            height: 100vh;
+            background: #fff;
+            box-shadow: -2px 0 24px rgba(80,60,180,0.10);
+            z-index: 2000;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            overflow-y: auto;
+            border-radius: 1.2rem 0 0 1.2rem;
+            transition: transform 0.3s;
+        }
+        .room-details-panel.open {
+            display: block;
+            animation: fadeInRight 0.3s;
+        }
+        @keyframes fadeInRight {
+            from { transform: translateX(100%);}
+            to { transform: translateX(0);}
+        }
+        .close-details-panel {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #6d28d9;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            .room-details-panel {
+                width: 100vw;
+                left: 0;
+                right: 0;
+                top: auto;
+                bottom: 0;
+                height: auto;
+                min-height: 40vh;
+                border-radius: 1.2rem 1.2rem 0 0;
+                padding: 1.2rem 1rem 1rem 1rem;
+                box-shadow: 0 -2px 24px rgba(80,60,180,0.10);
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-      <div class="container-header">
-        <div class="logo-area">
-          <img src="../imagens/logo.png" alt="Logo do Spaceek" class="logo">
-          <span class="nome-empresa">Spaceek</span>
+    <header>
+        <div class="container-header">
+          <div class="logo-area">
+            <img src="../imagens/logo.png" alt="Logo do Spaceek" class="logo">
+            <span class="nome-empresa">Spaceek</span>
+          </div>
+          <nav class="menu">
+            <a href="../index.html">Início</a>
+            <a class="active">Mapa</a>
+            <a href="https://group4pic.wixstudio.com/spaceseek">Sobre</a>
+            <a href="#" id="loginBtn" class="login-btn">Login</a>
+          </nav>
+          <div class="user-profile" style="display: none;">
+            <div class="user-avatar">
+              <span id="userInitial">A</span>
+            </div>
+            <div class="user-dropdown">
+              <a href="#" id="favoritesLink">Meus Favoritos</a>
+              <a href="#" id="logoutBtn">Sair</a>
+            </div>
+          </div>
+          <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
         </div>
-        <nav class="menu">
-          <a href="../index.html">Início</a>
-          <a class="active">Mapa</a>
-          <a href="https://group4pic.wixstudio.com/spaceseek">Sobre</a>
-          <a href="#" id="loginBtn" class="login-btn">Login</a>
-        </nav>
-        <div class="user-profile" style="display: none;">
-          <div class="user-avatar">
-            <span id="userInitial">A</span>
-          </div>
-          <div class="user-dropdown">
-            <a href="#" id="favoritesLink"><i class="fas fa-star fa-fw"></i> Meus Favoritos</a>
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt fa-fw"></i> Sair</a>
-          </div>
+    </header>
+    
+    <main>
+        <section class="results">
+            <div class="container">
+                <h2>Mapa de Salas de Estudo</h2>
+                <p>Visualize a localização das salas de estudo no campus.</p>
+                
+                <div class="filter-chips">
+                    <span class="filter-label">Filtrar por:</span>
+                    <div class="filter-chip active" data-filter="all">
+                        <i class="fas fa-th"></i> Todas
+                    </div>
+                    <div class="filter-chip" data-filter="low">
+                        <i class="fas fa-check-circle"></i> Baixa Ocupação
+                    </div>
+                    <div class="filter-chip" data-filter="medium">
+                        <i class="fas fa-exclamation-circle"></i> Média Ocupação
+                    </div>
+                    <div class="filter-chip" data-filter="high">
+                        <i class="fas fa-times-circle"></i> Alta Ocupação
+                    </div>
+                    <div class="filter-chip" data-filter="favorites">
+                        <i class="fas fa-star"></i> Favoritos
+                    </div>
+                </div>
+                
+                <div id="map-container">
+                    <div id="map"></div>
+                    <button class="user-location-btn" id="userLocationBtn">
+                        <i class="fas fa-location-arrow"></i> Minha Localização
+                    </button>
+                    <div class="map-controls">
+                        <button class="map-control-btn" id="zoomInBtn" title="Ampliar">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="map-control-btn" id="zoomOutBtn" title="Reduzir">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="map-control-btn" id="resetViewBtn" title="Resetar Visualização">
+                            <i class="fas fa-home"></i>
+                        </button>
+                        <button class="map-control-btn" id="nearbyRoomsBtn" title="Salas Próximas">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Painel de salas próximas -->
+                    <div class="nearby-rooms-panel" id="nearbyRoomsPanel">
+                        <div class="nearby-rooms-header">
+                            <h3>Salas Próximas</h3>
+                            <button class="close-btn" id="closeNearbyRoomsBtn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="nearby-rooms-list" id="nearbyRoomsList">
+                            <!-- Salas próximas serão adicionadas aqui dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="room-details-panel" class="room-details-panel">
+                    <button id="close-details-panel" class="close-details-panel">&times;</button>
+                    <div id="room-details-content"></div>
+                </div>
+
+                <div id="selected-room-banner" class="selected-room-banner" style="display:none;"></div>
+
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-low"></div>
+                        <span>Baixa ocupação (< 30%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-medium"></div>
+                        <span>Média ocupação (30% - 70%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-high"></div>
+                        <span>Alta ocupação (> 70%)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>© 2024 Spaceek. Todos os direitos reservados.</p>
+            <nav>
+                <a href="#">Termos de Serviço</a>
+                <a href="#">Privacidade</a>
+            </nav>
         </div>
-        <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
-      </div>
-  </header>
-  
-  <main>
-      <section class="results">
-          <div class="container">
-              <h2>Mapa de Salas de Estudo</h2>
-              <p>Visualize a localização das salas de estudo no campus.</p>
-              
-              <div class="filter-chips">
-                  <span class="filter-label">Filtrar por:</span>
-                  <div class="filter-chip active" data-filter="all">
-                      <i class="fas fa-th"></i> Todas
-                  </div>
-                  <div class="filter-chip" data-filter="low">
-                      <i class="fas fa-check-circle"></i> Baixa Ocupação
-                  </div>
-                  <div class="filter-chip" data-filter="medium">
-                      <i class="fas fa-exclamation-circle"></i> Média Ocupação
-                  </div>
-                  <div class="filter-chip" data-filter="high">
-                      <i class="fas fa-times-circle"></i> Alta Ocupação
-                  </div>
-                  <div class="filter-chip" data-filter="favorites">
-                      <i class="fas fa-star"></i> Favoritos
-                  </div>
-              </div>
-              
-              <div class="map-layout">
-                  <div class="map-sidebar">
-                      <div class="sidebar-header">
-                          <div class="search-container" style="margin-bottom: 1rem;">
-                              <div style="position: relative;">
-                                  <input type="search" id="search-rooms" placeholder="Pesquisar salas..." class="search-input" style="width: 100%; padding: 0.5rem 0.5rem 0.5rem 2rem; border-radius: var(--border-radius); border: 1px solid var(--color-border);">
-                                  <i class="fas fa-search" style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); color: var(--color-text-light);"></i>
-                              </div>
-                          </div>
-                          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                              <h3 style="font-size: 1rem; margin: 0;">Salas Próximas</h3>
-                              <span id="rooms-count" style="font-size: 0.8rem; color: var(--color-text-light);">0 salas</span>
-                          </div>
-                      </div>
-                      <div id="rooms-list" class="rooms-list" style="flex: 1; overflow-y: auto;">
-                          <!-- Lista de salas será preenchida via JavaScript -->
-                          <div class="loading-indicator" style="text-align: center; padding: 2rem;">
-                              <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--color-text-light);"></i>
-                              <p style="margin-top: 0.5rem; color: var(--color-text-light);">Carregando salas...</p>
-                          </div>
-                      </div>
-                  </div>
-                  
-                  <div class="map-main">
-                      <div id="map-container">
-                          <div id="map"></div>
-                          <button class="user-location-btn" id="userLocationBtn">
-                              <i class="fas fa-location-arrow"></i> Minha Localização
-                          </button>
-                          <div class="map-controls">
-                              <button class="map-control-btn" id="zoomInBtn" title="Ampliar">
-                                  <i class="fas fa-plus"></i>
-                              </button>
-                              <button class="map-control-btn" id="zoomOutBtn" title="Reduzir">
-                                  <i class="fas fa-minus"></i>
-                              </button>
-                              <button class="map-control-btn" id="resetViewBtn" title="Resetar Visualização">
-                                  <i class="fas fa-home"></i>
-                              </button>
-                          </div>
-                          
-                          <div class="map-legend">
-                              <div class="legend-item">
-                                  <div class="legend-color legend-low"></div>
-                                  <span>&lt; 30%</span>
-                              </div>
-                              <div class="legend-item">
-                                  <div class="legend-color legend-medium"></div>
-                                  <span>30% - 70%</span>
-                              </div>
-                              <div class="legend-item">
-                                  <div class="legend-color legend-high"></div>
-                                  <span>&gt; 70%</span>
-                              </div>
-                          </div>
-                      </div>
-                      
-                      <!-- Painel de detalhes da sala (aparece de baixo para cima) -->
-                      <div id="sala-details">
-                          <!-- Conteúdo será preenchido via JavaScript -->
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </section>
-  </main>
-  
-  <footer class="footer-spaceek">
-  <div class="container">
-    <span>© 2025 Spaceek. Todos os direitos reservados.</span>
-  </div>
-</footer>
-  
-  <!-- Modal de Login -->
-  <div id="loginModal" class="modal">
-      <div class="modal-content">
-          <span class="close">&times;</span>
-          <div class="modal-tabs">
-              <button class="modal-tab active" data-tab="login">Login</button>
-              <button class="modal-tab" data-tab="register">Registrar</button>
-          </div>
-          <div class="modal-body" id="loginTab">
-              <h2>Login</h2>
-              <form id="loginForm">
-                  <div class="form-group">
-                      <label for="loginEmail">Email</label>
-                      <input type="email" id="loginEmail" required>
-                  </div>
-                  <div class="form-group">
-                      <label for="loginPassword">Senha</label>
-                      <input type="password" id="loginPassword" required>
-                  </div>
-                  <button type="submit" class="button primary">Entrar</button>
-              </form>
-              <div class="social-login">
-                  <button class="button google-btn"><i class="fab fa-google"></i> Entrar com Google</button>
-              </div>
-          </div>
-          <div class="modal-body" id="registerTab" style="display: none;">
-              <h2>Criar Conta</h2>
-              <form id="registerForm">
-                <div class="form-group">
-                  <label for="registerName">Nome</label>
-                  <input type="text" id="registerName" name="registerName" required>
+    </footer>
+    
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="login">Login</button>
+                <button class="modal-tab" data-tab="register">Registrar</button>
+            </div>
+            <div class="modal-body" id="loginTab">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="button primary">Entrar</button>
+                </form>
+                <div class="social-login">
+                    <button class="button google-btn"><i class="fab fa-google"></i> Entrar com Google</button>
                 </div>
-                <div class="form-group">
-                  <label for="registerEmail">Email</label>
-                  <input type="email" id="registerEmail" name="registerEmail" required>
-                </div>
-                <div class="form-group">
-                  <label for="registerPassword">Senha</label>
-                  <input type="password" id="registerPassword" name="registerPassword" required>
-                </div>
-                <div class="form-group">
-                  <label for="registerConfirmPassword">Confirmar Senha</label>
-                  <input type="password" id="registerConfirmPassword" name="registerConfirmPassword" required>
-                </div>
-                <button type="submit" class="button primary">Registrar</button>
-              </form>
-          </div>
-      </div>
-  </div>
-  
-  <!-- Adicione o JavaScript do Leaflet -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
-          crossorigin=""></script>
-  <!-- Adicione o JavaScript do MarkerCluster -->
-  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-  <script src="../script.js"></script>
-  <script type="module">
-      // O código JavaScript permanece o mesmo
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-      import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+            </div>
+            <div class="modal-body" id="registerTab" style="display: none;">
+                <h2>Criar Conta</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Nome</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Senha</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirmar Senha</label>
+                        <input type="password" id="registerConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="button primary">Registrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Adicione o JavaScript do Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    <script src="../script.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-      const firebaseConfig = {
-          apiKey: "AIzaSyBZrf6QJGbHiYzkmhm_hhBnb-hlfWAl9OM",
-          authDomain: "spaceek-5869c.firebaseapp.com",
-          projectId: "spaceek-5869c",
-          storageBucket: "spaceek-5869c.appspot.com",
-          messagingSenderId: "174315041988",
-          appId: "1:174315041988:web:37ba8e2b2227ae395f8591",
-          measurementId: "G-DJC1QL37JV"
-      };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZrf6QJGbHiYzkmhm_hhBnb-hlfWAl9OM",
+            authDomain: "spaceek-5869c.firebaseapp.com",
+            projectId: "spaceek-5869c",
+            storageBucket: "spaceek-5869c.appspot.com",
+            messagingSenderId: "174315041988",
+            appId: "1:174315041988:web:37ba8e2b2227ae395f8591",
+            measurementId: "G-DJC1QL37JV"
+        };
 
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const auth = getAuth(app);
-      const provider = new GoogleAuthProvider();
-      
-      let map;
-      let markers = [];
-      let markerClusterGroup;
-      let currentUser = null;
-      let userFavorites = [];
-      let currentFilter = 'all';
-      let searchQuery = '';
-      let istCoordinates = [38.73667, -9.14052];
-      let selectedSalaId = null;
-      let allRooms = [];
-      
-      // Auth state observer
-      onAuthStateChanged(auth, (user) => {
-          if (user) {
-              // User is signed in
-              currentUser = user;
-              document.getElementById('loginBtn').style.display = 'none';
-              document.querySelector('.user-profile').style.display = 'flex';
-              document.getElementById('userInitial').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
-              
-              // Load user favorites
-              loadUserFavorites();
-          } else {
-              // User is signed out
-              currentUser = null;
-              document.getElementById('loginBtn').style.display = 'block';
-              document.querySelector('.user-profile').style.display = 'none';
-              userFavorites = [];
-              
-              // Disable favorites filter if active
-              if (currentFilter === 'favorites') {
-                  currentFilter = 'all';
-                  document.querySelectorAll('.filter-chip').forEach(chip => {
-                      chip.classList.remove('active');
-                  });
-                  document.querySelector('.filter-chip[data-filter="all"]').classList.add('active');
-              }
-              
-              // Update markers
-              updateMarkers();
-          }
-      });
-      
-      // Load user favorites
-      async function loadUserFavorites() {
-          if (!currentUser) return;
-          
-          try {
-              const userDocRef = doc(db, "users", currentUser.uid);
-              const userDoc = await getDoc(userDocRef);
-              
-              if (userDoc.exists() && userDoc.data().favorites) {
-                  userFavorites = userDoc.data().favorites;
-              } else {
-                  // Create user document if it doesn't exist
-                  await setDoc(userDocRef, { 
-                      email: currentUser.email,
-                      displayName: currentUser.displayName || '',
-                      favorites: []
-                  });
-                  userFavorites = [];
-              }
-              
-              // Update markers to show favorites
-              updateMarkers();
-              renderRoomsList();
-          } catch (error) {
-              console.error("Error loading favorites:", error);
-          }
-      }
-
-      // Função para obter a cor baseada na ocupação
-      function getOccupancyColor(occupancy) {
-          if (occupancy < 30) return "#22c55e"; // Verde
-          if (occupancy < 70) return "#eab308"; // Amarelo
-          return "#ef4444"; // Vermelho
-      }
-      
-      // Função para obter a categoria de ocupação
-      function getOccupancyCategory(occupancy) {
-          if (occupancy < 30) return "low";
-          if (occupancy < 70) return "medium";
-          return "high";
-      }
-
-      // Função para inicializar o mapa com dados do Firebase
-      async function initMapWithFirebase() {
-          // Coordenadas do IST
-          map = L.map('map', {
-              zoomControl: false // Desabilitar controles de zoom padrão
-          }).setView(istCoordinates, 17);
-          
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          }).addTo(map);
-          
-          // Inicializar o grupo de clusters
-          markerClusterGroup = L.markerClusterGroup({
-              maxClusterRadius: 30,
-              spiderfyOnMaxZoom: true,
-              showCoverageOnHover: false,
-              zoomToBoundsOnClick: true
-          });
-          
-          map.addLayer(markerClusterGroup);
-
-          // Busca dados do Firebase
-          try {
-              const querySnapshot = await getDocs(collection(db, "salas"));
-              allRooms = [];
-              querySnapshot.forEach((doc) => {
-                  const data = doc.data();
-                  // Add document ID to the data
-                  data.id = doc.id;
-                  allRooms.push(data);
-              });
-              
-              // Atualizar contador de salas
-              document.getElementById('rooms-count').textContent = `${allRooms.length} salas`;
-              
-              // Renderizar lista de salas
-              renderRoomsList();
-          } catch (error) {
-              console.error("Erro ao buscar salas do Firebase:", error);
-              showNotification('Erro ao buscar salas do Firebase.', 'error');
-              return;
-          }
-          
-          // Check URL parameters for specific room
-          const urlParams = new URLSearchParams(window.location.search);
-          const roomId = urlParams.get('id');
-          
-          if (roomId) {
-              // Find the room in the data
-              const room = allRooms.find(r => r.id === roomId);
-              if (room && room.location && typeof room.location.latitude === 'number' && typeof room.location.longitude === 'number') {
-                  // Center map on this room
-                  map.setView([room.location.latitude, room.location.longitude], 19);
-                  
-                  // Select this room
-                  selectedSalaId = room.id;
-                  showSalaDetails(room);
-                  
-                  // Highlight in the list
-                  setTimeout(() => {
-                      const roomElement = document.querySelector(`.sala-item[data-id="${room.id}"]`);
-                      if (roomElement) {
-                          roomElement.classList.add('active');
-                          roomElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }
-                  }, 500);
-              }
-          }
-          
-          // Create markers
-          createMarkers(allRooms);
-          
-          // Add map control events
-          document.getElementById('zoomInBtn').addEventListener('click', function() {
-              map.zoomIn();
-          });
-          
-          document.getElementById('zoomOutBtn').addEventListener('click', function() {
-              map.zoomOut();
-          });
-          
-          document.getElementById('resetViewBtn').addEventListener('click', function() {
-              map.setView(istCoordinates, 17);
-          });
-          
-          document.getElementById('userLocationBtn').addEventListener('click', function() {
-              if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition(function(position) {
-                      const userLocation = [position.coords.latitude, position.coords.longitude];
-                      map.setView(userLocation, 18);
-                      
-                      // Add user marker
-                      const userMarker = L.marker(userLocation, {
-                          icon: L.divIcon({
-                              className: 'user-location-marker',
-                              html: `<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;"></div>`,
-                              iconSize: [22, 22]
-                          })
-                      }).addTo(map);
-                      
-                      // Add accuracy circle
-                      const accuracyCircle = L.circle(userLocation, {
-                          radius: position.coords.accuracy,
-                          color: '#3b82f6',
-                          fillColor: '#3b82f6',
-                          fillOpacity: 0.1
-                      }).addTo(map);
-                      
-                      // Remove after 30 seconds
-                      setTimeout(() => {
-                          map.removeLayer(userMarker);
-                          map.removeLayer(accuracyCircle);
-                      }, 30000);
-                  }, function(error) {
-                      showNotification("Erro ao obter sua localização: " + error.message, "error");
-                  });
-              } else {
-                  showNotification("Geolocalização não é suportada pelo seu navegador.", "error");
-              }
-          });
-          
-          // Adicionar evento de pesquisa
-          document.getElementById('search-rooms').addEventListener('input', function(e) {
-              searchQuery = e.target.value.toLowerCase();
-              renderRoomsList();
-              updateMarkers();
-          });
-      }
-      
-      // Renderizar lista de salas
-      function renderRoomsList() {
-          const roomsList = document.getElementById('rooms-list');
-          roomsList.innerHTML = '';
-          
-          // Filtrar salas
-          let filteredRooms = allRooms;
-          
-          // Aplicar filtro de pesquisa
-          if (searchQuery) {
-              filteredRooms = filteredRooms.filter(room => {
-                  const name = (room.name || '').toLowerCase();
-                  const building = (room.building || '').toLowerCase();
-                  return name.includes(searchQuery) || building.includes(searchQuery);
-              });
-          }
-          
-          // Aplicar filtro de categoria
-          if (currentFilter !== 'all') {
-              if (currentFilter === 'favorites') {
-                  filteredRooms = filteredRooms.filter(room => userFavorites.includes(room.id));
-              } else {
-                  filteredRooms = filteredRooms.filter(room => {
-                      const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
-                      return getOccupancyCategory(ocupacao) === currentFilter;
-                  });
-              }
-          }
-          
-          // Atualizar contador
-          document.getElementById('rooms-count').textContent = `${filteredRooms.length} salas`;
-          
-          // Verificar se não há salas
-          if (filteredRooms.length === 0) {
-              roomsList.innerHTML = `
-                  <div class="no-results" style="text-align: center; padding: 2rem;">
-                      <i class="fas fa-search" style="font-size: 1.5rem; color: var(--color-text-light); margin-bottom: 0.5rem;"></i>
-                      <p style="color: var(--color-text-light);">Nenhuma sala encontrada</p>
-                  </div>
-              `;
-              return;
-          }
-          
-          // Ordenar por ocupação
-          filteredRooms.sort((a, b) => {
-              const aOcc = (a.curOcc && a.maxOcc) ? a.curOcc / a.maxOcc : 0;
-              const bOcc = (b.curOcc && b.maxOcc) ? b.curOcc / b.maxOcc : 0;
-              return aOcc - bOcc;
-          });
-          
-          // Renderizar cada sala
-          filteredRooms.forEach(room => {
-              const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
-              const isFavorite = userFavorites.includes(room.id);
-              
-              const salaItem = document.createElement('div');
-              salaItem.className = `sala-item ${selectedSalaId === room.id ? 'active' : ''}`;
-              salaItem.setAttribute('data-id', room.id);
-              
-              salaItem.innerHTML = `
-                  <div class="sala-header">
-                      <div>
-                          <div class="sala-title">${room.name || 'Sala'}</div>
-                          <div class="sala-location">${room.building || ''}</div>
-                      </div>
-                      <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${room.id}" style="background: none; border: none; cursor: pointer; font-size: 1rem; color: ${isFavorite ? '#f59e0b' : '#d1d5db'};">
-                          <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
-                      </button>
-                  </div>
-                  <div class="sala-stats">
-                      <div class="sala-stat">
-                          <div class="stat-indicator" style="background-color: ${getOccupancyColor(ocupacao)};"></div>
-                          <span>${ocupacao}% ocupação</span>
-                      </div>
-                      ${room.noise_lvl !== undefined ? `
-                      <div class="sala-stat">
-                          <i class="fas ${getRuidoIcon(room.noise_lvl)}" style="font-size: 0.7rem; color: ${getRuidoColor(room.noise_lvl)};"></i>
-                          <span>${getRuidoLabel(room.noise_lvl)}</span>
-                      </div>` : ''}
-                  </div>
-              `;
-              
-              // Adicionar evento de clique
-              salaItem.addEventListener('click', function() {
-                  // Remover classe active de todos os itens
-                  document.querySelectorAll('.sala-item').forEach(item => {
-                      item.classList.remove('active');
-                  });
-                  
-                  // Adicionar classe active ao item clicado
-                  this.classList.add('active');
-                  
-                  // Selecionar sala
-                  selectedSalaId = room.id;
-                  
-                  // Centralizar no mapa
-                  if (room.location && typeof room.location.latitude === 'number' && typeof room.location.longitude === 'number') {
-                      map.setView([room.location.latitude, room.location.longitude], 18);
-                  }
-                  
-                  // Mostrar detalhes
-                  showSalaDetails(room);
-              });
-              
-              // Adicionar evento de clique no botão de favorito
-              salaItem.querySelector('.favorite-btn').addEventListener('click', function(e) {
-                  e.stopPropagation();
-                  const roomId = this.getAttribute('data-room-id');
-                  toggleFavorite(roomId);
-              });
-              
-              roomsList.appendChild(salaItem);
-          });
-      }
-      
-      // Create markers for rooms
-      function createMarkers(roomsData) {
-          // Clear existing markers
-          if (markerClusterGroup) {
-              markerClusterGroup.clearLayers();
-          }
-          
-          markers = [];
-          
-          roomsData.forEach(room => {
-              if (room.location && typeof room.location.latitude === 'number' && typeof room.location.longitude === 'number') {
-                  const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
-                  const occupancyCategory = getOccupancyCategory(ocupacao);
-                  const isFavorite = userFavorites.includes(room.id);
-                  
-                  // Skip if filtering by favorites and not a favorite
-                  if (currentFilter === 'favorites' && !isFavorite) return;
-                  
-                  // Skip if filtering by occupancy category
-                  if (['low', 'medium', 'high'].includes(currentFilter) && currentFilter !== occupancyCategory) return;
-                  
-                  // Skip if filtering by search query
-                  if (searchQuery) {
-                      const name = (room.name || '').toLowerCase();
-                      const building = (room.building || '').toLowerCase();
-                      if (!name.includes(searchQuery) && !building.includes(searchQuery)) return;
-                  }
-                  
-                  // Create marker
-                  const markerIcon = L.divIcon({
-                      className: 'custom-marker',
-                      html: `<div style="background-color: ${getOccupancyColor(ocupacao)}; width: 100%; height: 100%; border: 2px solid white; border-radius: 50%; ${isFavorite ? 'box-shadow: 0 0 0 2px #f59e0b;' : ''}"></div>`,
-                      iconSize: [24, 24],
-                      iconAnchor: [12, 12]
-                  });
-                  
-                  const marker = L.marker([room.location.latitude, room.location.longitude], {
-                      icon: markerIcon,
-                      title: room.name || 'Sala'
-                  });
-                  
-                  // Adicionar evento de clique
-                  marker.on('click', function() {
-                      // Selecionar sala
-                      selectedSalaId = room.id;
-                      
-                      // Atualizar lista
-                      document.querySelectorAll('.sala-item').forEach(item => {
-                          item.classList.remove('active');
-                      });
-                      
-                      const roomElement = document.querySelector(`.sala-item[data-id="${room.id}"]`);
-                      if (roomElement) {
-                          roomElement.classList.add('active');
-                          roomElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }
-                      
-                      // Mostrar detalhes
-                      showSalaDetails(room);
-                  });
-                  
-                  markerClusterGroup.addLayer(marker);
-                  markers.push(marker);
-              }
-          });
-      }
-      
-      // Mostrar detalhes da sala
-      function showSalaDetails(room) {
-          const detailsPanel = document.getElementById('sala-details');
-          const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
-          const isFavorite = userFavorites.includes(room.id);
-          
-          detailsPanel.innerHTML = `
-              <div class="details-header">
-                  <div>
-                      <h3 class="details-title">${room.name || 'Sala'}</h3>
-                      <p class="details-location">${room.building || ''}</p>
-                  </div>
-                  <button class="details-close" id="close-details">&times;</button>
-              </div>
-              
-              <div class="details-content">
-                  <div class="details-section">
-                      <h4 class="details-section-title">Ocupação</h4>
-                      <div class="details-stat">
-                          <span class="details-stat-label">Atual:</span>
-                          <span class="details-stat-value" style="color: ${getOccupancyColor(ocupacao)};">${ocupacao}%</span>
-                      </div>
-                      <div class="progress-bar-container">
-                          <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${getOccupancyColor(ocupacao)};"></div>
-                      </div>
-                      <div class="details-stat" style="margin-top: 0.5rem;">
-                          <span class="details-stat-label">Capacidade:</span>
-                          <span class="details-stat-value">${room.maxOcc || 'N/A'} pessoas</span>
-                      </div>
-                  </div>
-                  
-                  <div class="details-section">
-                      <h4 class="details-section-title">Ambiente</h4>
-                      ${room.temperature !== undefined ? `
-                      <div class="details-stat">
-                          <span class="details-stat-label">Temperatura:</span>
-                          <span class="details-badge" style="background-color: ${getTemperatureColorBg(room.temperature)}; color: ${getTemperatureColor(room.temperature)};">
-                              <i class="fas fa-thermometer-half"></i> ${room.temperature}°C
-                          </span>
-                      </div>` : ''}
-                      ${room.noise_lvl !== undefined ? `
-                      <div class="details-stat">
-                          <span class="details-stat-label">Nível de Ruído:</span>
-                          <span class="details-badge" style="background-color: ${getRuidoColorBg(room.noise_lvl)}; color: ${getRuidoColor(room.noise_lvl)};">
-                              <i class="fas ${getRuidoIcon(room.noise_lvl)}"></i> ${getRuidoLabel(room.noise_lvl)}
-                          </span>
-                      </div>` : ''}
-                  </div>
-                  
-                  <div class="details-section">
-                      <h4 class="details-section-title">Recursos</h4>
-                      <div class="details-stat">
-                          <span class="details-stat-label">Tomadas:</span>
-                          <span class="details-stat-value">${room.outlets ? 'Disponíveis' : 'Não disponíveis'}</span>
-                      </div>
-                      <div class="details-stat">
-                          <span class="details-stat-label">Wi-Fi:</span>
-                          <span class="details-stat-value">${room.wifi ? 'Disponível' : 'Não disponível'}</span>
-                      </div>
-                  </div>
-              </div>
-              
-              <div class="details-actions">
-                  <button class="button secondary" id="favorite-btn" data-room-id="${room.id}">
-                      <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i> ${isFavorite ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
-                  </button>
-                  <a href="../index.html?sala=${room.id}" class="button primary">
-                      <i class="fas fa-info-circle"></i> Ver Mais Detalhes
-                  </a>
-              </div>
-          `;
-          
-          // Mostrar o painel
-          detailsPanel.classList.add('active');
-          
-          // Adicionar evento de clique no botão de fechar
-          document.getElementById('close-details').addEventListener('click', function() {
-              detailsPanel.classList.remove('active');
-              selectedSalaId = null;
-              
-              // Remover seleção da lista
-              document.querySelectorAll('.sala-item').forEach(item => {
-                  item.classList.remove('active');
-              });
-          });
-          
-          // Adicionar evento de clique no botão de favorito
-          document.getElementById('favorite-btn').addEventListener('click', function() {
-              const roomId = this.getAttribute('data-room-id');
-              toggleFavorite(roomId);
-              
-              // Atualizar texto do botão
-              const isFav = userFavorites.includes(roomId);
-              this.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-star"></i> ${isFav ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}`;
-          });
-      }
-      
-      // Toggle favorite
-      async function toggleFavorite(roomId) {
-          if (!currentUser) {
-              // Show login modal if user is not logged in
-              document.getElementById('loginModal').style.display = 'block';
-              return;
-          }
-          
-          try {
-              const userDocRef = doc(db, "users", currentUser.uid);
-              
-              if (userFavorites.includes(roomId)) {
-                  // Remove from favorites
-                  await updateDoc(userDocRef, {
-                      favorites: arrayRemove(roomId)
-                  });
-                  userFavorites = userFavorites.filter(id => id !== roomId);
-                  showNotification('Sala removida dos favoritos', 'success');
-              } else {
-                  // Add to favorites
-                  await updateDoc(userDocRef, {
-                      favorites: arrayUnion(roomId)
-                  });
-                  userFavorites.push(roomId);
-                  showNotification('Sala adicionada aos favoritos', 'success');
-              }
-              
-              // Update markers
-              updateMarkers();
-              
-              // Update room list
-              renderRoomsList();
-              
-              // Update favorite buttons in sala items
-              document.querySelectorAll(`.favorite-btn[data-room-id="${roomId}"]`).forEach(btn => {
-                  const isFav = userFavorites.includes(roomId);
-                  btn.classList.toggle('active', isFav);
-                  btn.style.color = isFav ? '#f59e0b' : '#d1d5db';
-                  btn.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-star"></i>`;
-              });
-          } catch (error) {
-              console.error("Error updating favorites:", error);
-              showNotification('Erro ao atualizar favoritos', 'error');
-          }
-      }
-      
-      // Update markers based on current filter
-      function updateMarkers() {
-          if (allRooms && allRooms.length > 0) {
-              createMarkers(allRooms);
-          }
-      }
-      
-      // Filter chips functionality
-      document.querySelectorAll('.filter-chip').forEach(chip => {
-          chip.addEventListener('click', function() {
-              // Skip if favorites filter and user not logged in
-              if (this.getAttribute('data-filter') === 'favorites' && !currentUser) {
-                  document.getElementById('loginModal').style.display = 'block';
-                  return;
-              }
-              
-              // Remove active class from all chips
-              document.querySelectorAll('.filter-chip').forEach(c => {
-                  c.classList.remove('active');
-              });
-              
-              // Add active class to clicked chip
-              this.classList.add('active');
-              
-              // Update current filter
-              currentFilter = this.getAttribute('data-filter');
-              
-              // Update markers
-              updateMarkers();
-              
-              // Update room list
-              renderRoomsList();
-          });
-      });
-      
-      // Helper functions
-      function getTemperatureColor(temp) {
-          if (temp < 18) return '#3b82f6'; // cold
-          if (temp < 22) return '#60a5fa'; // cool
-          if (temp < 25) return '#22c55e'; // comfortable
-          if (temp < 28) return '#f59e0b'; // warm
-          return '#ef4444'; // hot
-      }
-      
-      function getTemperatureColorBg(temp) {
-          if (temp < 18) return 'rgba(59, 130, 246, 0.1)'; // cold
-          if (temp < 22) return 'rgba(96, 165, 250, 0.1)'; // cool
-          if (temp < 25) return 'rgba(34, 197, 94, 0.1)'; // comfortable
-          if (temp < 28) return 'rgba(245, 158, 11, 0.1)'; // warm
-          return 'rgba(239, 68, 68, 0.1)'; // hot
-      }
-      
-      function getRuidoIcon(ruido) {
-          if (ruido >= 70) return 'fa-volume-up';
-          if (ruido >= 50) return 'fa-volume-down';
-          return 'fa-volume-off';
-      }
-      
-      function getRuidoLabel(ruido) {
-          if (ruido >= 70) return 'Alto';
-          if (ruido >= 50) return 'Médio';
-          if (ruido >= 30) return 'Baixo';
-          return 'Muito Baixo';
-      }
-      
-      function getRuidoColor(ruido) {
-          if (ruido >= 70) return '#ef4444'; // red
-          if (ruido >= 50) return '#eab308'; // yellow
-          if (ruido >= 30) return '#22c55e'; // green
-          return '#22c55e'; // green
-      }
-      
-      function getRuidoColorBg(ruido) {
-          if (ruido >= 70) return 'rgba(239, 68, 68, 0.1)'; // red
-          if (ruido >= 50) return 'rgba(234, 179, 8, 0.1)'; // yellow
-          if (ruido >= 30) return 'rgba(34, 197, 94, 0.1)'; // green
-          return 'rgba(34, 197, 94, 0.1)'; // green
-      }
-      
-      // Login modal functionality
-      const loginModal = document.getElementById('loginModal');
-      const loginBtn = document.getElementById('loginBtn');
-      const closeBtn = document.querySelector('.close');
-      
-      loginBtn.addEventListener('click', function() {
-          loginModal.style.display = 'block';
-      });
-      
-      closeBtn.addEventListener('click', function() {
-          loginModal.style.display = 'none';
-      });
-      
-      window.addEventListener('click', function(event) {
-          if (event.target === loginModal) {
-              loginModal.style.display = 'none';
-          }
-      });
-      
-      // Modal tabs
-      document.querySelectorAll('.modal-tab').forEach(tab => {
-          tab.addEventListener('click', function() {
-              // Remove active class from all tabs
-              document.querySelectorAll('.modal-tab').forEach(t => {
-                  t.classList.remove('active');
-              });
-              
-              // Add active class to clicked tab
-              this.classList.add('active');
-              
-              // Hide all tab content
-              document.querySelectorAll('.modal-body').forEach(content => {
-                  content.style.display = 'none';
-              });
-              
-              // Show selected tab content
-              const tabId = this.getAttribute('data-tab');
-              document.getElementById(`${tabId}Tab`).style.display = 'block';
-          });
-      });
-      
-      // Login form submission
-      document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    try {
-        // Search Firestore users collection for matching email and password
-        const usersCol = collection(db, "users");
-        const usersSnap = await getDocs(usersCol);
-        let foundUser = null;
-        usersSnap.forEach(docu => {
-            const data = docu.data();
-            if (data.email && data.email.toLowerCase() === email.toLowerCase() && data.password === password) {
-                foundUser = { id: docu.id, ...data };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        
+        let map;
+        let markers = [];
+        let currentUser = null;
+        let userFavorites = [];
+        let currentFilter = 'all';
+        let istCoordinates = [38.73667, -9.14052];
+        let selectedRoomId = null;
+        let selectedRoomMarker = null;
+        let pulseCircle = null;
+        let selectedRoomBanner = null;
+        
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                currentUser = user;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.querySelector('.user-profile').style.display = 'flex';
+                document.getElementById('userInitial').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
+                
+                // Load user favorites
+                loadUserFavorites();
+            } else {
+                // User is signed out
+                currentUser = null;
+                document.getElementById('loginBtn').style.display = 'block';
+                document.querySelector('.user-profile').style.display = 'none';
+                userFavorites = [];
+                
+                // Disable favorites filter if active
+                if (currentFilter === 'favorites') {
+                    currentFilter = 'all';
+                    document.querySelectorAll('.filter-chip').forEach(chip => {
+                        chip.classList.remove('active');
+                    });
+                    document.querySelector('.filter-chip[data-filter="all"]').classList.add('active');
+                }
+                
+                // Update markers
+                updateMarkers();
             }
         });
-        if (foundUser) {
-            // Simulate login: set currentUser and update UI
-            currentUser = foundUser;
-            document.getElementById('loginBtn').style.display = 'none';
-            document.querySelector('.user-profile').style.display = 'flex';
-            document.getElementById('userInitial').textContent = foundUser.displayName ? foundUser.displayName.charAt(0).toUpperCase() : foundUser.email.charAt(0).toUpperCase();
-            userFavorites = foundUser.favorites || [];
-            loginModal.style.display = 'none';
-            showNotification('Login realizado com sucesso!', 'success');
-            renderRoomsList();
-        } else {
-            showNotification('Email ou senha incorretos.', 'error');
+        
+        // Load user favorites
+        async function loadUserFavorites() {
+            if (!currentUser) return;
+            
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (userDoc.exists() && userDoc.data().favorites) {
+                    userFavorites = userDoc.data().favorites;
+                } else {
+                    // Create user document if it doesn't exist
+                    await setDoc(userDocRef, { 
+                        email: currentUser.email,
+                        displayName: currentUser.displayName || '',
+                        favorites: []
+                    });
+                    userFavorites = [];
+                }
+                
+                // Update markers to show favorites
+                updateMarkers();
+            } catch (error) {
+                console.error("Error loading favorites:", error);
+            }
         }
-    } catch (error) {
-        console.error("Error logging in:", error);
-        showNotification('Erro ao fazer login. Tente novamente.', 'error');
-    }
-});
-      
-      // Register form submission
-      document.getElementById('registerForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const name = document.getElementById('registerName').value;
-          const email = document.getElementById('registerEmail').value;
-          const password = document.getElementById('registerPassword').value;
-          const confirmPassword = document.getElementById('registerConfirmPassword').value;
-          if (password !== confirmPassword) {
-              showNotification('As senhas não coincidem.', 'error');
-              return;
-          }
-          try {
-              // Check if email already exists in Firestore
-              const usersCol = collection(db, "users");
-              const usersSnap = await getDocs(usersCol);
-              let emailExists = false;
-              usersSnap.forEach(docu => {
-                  if (docu.data().email && docu.data().email.toLowerCase() === email.toLowerCase()) {
-                      emailExists = true;
-                  }
-              });
-              if (emailExists) {
-                  showNotification('Este email já está registado.', 'error');
-                  return;
-              }
-              // Register user in Firebase Auth
-              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-              // Set displayName for the user (modular)
-              await updateProfile(userCredential.user, { displayName: name });
-              // Create user document in Firestore with UID as ID
-              await setDoc(doc(db, "users", userCredential.user.uid), {
-                  email: email,
-                  displayName: name,
-                  password: password,
-                  favorites: []
-              });
-              loginModal.style.display = 'none';
-              showNotification('Conta criada com sucesso!', 'success');
-          } catch (error) {
-              console.error("Error registering:", error);
-              showNotification('Erro ao criar conta. Tente novamente.', 'error');
-          }
-      });
-      
-      // Google sign in
-      document.querySelector('.google-btn').addEventListener('click', async function() {
-          try {
-              const result = await signInWithPopup(auth, provider);
-              // Check if user document exists
-              const userDocRef = doc(db, "users", result.user.uid);
-              const userDoc = await getDoc(userDocRef);
-              if (!userDoc.exists()) {
-                  // Create user document if it doesn't exist
-                  await setDoc(userDocRef, {
-                      email: result.user.email,
-                      displayName: result.user.displayName || '',
-                      password: '',
-                      favorites: []
-                  });
-              }
-              loginModal.style.display = 'none';
-              showNotification('Login com Google realizado com sucesso!', 'success');
-          } catch (error) {
-              console.error("Error signing in with Google:", error);
-              showNotification('Erro ao fazer login com Google.', 'error');
-          }
-      });
-      
-      // Logout
-      document.getElementById('logoutBtn').addEventListener('click', async function() {
-          try {
-              await signOut(auth);
-              showNotification('Logout realizado com sucesso!', 'success');
-          } catch (error) {
-              console.error("Error signing out:", error);
-              showNotification('Erro ao fazer logout.', 'error');
-          }
-      });
-      
-      // Show notification
-      function showNotification(message, type) {
-          const notification = document.createElement('div');
-          notification.className = `notification ${type}`;
-          notification.innerHTML = `
-              <div class="notification-content">
-                  <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                  <span>${message}</span>
-              </div>
-              <button class="notification-close">&times;</button>
-          `;
-          
-          document.body.appendChild(notification);
-          
-          // Show notification
-          setTimeout(() => {
-              notification.classList.add('show');
-          }, 10);
-          
-          // Auto hide after 5 seconds
-          setTimeout(() => {
-              notification.classList.remove('show');
-              setTimeout(() => {
-                  notification.remove();
-              }, 300);
-          }, 5000);
-          
-          // Close button
-          notification.querySelector('.notification-close').addEventListener('click', function() {
-              notification.classList.remove('show');
-              setTimeout(() => {
-                  notification.remove();
-              }, 300);
-          });
-      }
 
-      document.addEventListener('DOMContentLoaded', function() {
-          initMapWithFirebase();
-      });
-  </script>
+        // Função para obter a cor baseada na ocupação
+        function getOccupancyColor(occupancy) {
+            if (occupancy < 30) return "#22c55e"; // Verde
+            if (occupancy < 70) return "#eab308"; // Amarelo
+            return "#ef4444"; // Vermelho
+        }
+        
+        // Função para obter a categoria de ocupação
+        function getOccupancyCategory(occupancy) {
+            if (occupancy < 30) return "low";
+            if (occupancy < 70) return "medium";
+            return "high";
+        }
+
+        // Função para inicializar o mapa com dados do Firebase
+        async function initMapWithFirebase() {
+            // Coordenadas do IST
+            map = L.map('map').setView(istCoordinates, 17);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Busca dados do Firebase
+            let roomsData = [];
+            try {
+                const querySnapshot = await getDocs(collection(db, "salas"));
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Add document ID to the data
+                    data.id = doc.id;
+                    roomsData.push(data);
+                });
+            } catch (error) {
+                alert("Erro ao buscar salas do Firebase para o mapa.");
+                return;
+            }
+            
+            // Check URL parameters for specific room
+            const urlParams = new URLSearchParams(window.location.search);
+            const salaName = urlParams.get('sala');
+            const roomId = urlParams.get('id');
+            
+            if (salaName && roomId) {
+                // Find the room in the data
+                const room = roomsData.find(r => r.id === roomId);
+                if (room && room.location && typeof room.location.latitude === 'number' && typeof room.location.longitude === 'number') {
+                    // Center map on this room
+                    map.setView([room.location.latitude, room.location.longitude], 19);
+                    
+                    // Set as selected room
+                    selectedRoomId = roomId;
+                }
+            }
+            
+            // Store rooms data and create markers
+            window.roomsData = roomsData;
+            createMarkers(roomsData);
+            
+            // Add map control events
+            document.getElementById('zoomInBtn').addEventListener('click', function() {
+                map.zoomIn();
+            });
+            
+            document.getElementById('zoomOutBtn').addEventListener('click', function() {
+                map.zoomOut();
+            });
+            
+            document.getElementById('resetViewBtn').addEventListener('click', function() {
+                map.setView(istCoordinates, 17);
+            });
+            
+            document.getElementById('userLocationBtn').addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const userLocation = [position.coords.latitude, position.coords.longitude];
+                        map.setView(userLocation, 18);
+                        
+                        // Add user marker
+                        const userMarker = L.marker(userLocation, {
+                            icon: L.divIcon({
+                                className: 'user-location-marker',
+                                html: `<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;"></div>`,
+                                iconSize: [22, 22]
+                            })
+                        }).addTo(map);
+                        
+                        // Add accuracy circle
+                        const accuracyCircle = L.circle(userLocation, {
+                            radius: position.coords.accuracy,
+                            color: '#3b82f6',
+                            fillColor: '#3b82f6',
+                            fillOpacity: 0.1
+                        }).addTo(map);
+                        
+                        // Remove after 30 seconds
+                        setTimeout(() => {
+                            map.removeLayer(userMarker);
+                            map.removeLayer(accuracyCircle);
+                        }, 30000);
+                    }, function(error) {
+                        alert("Erro ao obter sua localização: " + error.message);
+                    });
+                } else {
+                    alert("Geolocalização não é suportada pelo seu navegador.");
+                }
+            });
+            
+            // Nearby rooms panel
+            document.getElementById('nearbyRoomsBtn').addEventListener('click', function() {
+                const panel = document.getElementById('nearbyRoomsPanel');
+                panel.classList.toggle('visible');
+                
+                if (panel.classList.contains('visible')) {
+                    updateNearbyRoomsList();
+                }
+            });
+            
+            document.getElementById('closeNearbyRoomsBtn').addEventListener('click', function() {
+                document.getElementById('nearbyRoomsPanel').classList.remove('visible');
+            });
+            
+            // Map click event to clear selection
+            map.on('click', function(e) {
+                // Check if click was on a marker
+                let clickedOnMarker = false;
+                markers.forEach(marker => {
+                    if (marker instanceof L.Marker && marker.getLatLng().distanceTo(e.latlng) < 20) {
+                        clickedOnMarker = true;
+                    }
+                });
+                
+                // If not clicked on a marker, clear selection
+                if (!clickedOnMarker) {
+                    clearSelectedRoom();
+                }
+            });
+        }
+        
+        // Create markers for rooms
+        function createMarkers(roomsData) {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            // Remove existing pulse circle if any
+            if (pulseCircle) {
+                map.removeLayer(pulseCircle);
+                pulseCircle = null;
+            }
+            
+            roomsData.forEach(room => {
+                if (room.location && typeof room.location.latitude === 'number' && typeof room.location.longitude === 'number') {
+                    const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
+                    const occupancyCategory = getOccupancyCategory(ocupacao);
+                    const isFavorite = userFavorites.includes(room.id);
+                    const isSelected = room.id === selectedRoomId;
+                    
+                    // Skip if filtering by favorites and not a favorite
+                    if (currentFilter === 'favorites' && !isFavorite) return;
+                    
+                    // Skip if filtering by occupancy category
+                    if (['low', 'medium', 'high'].includes(currentFilter) && currentFilter !== occupancyCategory) return;
+                    
+                    // Create marker with much more visible highlighting for selected room
+                    const markerIcon = L.divIcon({
+                        className: `custom-marker ${isSelected ? 'highlighted-marker' : ''}`,
+                        html: `<div style="
+                            background-color: ${getOccupancyColor(ocupacao)}; 
+                            width: 100%; 
+                            height: 100%; 
+                            border-radius: 50%; 
+                            border: ${isSelected ? '4px solid #3b82f6' : '2px solid white'}; 
+                            ${isSelected ? 'box-shadow: 0 0 15px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.5);' : ''}
+                            ${isFavorite && !isSelected ? 'box-shadow: 0 0 0 2px #f59e0b;' : ''}
+                        "></div>`,
+                        iconSize: isSelected ? [40, 40] : [20, 20],
+                        iconAnchor: isSelected ? [20, 20] : [10, 10]
+                    });
+                    
+                    const marker = L.marker([room.location.latitude, room.location.longitude], { icon: markerIcon, title: room.name || 'Sala' }).addTo(map);
+                    
+                    // Store reference to selected room marker
+                    if (isSelected) {
+                        selectedRoomMarker = marker;
+                        // Não adiciona círculo pulsante!
+                    }
+                    
+                    // Determine noise level and color
+                    let ruidoLabel = 'Desconhecido';
+                    let ruidoColor = '#d1d5db'; // cinza
+                    if (typeof room.noise_lvl === 'number') {
+                        if (room.noise_lvl < 50) {
+                            ruidoLabel = 'Baixo';
+                            ruidoColor = '#22c55e'; // verde
+                            if(room.noise_lvl < 30) 
+                                ruidoLabel = 'Muito Baixo';
+                        } else if (room.noise_lvl < 70) {
+                            ruidoLabel = 'Médio';
+                            ruidoColor = '#eab308'; // amarelo
+                        } else {
+                            ruidoLabel = 'Alto';
+                            ruidoColor = '#ef4444'; // vermelho
+                        }
+                    }
+                    
+                    // Create popup content
+                    const popupContent = `
+                        <div style="padding: 10px; max-width: 250px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <h3 style="margin: 0; font-size: 16px;">${room.name || 'Sala'}</h3>
+                                <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${room.id}" style="background: none; border: none; cursor: pointer; font-size: 16px; color: ${isFavorite ? '#f59e0b' : '#d1d5db'};">
+                                    <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
+                                </button>
+                            </div>
+                            <p style="margin: 0 0 8px; font-size: 14px; color: #6b7280;">${room.building || ''}</p>
+                            <div style="margin-bottom: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <span style="font-size: 14px; font-weight: 500;">Ocupação:</span>
+                                    <span style="font-size: 14px; color: ${getOccupancyColor(ocupacao)}; font-weight: 500;">${ocupacao}%</span>
+                                </div>
+                                <div style="height: 6px; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden;">
+                                    <div style="height: 100%; width: ${ocupacao}%; background-color: ${getOccupancyColor(ocupacao)};"></div>
+                                </div>
+                            </div>
+                            ${room.temperature !== undefined ? `
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px; font-weight: 500;">Temperatura:</span>
+                                <span style="font-size: 14px; background-color: ${getTemperatureColor(room.temperature)}; color: white; padding: 2px 8px; border-radius: 4px;">
+                                    <i class="fas fa-thermometer-half"></i> ${room.temperature}°C
+                                </span>
+                            </div>` : ''}
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px; font-weight: 500;">Ruído:</span>
+                                <span style="font-size: 14px; background-color: ${ruidoColor}; color: white; padding: 2px 8px; border-radius: 4px;">
+                                    <i class="fas ${getRuidoIcon(room.noise_lvl)}"></i> ${ruidoLabel}
+                                </span>
+                            </div>
+                            <a href="../index.html?sala=${room.id}" class="button primary" style="display: block; text-align: center; margin-top: 12px; padding: 8px; border-radius: 4px; background-color: #3b82f6; color: white; text-decoration: none; font-size: 14px; font-weight: 500;">
+                                <i class="fas fa-info-circle"></i> Ver Detalhes
+                            </a>
+                        </div>
+                    `;
+                    
+                    const popup = L.popup({
+                        closeButton: true,
+                        className: 'custom-popup'
+                    }).setContent(popupContent);
+                    
+                    marker.bindPopup(popup);
+                    
+                    // Add click event to select room
+                    marker.on('click', function() {
+                        highlightMarker(room.id);
+                    });
+
+                    // Add favorite button event
+                    marker.on('popupopen', function() {
+                        setTimeout(() => {
+                            const favoriteBtn = document.querySelector('.favorite-btn');
+                            if (favoriteBtn) {
+                                favoriteBtn.addEventListener('click', function() {
+                                    const roomId = this.getAttribute('data-room-id');
+                                    toggleFavorite(roomId);
+                                });
+                            }
+                        }, 0);
+                    });
+                    
+                    markers.push(marker);
+                }
+            });
+            
+            // Update nearby rooms list if panel is visible
+            if (document.getElementById('nearbyRoomsPanel').classList.contains('visible')) {
+                updateNearbyRoomsList();
+            }
+        }
+        
+        // Show room details in the panel
+        function showRoomDetails(room) {
+            const panel = document.getElementById('room-details-panel');
+            const content = document.getElementById('room-details-content');
+            content.innerHTML = `
+                <h3 style="color:#6d28d9">${room.name || 'Sala'}</h3>
+                <p><b>Edifício:</b> ${room.building || '-'}</p>
+                <p><b>Ocupação:</b> ${(room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) + '%' : 'N/A'}</p>
+                <p><b>Temperatura:</b> ${room.temperature !== undefined ? room.temperature + '°C' : 'N/A'}</p>
+                <p><b>Ruído:</b> ${room.noise_lvl !== undefined ? room.noise_lvl : 'N/A'}</p>
+                <p><b>Wi-Fi:</b> ${room.wifi ? 'Disponível' : 'Não disponível'}</p>
+                <p><b>Tomadas:</b> ${room.outlets ? 'Disponíveis' : 'Não disponíveis'}</p>
+            `;
+            panel.classList.add('open');
+        }
+
+        // Close room details panel
+        document.getElementById('close-details-panel').onclick = function() {
+            document.getElementById('room-details-panel').classList.remove('open');
+        };
+        
+        // Select a room
+        function selectRoom(room) {
+            // Clear previous selection
+            clearSelectedRoom();
+            
+            // Set new selection
+            selectedRoomId = room.id;
+            
+            // Update markers to highlight selected room
+            createMarkers(window.roomsData);
+            
+            // Update nearby rooms list
+            updateNearbyRoomsList();
+        }
+        
+        // Clear selected room
+        function clearSelectedRoom() {
+            selectedRoomId = null;
+            
+            // Update markers
+            createMarkers(window.roomsData);
+            
+            // Update nearby rooms list
+            updateNearbyRoomsList();
+        }
+        
+        // Update nearby rooms list
+        function updateNearbyRoomsList() {
+            const nearbyRoomsList = document.getElementById('nearbyRoomsList');
+            nearbyRoomsList.innerHTML = '';
+            
+            if (!window.roomsData) return;
+            
+            // Get current map center
+            const mapCenter = map.getCenter();
+            
+            // Filter rooms by current filter
+            let filteredRooms = window.roomsData.filter(room => {
+                if (!room.location || typeof room.location.latitude !== 'number' || typeof room.location.longitude !== 'number') {
+                    return false;
+                }
+                
+                const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
+                const occupancyCategory = getOccupancyCategory(ocupacao);
+                const isFavorite = userFavorites.includes(room.id);
+                
+                // Apply filters
+                if (currentFilter === 'favorites' && !isFavorite) return false;
+                if (['low', 'medium', 'high'].includes(currentFilter) && currentFilter !== occupancyCategory) return false;
+                
+                return true;
+            });
+            
+            // Sort by distance to map center
+            filteredRooms.forEach(room => {
+                const roomLatLng = L.latLng(room.location.latitude, room.location.longitude);
+                room.distance = mapCenter.distanceTo(roomLatLng);
+            });
+            
+            filteredRooms.sort((a, b) => a.distance - b.distance);
+            
+            // Take top 10
+            filteredRooms = filteredRooms.slice(0, 10);
+            
+            // Render rooms
+            filteredRooms.forEach(room => {
+                const ocupacao = (room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) : 0;
+                const isSelected = room.id === selectedRoomId;
+                
+                const roomItem = document.createElement('div');
+                roomItem.className = `nearby-room-item ${isSelected ? 'selected' : ''}`;
+                roomItem.innerHTML = `
+                    <div class="nearby-room-name">${room.name || 'Sala'}</div>
+                    <div class="nearby-room-details">
+                        <span>${room.building || ''}</span>
+                        <span style="color: ${getOccupancyColor(ocupacao)};">${ocupacao}% ocupação</span>
+                    </div>
+                `;
+                
+                roomItem.addEventListener('click', function() {
+                    // Select room and fly to it
+                    selectRoom(room);
+                    map.flyTo([room.location.latitude, room.location.longitude], 18);
+                });
+                
+                nearbyRoomsList.appendChild(roomItem);
+            });
+            
+            // Show message if no rooms
+            if (filteredRooms.length === 0) {
+                nearbyRoomsList.innerHTML = `
+                    <div style="padding: 1rem; text-align: center; color: var(--color-text-light);">
+                        Nenhuma sala encontrada com os filtros atuais.
+                    </div>
+                `;
+            }
+        }
+        
+        // Toggle favorite
+        async function toggleFavorite(roomId) {
+            if (!currentUser) {
+                // Show login modal if user is not logged in
+                document.getElementById('loginModal').style.display = 'block';
+                return;
+            }
+            
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                
+                if (userFavorites.includes(roomId)) {
+                    // Remove from favorites
+                    await updateDoc(userDocRef, {
+                        favorites: arrayRemove(roomId)
+                    });
+                    userFavorites = userFavorites.filter(id => id !== roomId);
+                } else {
+                    // Add to favorites
+                    await updateDoc(userDocRef, {
+                        favorites: arrayUnion(roomId)
+                    });
+                    userFavorites.push(roomId);
+                }
+                
+                // Update markers
+                updateMarkers();
+                
+                // Update favorite button in popup
+                const favoriteBtn = document.querySelector(`.favorite-btn[data-room-id="${roomId}"]`);
+                if (favoriteBtn) {
+                    const isFavorite = userFavorites.includes(roomId);
+                    favoriteBtn.classList.toggle('active', isFavorite);
+                    favoriteBtn.style.color = isFavorite ? '#f59e0b' : '#d1d5db';
+                    favoriteBtn.innerHTML = `<i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>`;
+                }
+            } catch (error) {
+                console.error("Error updating favorites:", error);
+            }
+        }
+        
+        // Update markers based on current filter
+        function updateMarkers() {
+            if (window.roomsData) {
+                createMarkers(window.roomsData);
+            }
+        }
+        
+        // Filter chips functionality
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Skip if favorites filter and user not logged in
+                if (this.getAttribute('data-filter') === 'favorites' && !currentUser) {
+                    document.getElementById('loginModal').style.display = 'block';
+                    return;
+                }
+                
+                // Remove active class from all chips
+                document.querySelectorAll('.filter-chip').forEach(c => {
+                    c.classList.remove('active');
+                });
+                
+                // Add active class to clicked chip
+                this.classList.add('active');
+                
+                // Update current filter
+                currentFilter = this.getAttribute('data-filter');
+                
+                // Update markers
+                updateMarkers();
+            });
+        });
+        
+        // Helper functions
+        function getTemperatureColor(temp) {
+            if (temp < 18) return '#3b82f6'; // cold
+            if (temp < 22) return '#60a5fa'; // cool
+            if (temp < 25) return '#22c55e'; // comfortable
+            if (temp < 28) return '#f59e0b'; // warm
+            return '#ef4444'; // hot
+        }
+        
+        function getRuidoIcon(ruido) {
+            if (ruido >= 70) return 'fa-volume-up';
+            if (ruido >= 50) return 'fa-volume-down';
+            return 'fa-volume-off';
+        }
+        
+        // Login modal functionality
+        const loginModal = document.getElementById('loginModal');
+        const loginBtn = document.getElementById('loginBtn');
+        const closeBtn = document.querySelector('.close');
+        
+        loginBtn.addEventListener('click', function() {
+            loginModal.style.display = 'block';
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            loginModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target === loginModal) {
+                loginModal.style.display = 'none';
+            }
+        });
+        
+        // Modal tabs
+        document.querySelectorAll('.modal-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.modal-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab content
+                document.querySelectorAll('.modal-body').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Show selected tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}Tab`).style.display = 'block';
+            });
+        });
+        
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                loginModal.style.display = 'none';
+                showNotification('Login realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error signing in:", error);
+                showNotification('Erro ao fazer login. Verifique suas credenciais.', 'error');
+            }
+        });
+        
+        // Register form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showNotification('As senhas não coincidem.', 'error');
+                return;
+            }
+            
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Create user document
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    email: email,
+                    displayName: name,
+                    favorites: []
+                });
+                
+                loginModal.style.display = 'none';
+                showNotification('Conta criada com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error registering:", error);
+                showNotification('Erro ao criar conta. Tente novamente.', 'error');
+            }
+        });
+        
+        // Google sign in
+        document.querySelector('.google-btn').addEventListener('click', async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                
+                // Check if user document exists
+                const userDocRef = doc(db, "users", result.user.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (!userDoc.exists()) {
+                    // Create user document if it doesn't exist
+                    await setDoc(userDocRef, {
+                        email: result.user.email,
+                        displayName: result.user.displayName || '',
+                        favorites: []
+                    });
+                }
+                
+                loginModal.style.display = 'none';
+                showNotification('Login com Google realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error signing in with Google:", error);
+                showNotification('Erro ao fazer login com Google.', 'error');
+            }
+        });
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                await signOut(auth);
+                showNotification('Logout realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error("Error signing out:", error);
+                showNotification('Erro ao fazer logout.', 'error');
+            }
+        });
+        
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close">&times;</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+            
+            // Close button
+            notification.querySelector('.notification-close').addEventListener('click', function() {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+        }
+
+        // Highlight marker functionality
+        function highlightMarker(roomId) {
+            // Remove realce de todos os marcadores antes de realçar o novo
+            window.markers.forEach(m => {
+                if (m._icon) {
+                    m._icon.style.transition = "";
+                    m._icon.style.transform = "";
+                    m._icon.style.boxShadow = "";
+                    m._icon.classList.remove('highlighted-marker');
+                }
+            });
+
+            // Realça só o marcador correspondente
+            const marker = window.markers.find(m => m.options && m.options.roomId == roomId);
+            if (marker && marker._icon) {
+                marker._icon.style.transition = "transform 0.2s, box-shadow 0.2s";
+                marker._icon.classList.add('highlighted-marker');
+                let count = 0;
+                const pulse = setInterval(() => {
+                    marker._icon.style.transform = count % 2 === 0 ? "scale(1.5)" : "scale(1)";
+                    marker._icon.style.boxShadow = count % 2 === 0 ? "0 0 16px 8px #a78bfa88" : "";
+                    count++;
+                    if (count > 5) {
+                        clearInterval(pulse);
+                        marker._icon.style.transform = "";
+                        marker._icon.style.boxShadow = "";
+                        marker._icon.classList.remove('highlighted-marker');
+                    }
+                }, 250);
+                marker.openPopup && marker.openPopup();
+            }
+        }
+
+        // Chama esta função ao carregar o mapa se houver ?id= na URL:
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomId = urlParams.get('id');
+            if (roomId) highlightMarker(roomId);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMapWithFirebase();
+        });
+    </script>
+    <style>
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1rem;
+            max-width: 350px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .notification.success .notification-content i {
+            color: var(--color-success);
+        }
+        
+        .notification.error .notification-content i {
+            color: var(--color-danger);
+        }
+        
+        .notification-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: var(--color-text-light);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            width: 90%;
+            max-width: 500px;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+        
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            transition: border-color 0.2s, color 0.2s;
+            color: var(--color-text-light);
+        }
+        
+        .modal-tab.active {
+            border-bottom-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        
+        .modal-body {
+            padding: 1rem 0;
+        }
+        
+        .modal-body h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .social-login {
+            margin-top: 1.5rem;
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-border);
+        }
+        
+        .google-btn {
+            background-color: white;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        /* Custom popup styles */
+        .custom-popup .leaflet-popup-content-wrapper {
+            border-radius: var(--border-radius);
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .custom-popup .leaflet-popup-content {
+            margin: 0;
+            width: 250px !important;
+        }
+        
+        .custom-popup .leaflet-popup-tip {
+            background-color: white;
+        }
+        
+        /* User location marker pulse animation */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            70% { transform: scale(3); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        
+        .user-location-marker::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            z-index: -1;
+            animation: pulse 2s infinite;
+        }
+    </style>
 </body>
 </html>
