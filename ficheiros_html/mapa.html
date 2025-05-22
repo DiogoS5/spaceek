@@ -395,37 +395,25 @@
                 <h2>Mapa de Salas de Estudo</h2>
                 <p>Visualize a localização das salas de estudo no campus.</p>
                 
-                <div class="filter-chips">
-                    <span class="filter-label">Filtrar por:</span>
-                    <div class="filter-chip active" data-filter="all">
-                        <i class="fas fa-th"></i> Todas
-                    </div>
-                    <div class="filter-chip" data-filter="low">
-                        <i class="fas fa-check-circle"></i> Baixa Ocupação
-                    </div>
-                    <div class="filter-chip" data-filter="medium">
-                        <i class="fas fa-exclamation-circle"></i> Média Ocupação
-                    </div>
-                    <div class="filter-chip" data-filter="high">
-                        <i class="fas fa-times-circle"></i> Alta Ocupação
-                    </div>
-                    <div class="filter-chip" data-filter="favorites">
-                        <i class="fas fa-star"></i> Favoritos
+                <!-- FILTER BUTTONS: Match index.html style and layout -->
+                <div class="filter-tabs" id="filterTabs">
+                    <div class="filter-group">
+                        <button class="tab active" data-filter="all"><i class="fas fa-th"></i> Todas</button>
+                        <button class="tab" data-filter="low"><i class="fas fa-check-circle"></i> Baixa</button>
+                        <button class="tab" data-filter="medium"><i class="fas fa-exclamation-circle"></i> Média</button>
+                        <button class="tab" data-filter="high"><i class="fas fa-times-circle"></i> Alta</button>
+                        <button class="tab" id="favoritesFilterBtn" data-filter="favorites"><i class="fas fa-star"></i> Favoritos</button>
                     </div>
                 </div>
+                <!-- END FILTER BUTTONS -->
                 
                 <div id="map-container">
                     <div id="map"></div>
                     <button class="user-location-btn" id="userLocationBtn">
                         <i class="fas fa-location-arrow"></i> Minha Localização
                     </button>
+                    <!-- Removed custom zoom buttons from bottom right -->
                     <div class="map-controls">
-                        <button class="map-control-btn" id="zoomInBtn" title="Ampliar">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button class="map-control-btn" id="zoomOutBtn" title="Reduzir">
-                            <i class="fas fa-minus"></i>
-                        </button>
                         <button class="map-control-btn" id="resetViewBtn" title="Resetar Visualização">
                             <i class="fas fa-home"></i>
                         </button>
@@ -433,7 +421,7 @@
                             <i class="fas fa-list"></i>
                         </button>
                     </div>
-                    
+                    <!-- End custom controls -->
                     <!-- Painel de salas próximas -->
                     <div class="nearby-rooms-panel" id="nearbyRoomsPanel">
                         <div class="nearby-rooms-header">
@@ -638,6 +626,8 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
+            // Ensure default zoom control is enabled (top left)
+            map.zoomControl.setPosition('topleft');
 
             // Busca dados do Firebase
             let roomsData = [];
@@ -676,14 +666,6 @@
             createMarkers(roomsData);
             
             // Add map control events
-            document.getElementById('zoomInBtn').addEventListener('click', function() {
-                map.zoomIn();
-            });
-            
-            document.getElementById('zoomOutBtn').addEventListener('click', function() {
-                map.zoomOut();
-            });
-            
             document.getElementById('resetViewBtn').addEventListener('click', function() {
                 map.setView(istCoordinates, 17);
             });
@@ -1062,28 +1044,26 @@
             }
         }
         
-        // Filter chips functionality
-        document.querySelectorAll('.filter-chip').forEach(chip => {
-            chip.addEventListener('click', function() {
-                // Skip if favorites filter and user not logged in
+        // --- FILTER BUTTONS LOGIC: Match index.html behavior ---
+        document.querySelectorAll('.filter-tabs .tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // If Favoritos and not logged in, show login modal
                 if (this.getAttribute('data-filter') === 'favorites' && !currentUser) {
                     document.getElementById('loginModal').style.display = 'block';
                     return;
                 }
-                
-                // Remove active class from all chips
-                document.querySelectorAll('.filter-chip').forEach(c => {
-                    c.classList.remove('active');
-                });
-                
-                // Add active class to clicked chip
+                // Remove active from all tabs
+                document.querySelectorAll('.filter-tabs .tab').forEach(t => t.classList.remove('active'));
+                // Add active to clicked tab
                 this.classList.add('active');
-                
-                // Update current filter
+                // Update currentFilter
                 currentFilter = this.getAttribute('data-filter');
-                
                 // Update markers
                 updateMarkers();
+                // Recenter map to default view
+                if (typeof map !== 'undefined' && map) {
+                    map.setView(istCoordinates, 17);
+                }
             });
         });
         
