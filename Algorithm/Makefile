@@ -14,7 +14,7 @@ SRCS = main.c
 OBJS = $(SRCS:.c=.o)
 
 # Nome do executável
-TARGET = algorithm
+TARGET = target
 
 # O target default
 all: $(TARGET)
