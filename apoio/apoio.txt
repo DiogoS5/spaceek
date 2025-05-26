@@ -5,7 +5,7 @@ https://console.cloud.google.com/google/maps-hosted/build?inv=1&invt=AbxX5Q&proj
 para o nivel de Ocupação falamos do intervalo de ocupação como
 menos de 50% - verde
 50% a 75% - amarelo
-maior ou igual a 75% - vermelho
+75% - vermelho
 
 para os níveis de ruído, segue-se o link seguinte como base científica
 https://decibelpro.app/blog/how-many-decibels-does-a-human-speak-normally/

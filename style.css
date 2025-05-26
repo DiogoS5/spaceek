@@ -852,7 +852,7 @@ footer {
 
 footer .container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
@@ -860,6 +860,9 @@ footer .container {
 
 footer p {
   font-size: 0.875rem;
+  text-align: center;
+  width: 100%;
+  margin: 0;
 }
 
 footer nav {

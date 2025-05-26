@@ -76,11 +76,7 @@
 
     <footer>
         <div class="container">
-            <p>© 2024 Spaceek. Todos os direitos reservados.</p>
-            <nav>
-                <a href="#">Termos de Serviço</a>
-                <a href="#">Privacidade</a>
-            </nav>
+            <p>© 2025 Spaceek. Todos os direitos reservados.</p>
         </div>
     </footer>
 
@@ -354,8 +350,8 @@
                     <div class="room-indicators">
                         <div class="indicator">
                             <span class="indicator-label"><i class="fas fa-users"></i> Ocupação</span>
-                            <span>${ocupacao}%</span>
                             <div class="progress-container"><div class="progress-bar" style="width:${ocupacao}%;background:${ocupacaoColor}"></div></div>
+                            <span>${ocupacao}%</span>
                         </div>
                         <div class="indicator">
                             <span class="indicator-label"><i class="fas ${getRuidoIcon(ruido)}"></i> Ruído</span>
@@ -368,6 +364,9 @@
                     </div>
                     <div class="room-actions">
                         <button class="button primary detalhes-btn">Detalhes</button>
+                        <a class="button secondary ver-mapa-btn" href="ficheiros_html/mapa.html?sala=" + encodeURIComponent(data.name || '') + "&id=" + data.id + "" style="margin-left:0.5em; background:#fff; color:#6366f1; border:1px solid #6366f1; font-weight:600; box-shadow:0 2px 8px rgba(59,130,246,0.10); display:inline-flex; align-items:center; gap:0.5em; text-decoration:none; padding:10px 16px; border-radius:8px; font-size:1em;">
+                            <i class="fas fa-map-marker-alt"></i> Ver no mapa
+                        </a>
                     </div>
                 `;
                 
@@ -510,24 +509,91 @@
             mapDiv.innerHTML = '';
             mapDiv.style.width = '100%';
             mapDiv.style.height = '400px';
+            // Add map control buttons container (bottom right, column, same as mapa.html)
+            let controlsDiv = document.createElement('div');
+            controlsDiv.className = 'map-controls';
+            controlsDiv.innerHTML = `
+                <button id="splitMapLocationBtn" title="Minha Localização" class="map-control-btn"><i class="fas fa-location-arrow"></i></button>
+                <button id="splitMapResetBtn" title="Vista Inicial" class="map-control-btn"><i class="fas fa-home"></i></button>
+            `;
+            mapDiv.appendChild(controlsDiv);
+            // Create map
             if (roomData.location && typeof roomData.location.latitude === 'number' && typeof roomData.location.longitude === 'number') {
-                const lat = roomData.location.latitude;
-                const lng = roomData.location.longitude;
-                const map = L.map('split-map').setView([lat, lng], 18);
+                const roomLatLng = [roomData.location.latitude, roomData.location.longitude];
+                const splitMap = L.map(mapDiv, { zoomControl: true, attributionControl: false });
+                splitMap.setView(roomLatLng, 19);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
-                const markerIcon = L.divIcon({
-                    className: 'custom-marker',
-                    html: `<div style="background-color: ${getOcupacaoColor(Math.round((roomData.curOcc/roomData.maxOcc)*100))}; width: 100%; height: 100%; border-radius:50%"></div>`,
-                    iconSize: [24, 24]
-                });
-                const marker = L.marker([lat, lng], { icon: markerIcon, title: roomData.name || 'Sala' }).addTo(map);
-                marker.bindPopup(`<b>${roomData.name || 'Sala'}</b><br>${roomData.building || ''}`).openPopup();
-                // Outer circle removed as requested
+                    attribution: ''
+                }).addTo(splitMap);
+                // Add marker for the room
+                let ocupacao = 0;
+                if (roomData.curOcc !== undefined && roomData.maxOcc) {
+                    ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
+                }
+                let ocupacaoColor = getOcupacaoColor(ocupacao);
+                L.marker(roomLatLng, {
+                    icon: L.divIcon({
+                        className: 'custom-marker highlighted-marker',
+                        html: `<div style=\"background-color: ${ocupacaoColor}; width: 32px; height: 32px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 12px #3b82f6;\"></div>`,
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    })
+                }).addTo(splitMap);
+                // Location button logic (same as mapa.html)
+                document.getElementById('splitMapLocationBtn').onclick = function() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            const userLatLng = [position.coords.latitude, position.coords.longitude];
+                            splitMap.setView(userLatLng, 18);
+                            // Add user marker
+                            const userMarker = L.marker(userLatLng, {
+                                icon: L.divIcon({
+                                    className: 'user-location-marker',
+                                    html: `<div style=\"background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;\"></div>` ,
+                                    iconSize: [22, 22]
+                                })
+                            }).addTo(splitMap);
+                            // Add accuracy circle
+                            const accuracyCircle = L.circle(userLatLng, {
+                                radius: position.coords.accuracy,
+                                color: '#3b82f6',
+                                fillColor: '#3b82f6',
+                                fillOpacity: 0.1
+                            }).addTo(splitMap);
+                            setTimeout(() => {
+                                splitMap.removeLayer(userMarker);
+                                splitMap.removeLayer(accuracyCircle);
+                            }, 15000);
+                        }, function(error) {
+                            alert('Erro ao obter sua localização: ' + error.message);
+                        });
+                    } else {
+                        alert('Geolocalização não é suportada pelo seu navegador.');
+                    }
+                };
+                // Reset view button logic (same as mapa.html)
+                document.getElementById('splitMapResetBtn').onclick = function() {
+                    splitMap.setView(roomLatLng, 19);
+                };
             } else {
-                mapDiv.innerHTML = '<div style="padding:2rem;text-align:center;"><i class="fas fa-map-marked-alt fa-3x" style="color:#ccc;margin-bottom:1rem;"></i><p>Localização não disponível para esta sala.</p></div>';
+                mapDiv.innerHTML += '<div style="padding:1rem; color:red;">Localização da sala não disponível.</div>';
             }
+        }
+
+        // Helper to update split map location button color (same as mapa.html)
+        function updateSplitMapLocationBtnColor(roomData) {
+            const btn = document.getElementById('splitMapLocationBtn');
+            if (!btn) return;
+            let color = '';
+            if (roomData && roomData.curOcc !== undefined && roomData.maxOcc) {
+                const ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
+                color = getOcupacaoColor(ocupacao);
+            }
+            btn.style.backgroundColor = color || 'white';
+            btn.style.color = 'white'; // Always white icon
+            // Update icon color for contrast
+            const icon = btn.querySelector('i');
+            if (icon) icon.style.color = 'white';
         }
 
         // Search functionality
@@ -667,6 +733,9 @@
                     </div>
                     <div class="room-actions">
                         <button class="button primary detalhes-btn">Detalhes</button>
+                        <a class="button secondary ver-mapa-btn" href="ficheiros_html/mapa.html?sala=" + encodeURIComponent(data.name || '') + "&id=" + data.id + "" style="margin-left:0.5em; background:#fff; color:#6366f1; border:1px solid #6366f1; font-weight:600; box-shadow:0 2px 8px rgba(59,130,246,0.10); display:inline-flex; align-items:center; gap:0.5em; text-decoration:none; padding:10px 16px; border-radius:8px; font-size:1em;">
+                            <i class="fas fa-map-marker-alt"></i> Ver no mapa
+                        </a>
                     </div>
                 `;
                 
@@ -826,6 +895,7 @@
 
         // Initialize
         getNames();
+        openSplitViewFromQuery();
 
         // Banner logic
         function updateBanner(room) {
@@ -862,6 +932,26 @@
                 renderRooms(getCurrentFilter());
             }
         });
+
+        // On page load, check for splitview query param and open splitview for that room
+        function openSplitViewFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('splitview') === '1' && params.get('id')) {
+                const roomId = params.get('id');
+                // Wait for allRooms to be loaded
+                const tryShow = () => {
+                    if (allRooms && allRooms.length > 0) {
+                        const room = allRooms.find(r => r.id === roomId);
+                        if (room) {
+                            showSplitView(room);
+                        }
+                    } else {
+                        setTimeout(tryShow, 100);
+                    }
+                };
+                tryShow();
+            }
+        }
     </script>
     <style>
     /* Split view styles */
@@ -1118,6 +1208,65 @@
         background: none;
         border: none;
         cursor: pointer;
+    }
+    /* Split map controls */
+    .split-map-controls {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .split-map-btn {
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #3b82f6;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .split-map-btn:hover {
+        background: #e0e7ff;
+        box-shadow: 0 4px 12px rgba(59,130,246,0.12);
+    }
+    #split-map { position: relative; }
+    /* End of split map controls */
+
+    /* Add map-controls CSS (bottom right, column, same as mapa.html) */
+    .map-controls {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 1000;
+    }
+    .map-control-btn {
+        background-color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-size: 1.2rem;
+    }
+    .map-control-btn:hover {
+        background-color: var(--color-secondary);
     }
     </style>
 </body>
