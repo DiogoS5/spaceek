@@ -41,9 +41,12 @@
                     <h2>Salas Disponíveis</h2>
                 </div>
                 <p>Encontre a sala ideal para suas necessidades de estudo.</p>
+                <div id="voltar-btn-container" style="display:none;margin-bottom:0.5rem;"></div>
+                <br>
                 <div id="banner"></div>
                 <div class="filter-tabs" id="filterTabs">
                     <div class="filter-group">
+                        <button class="tab active" data-filter="all">Todos</button>
                         <button class="tab" data-filter="library">Bibliotecas</button>
                         <button class="tab" data-filter="study">Salas de Estudo</button>
                         <div class="tab search-tab" tabindex="0">
@@ -73,11 +76,7 @@
 
     <footer>
         <div class="container">
-            <p>© 2024 Spaceek. Todos os direitos reservados.</p>
-            <nav>
-                <a href="#">Termos de Serviço</a>
-                <a href="#">Privacidade</a>
-            </nav>
+            <p>© 2025 Spaceek. Todos os direitos reservados.</p>
         </div>
     </footer>
 
@@ -85,48 +84,11 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <div class="modal-tabs">
-                <button class="modal-tab active" data-tab="login">Login</button>
-                <button class="modal-tab" data-tab="register">Registrar</button>
-            </div>
             <div class="modal-body" id="loginTab">
-                <h2>Login</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Senha</label>
-                        <input type="password" id="loginPassword" required>
-                    </div>
-                    <button type="submit" class="button primary">Entrar</button>
-                </form>
+                <h2>Entrar</h2>
                 <div class="social-login">
                     <button class="button google-btn"><i class="fab fa-google"></i> Entrar com Google</button>
                 </div>
-            </div>
-            <div class="modal-body" id="registerTab" style="display: none;">
-                <h2>Criar Conta</h2>
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label for="registerName">Nome</label>
-                        <input type="text" id="registerName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerEmail">Email</label>
-                        <input type="email" id="registerEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerPassword">Senha</label>
-                        <input type="password" id="registerPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerConfirmPassword">Confirmar Senha</label>
-                        <input type="password" id="registerConfirmPassword" required>
-                    </div>
-                    <button type="submit" class="button primary">Registrar</button>
-                </form>
             </div>
         </div>
     </div>
@@ -288,6 +250,18 @@
             renderRooms(getCurrentFilter());
         });
 
+        // Filter tab logic
+        const filterTabs = document.querySelectorAll('.filter-group .tab');
+        filterTabs.forEach(tab => {
+            if (!tab.classList.contains('search-tab')) {
+                tab.addEventListener('click', function() {
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    renderRooms(this.getAttribute('data-filter'));
+                });
+            }
+        });
+
         function getCurrentFilter() {
             const activeTab = document.querySelector('.filter-group .tab.active:not(.search-tab)');
             return activeTab ? activeTab.getAttribute('data-filter') : 'all';
@@ -338,9 +312,7 @@
                 const bloco = data.building || '';
                 const curOcc = data.curOcc || 0;
                 const maxOcc = data.maxOcc || 0;
-                const ocupacao = (data.curOcc !== 0 && data.maxOcc !== 0)
-                    ? Math.round((curOcc / maxOcc) * 100)
-                    : null;
+                let ocupacao = (maxOcc > 0) ? Math.round((Math.min(curOcc, maxOcc) / maxOcc) * 100) : 0;
                 let ocupacaoColor = '#22c55e';
                 if (ocupacao >= 75) ocupacaoColor = '#ef4444';
                 else if (ocupacao >= 50) ocupacaoColor = '#eab308';
@@ -353,6 +325,13 @@
                 else if (ruido >= 30) { ruidoClass = 'low'; ruidoLabel = 'Baixo'; }
                 else if (ruido < 30) { ruidoClass = 'very-low'; ruidoLabel = 'Muito Baixo'; }
                 
+                // Wi-Fi and Tomadas logic
+        
+                const wifiStatus = data.wifi === true ? 'Disponível' : 'Indisponível';
+                const wifiIcon = data.wifi === true ? 'fa-wifi' : 'fa-wifi-slash';
+                const tomadasStatus = (data.nOutlets && data.nOutlets > 0) ? 'Disponível' : 'Indisponível';
+                const tomadasIcon = (data.nOutlets && data.nOutlets > 0) ? 'fa-plug' : 'fa-plug-circle-xmark';
+                
                 // Check if room is in favorites
                 const isFavorite = userFavorites.includes(data.id);
                 
@@ -361,43 +340,32 @@
                 card.innerHTML = `
                     <div class="room-header">
                         <div class="room-title">
-                            <h3 class="room-name" style="color:var(--color-primary)">${name}</h3>
-                            <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${data.id}">
+                            <span class="room-name">${name}</span>
+                            <button class="favorite-btn${isFavorite ? ' active' : ''}" data-room-id="${data.id}" title="Favoritar sala">
                                 <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
                             </button>
                         </div>
                         <p>${bloco}</p>
                     </div>
                     <div class="room-indicators">
-                        ${ocupacao !== null ? `
                         <div class="indicator">
-                            <span class="indicator-label">Ocupação:</span>
-                            <div class="progress-container">
-                                <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${ocupacaoColor};"></div>
-                            </div>
-                            <span class="indicator-value">${ocupacao}%</span>
-                        </div>` : ''}
-                        ${temperatura !== null ? `
+                            <span class="indicator-label"><i class="fas fa-users"></i> Ocupação</span>
+                            <div class="progress-container"><div class="progress-bar" style="width:${ocupacao}%;background:${ocupacaoColor}"></div></div>
+                            <span>${ocupacao}%</span>
+                        </div>
                         <div class="indicator">
-                            <span class="indicator-label">Temperatura:</span>
-                            <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(temperatura)}">
-                                <i class="fas fa-thermometer-half"></i> ${temperatura}°C
-                            </span>
-                        </div>` : ''}
-                        ${ruido !== null ? `
+                            <span class="indicator-label"><i class="fas ${getRuidoIcon(ruido)}"></i> Ruído</span>
+                            <span class="badge noise ${ruidoClass}">${ruidoLabel}</span>
+                        </div>
                         <div class="indicator">
-                            <span class="indicator-label">Nível de Ruído:</span>
-                            <span class="badge noise ${ruidoClass}">
-                                <i class="fas ${getRuidoIcon(ruido)}"></i> ${ruidoLabel}
-                            </span>
-                        </div>` : ''}
+                            <span class="indicator-label"><i class="fas fa-thermometer-half"></i> Temperatura</span>
+                            <span class="badge temperature-badge" style="background:${getTemperatureColor(temperatura)}">${temperatura !== null ? temperatura + '°C' : 'N/A'}</span>
+                        </div>
                     </div>
                     <div class="room-actions">
-                        <button class="button secondary detalhes-btn">
-                            <i class="fas fa-info-circle"></i> Detalhes
-                        </button>
-                        <a href="ficheiros_html/mapa.html?sala=${encodeURIComponent(name)}&id=${data.id}" class="button primary">
-                            <i class="fas fa-map-marker-alt"></i> Ver no Mapa
+                        <button class="button primary detalhes-btn">Detalhes</button>
+                        <a class="button secondary ver-mapa-btn" href="ficheiros_html/mapa.html?sala=" + encodeURIComponent(data.name || '') + "&id=" + data.id + "" style="margin-left:0.5em; background:#fff; color:#6366f1; border:1px solid #6366f1; font-weight:600; box-shadow:0 2px 8px rgba(59,130,246,0.10); display:inline-flex; align-items:center; gap:0.5em; text-decoration:none; padding:10px 16px; border-radius:8px; font-size:1em;">
+                            <i class="fas fa-map-marker-alt"></i> Ver no mapa
                         </a>
                     </div>
                 `;
@@ -439,68 +407,67 @@
             document.getElementById('filterTabs').style.display = 'none';
             const splitView = document.getElementById('split-view');
             splitView.style.display = 'flex';
-            
-            // Check if room is in favorites
-            const isFavorite = userFavorites.includes(roomData.id);
-            
-            splitView.innerHTML = `
-                <div class="split-card">
-                    <button class="button secondary voltar-btn" style="margin-bottom:1rem;">
-                        <i class="fas fa-arrow-left"></i> Voltar
-                    </button>
-                    <div class="room-card">
-                        <div class="room-header">
-                            <div class="room-title">
-                                <h3 class="room-name" style="color:var(--color-primary)">${roomData.name || 'Sala'}</h3>
-                                <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${roomData.id}">
-                                    <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
-                                </button>
-                            </div>
-                            <p>${roomData.building || ''}</p>
-                        </div>
-                        <div class="room-indicators">
-                            ${(roomData.curOcc && roomData.maxOcc) ? `<div class="indicator">
-                                <span class="indicator-label">Ocupação:</span>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: ${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%; background-color: ${getOcupacaoColor(Math.round((roomData.curOcc/roomData.maxOcc)*100))};"></div>
-                                </div>
-                                <span class="indicator-value">${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%</span>
-                            </div>` : ''}
-                            ${roomData.temperature !== undefined ? `<div class="indicator">
-                                <span class="indicator-label">Temperatura:</span>
-                                <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(roomData.temperature)}">
-                                    <i class="fas fa-thermometer-half"></i> ${roomData.temperature}°C
-                                </span>
-                            </div>` : ''}
-                            ${roomData.noise_lvl !== undefined ? `<div class="indicator">
-                                <span class="indicator-label">Nível de Ruído:</span>
-                                <span class="badge noise ${getRuidoClass(roomData.noise_lvl)}">
-                                    <i class="fas ${getRuidoIcon(roomData.noise_lvl)}"></i> ${getRuidoLabel(roomData.noise_lvl)}
-                                </span>
-                            </div>` : ''}
-                        </div>
-                        <div class="room-details">
-                            <h4>Detalhes da Sala</h4>
-                            <ul>
-                                <li><i class="fas fa-users"></i> Capacidade: ${roomData.maxOcc || 'N/A'} pessoas</li>
-                                <li><i class="fas fa-plug"></i> Tomadas: ${roomData.outlets ? 'Disponíveis' : 'Não disponíveis'}</li>
-                                <li><i class="fas fa-wifi"></i> Wi-Fi: ${roomData.wifi ? 'Disponível' : 'Não disponível'}</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="split-map-container">
-                    <div id="split-map"></div>
-                </div>
-            `;
-            
-            // Add back button event
-            splitView.querySelector('.voltar-btn').addEventListener('click', function() {
+
+            // Show Voltar button above split view, just abaixo subtitle
+            const voltarBtnContainer = document.getElementById('voltar-btn-container');
+            voltarBtnContainer.innerHTML = `<button class="button secondary voltar-btn" style="margin-bottom:0;"><i class="fas fa-arrow-left"></i> Voltar</button>`;
+            voltarBtnContainer.style.display = 'block';
+            voltarBtnContainer.querySelector('.voltar-btn').addEventListener('click', function() {
                 splitView.style.display = 'none';
                 document.querySelector('.results .study-rooms').style.display = '';
                 document.getElementById('filterTabs').style.display = '';
+                voltarBtnContainer.style.display = 'none';
             });
-            
+
+            splitView.innerHTML = `
+                <div class="splitview-content" style="display:flex;gap:2rem;width:100%;align-items:stretch;">
+                    <div class="split-card">
+                        <div class="room-card">
+                            <div class="room-header">
+                                <div class="room-title">
+                                    <h3 class="room-name" style="color:var(--color-primary)">${roomData.name || 'Sala'}</h3>
+                                    <button class="favorite-btn ${userFavorites.includes(roomData.id) ? 'active' : ''}" data-room-id="${roomData.id}">
+                                        <i class="${userFavorites.includes(roomData.id) ? 'fas' : 'far'} fa-star"></i>
+                                    </button>
+                                </div>
+                                <p>${roomData.building || ''}</p>
+                            </div>
+                            <div class="room-indicators">
+                                ${(roomData.curOcc && roomData.maxOcc) ? `<div class="indicator">
+                                    <span class="indicator-label">Ocupação:</span>
+                                    <div class="progress-container">
+                                        <div class="progress-bar" style="width: ${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%; background-color: ${getOcupacaoColor(Math.round((roomData.curOcc/roomData.maxOcc)*100))};"></div>
+                                    </div>
+                                    <span class="indicator-value">${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%</span>
+                                </div>` : ''}
+                                ${roomData.temperature !== undefined ? `<div class="indicator">
+                                    <span class="indicator-label">Temperatura:</span>
+                                    <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(roomData.temperature)}">
+                                        <i class="fas fa-thermometer-half"></i> ${roomData.temperature}°C
+                                    </span>
+                                </div>` : ''}
+                                ${roomData.noise_lvl !== undefined ? `<div class="indicator">
+                                    <span class="indicator-label">Nível de Ruído:</span>
+                                    <span class="badge noise ${getRuidoClass(roomData.noise_lvl)}">
+                                        <i class="fas ${getRuidoIcon(roomData.noise_lvl)}"></i> ${getRuidoLabel(roomData.noise_lvl)}
+                                    </span>
+                                </div>` : ''}
+                            </div>
+                            <div class="room-details">
+                                <h4>Detalhes da Sala</h4>
+                                <ul>
+                                    <li><i class="fas fa-users"></i> Capacidade: ${roomData.maxOcc || 'N/A'} pessoas</li>
+                                    <li><i class="fas fa-plug"></i> Tomadas: ${(roomData.nOutlets && roomData.nOutlets > 0) ? 'Disponível' : 'Indisponível'}</li>
+                                    <li><i class="fas fa-wifi"></i> Wi-Fi: ${roomData.wifi ? 'Disponível' : 'Não disponível'}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="split-map-container">
+                        <div id="split-map"></div>
+                    </div>
+                </div>
+            `;
             // Add favorite button event
             splitView.querySelector('.favorite-btn').addEventListener('click', function() {
                 const roomId = this.getAttribute('data-room-id');
@@ -513,7 +480,6 @@
                     icon.className = 'far fa-star';
                 }
             });
-            
             // Render map for this room
             setTimeout(() => renderSplitMap(roomData), 0);
         }
@@ -543,30 +509,91 @@
             mapDiv.innerHTML = '';
             mapDiv.style.width = '100%';
             mapDiv.style.height = '400px';
+            // Add map control buttons container (bottom right, column, same as mapa.html)
+            let controlsDiv = document.createElement('div');
+            controlsDiv.className = 'map-controls';
+            controlsDiv.innerHTML = `
+                <button id="splitMapLocationBtn" title="Minha Localização" class="map-control-btn"><i class="fas fa-location-arrow"></i></button>
+                <button id="splitMapResetBtn" title="Vista Inicial" class="map-control-btn"><i class="fas fa-home"></i></button>
+            `;
+            mapDiv.appendChild(controlsDiv);
+            // Create map
             if (roomData.location && typeof roomData.location.latitude === 'number' && typeof roomData.location.longitude === 'number') {
-                const lat = roomData.location.latitude;
-                const lng = roomData.location.longitude;
-                const map = L.map('split-map').setView([lat, lng], 18);
+                const roomLatLng = [roomData.location.latitude, roomData.location.longitude];
+                const splitMap = L.map(mapDiv, { zoomControl: true, attributionControl: false });
+                splitMap.setView(roomLatLng, 19);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
-                const markerIcon = L.divIcon({
-                    className: 'custom-marker',
-                    html: `<div style="background-color: ${getOcupacaoColor(Math.round((roomData.curOcc/roomData.maxOcc)*100))}; width: 100%; height: 100%; border-radius:50%"></div>`,
-                    iconSize: [24, 24]
-                });
-                const marker = L.marker([lat, lng], { icon: markerIcon, title: roomData.name || 'Sala' }).addTo(map);
-                marker.bindPopup(`<b>${roomData.name || 'Sala'}</b><br>${roomData.building || ''}`).openPopup();
-                
-                const pulseCircle = L.circle([lat, lng], {
-                    color: 'blue',
-                    fillColor: '#blue',
-                    fillOpacity: 0.5,
-                    radius: 200
-                }).addTo(map);
+                    attribution: ''
+                }).addTo(splitMap);
+                // Add marker for the room
+                let ocupacao = 0;
+                if (roomData.curOcc !== undefined && roomData.maxOcc) {
+                    ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
+                }
+                let ocupacaoColor = getOcupacaoColor(ocupacao);
+                L.marker(roomLatLng, {
+                    icon: L.divIcon({
+                        className: 'custom-marker highlighted-marker',
+                        html: `<div style=\"background-color: ${ocupacaoColor}; width: 32px; height: 32px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 12px #3b82f6;\"></div>`,
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    })
+                }).addTo(splitMap);
+                // Location button logic (same as mapa.html)
+                document.getElementById('splitMapLocationBtn').onclick = function() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            const userLatLng = [position.coords.latitude, position.coords.longitude];
+                            splitMap.setView(userLatLng, 18);
+                            // Add user marker
+                            const userMarker = L.marker(userLatLng, {
+                                icon: L.divIcon({
+                                    className: 'user-location-marker',
+                                    html: `<div style=\"background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;\"></div>` ,
+                                    iconSize: [22, 22]
+                                })
+                            }).addTo(splitMap);
+                            // Add accuracy circle
+                            const accuracyCircle = L.circle(userLatLng, {
+                                radius: position.coords.accuracy,
+                                color: '#3b82f6',
+                                fillColor: '#3b82f6',
+                                fillOpacity: 0.1
+                            }).addTo(splitMap);
+                            setTimeout(() => {
+                                splitMap.removeLayer(userMarker);
+                                splitMap.removeLayer(accuracyCircle);
+                            }, 15000);
+                        }, function(error) {
+                            alert('Erro ao obter sua localização: ' + error.message);
+                        });
+                    } else {
+                        alert('Geolocalização não é suportada pelo seu navegador.');
+                    }
+                };
+                // Reset view button logic (same as mapa.html)
+                document.getElementById('splitMapResetBtn').onclick = function() {
+                    splitMap.setView(roomLatLng, 19);
+                };
             } else {
-                mapDiv.innerHTML = '<div style="padding:2rem;text-align:center;"><i class="fas fa-map-marked-alt fa-3x" style="color:#ccc;margin-bottom:1rem;"></i><p>Localização não disponível para esta sala.</p></div>';
+                mapDiv.innerHTML += '<div style="padding:1rem; color:red;">Localização da sala não disponível.</div>';
             }
+        }
+
+        // Helper to update split map location button color (same as mapa.html)
+        function updateSplitMapLocationBtnColor(roomData) {
+            const btn = document.getElementById('splitMapLocationBtn');
+            if (!btn) return;
+            let color = '';
+            if (roomData && roomData.curOcc !== undefined && roomData.maxOcc) {
+                const ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
+                color = getOcupacaoColor(ocupacao);
+            }
+            btn.style.backgroundColor = color || 'white';
+            btn.style.color = 'white'; // Always white icon
+            // Update icon color for contrast
+            const icon = btn.querySelector('i');
+            if (icon) icon.style.color = 'white';
         }
 
         // Search functionality
@@ -633,12 +660,7 @@
             
             // Check if no rooms match the search
             if (rooms.length === 0) {
-                studyRooms.innerHTML = `
-                    <div class="no-results">
-                        <i class="fas fa-search"></i>
-                        <p>Nenhuma sala encontrada com os termos pesquisados.</p>
-                    </div>
-                `;
+                studyRooms.innerHTML = '';
                 return;
             }
             
@@ -655,14 +677,11 @@
             
             // Render rooms
             rooms.forEach((data) => {
-                // Same rendering logic as in renderRooms function
                 const name = data.name || 'Sala';
                 const bloco = data.building || '';
                 const curOcc = data.curOcc || 0;
                 const maxOcc = data.maxOcc || 0;
-                const ocupacao = (data.curOcc !== 0 && data.maxOcc !== 0)
-                    ? Math.round((curOcc / maxOcc) * 100)
-                    : null;
+                let ocupacao = (maxOcc > 0) ? Math.round((Math.min(curOcc, maxOcc) / maxOcc) * 100) : 0;
                 let ocupacaoColor = '#22c55e';
                 if (ocupacao >= 75) ocupacaoColor = '#ef4444';
                 else if (ocupacao >= 50) ocupacaoColor = '#eab308';
@@ -674,52 +693,48 @@
                 else if (ruido >= 50) { ruidoClass = 'medium'; ruidoLabel = 'Médio'; }
                 else if (ruido >= 30) { ruidoClass = 'low'; ruidoLabel = 'Baixo'; }
                 else if (ruido < 30) { ruidoClass = 'very-low'; ruidoLabel = 'Muito Baixo'; }
-                
-                // Check if room is in favorites
+                const wifiStatus = data.wifi === true ? 'Disponível' : 'Indisponível';
+                const tomadasStatus = (data.nOutlets && data.nOutlets > 0) ? 'Disponível' : 'Indisponível';
                 const isFavorite = userFavorites.includes(data.id);
-                
                 const card = document.createElement('div');
                 card.className = 'room-card';
                 card.innerHTML = `
                     <div class="room-header">
                         <div class="room-title">
-                            <h3 class="room-name" style="color:var(--color-primary)">${name}</h3>
-                            <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-room-id="${data.id}">
+                            <span class="room-name">${name}</span>
+                            <button class="favorite-btn${isFavorite ? ' active' : ''}" data-room-id="${data.id}" title="Favoritar sala">
                                 <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
                             </button>
                         </div>
                         <p>${bloco}</p>
                     </div>
                     <div class="room-indicators">
-                        ${ocupacao !== null ? `
                         <div class="indicator">
-                            <span class="indicator-label">Ocupação:</span>
-                            <div class="progress-container">
-                                <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${ocupacaoColor};"></div>
-                            </div>
-                            <span class="indicator-value">${ocupacao}%</span>
-                        </div>` : ''}
-                        ${temperatura !== null ? `
+                            <span class="indicator-label"><i class="fas fa-users"></i> Ocupação</span>
+                            <span>${ocupacao}%</span>
+                            <div class="progress-container"><div class="progress-bar" style="width:${ocupacao}%;background:${ocupacaoColor}"></div></div>
+                        </div>
                         <div class="indicator">
-                            <span class="indicator-label">Temperatura:</span>
-                            <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(temperatura)}">
-                                <i class="fas fa-thermometer-half"></i> ${temperatura}°C
-                            </span>
-                        </div>` : ''}
-                        ${ruido !== null ? `
+                            <span class="indicator-label"><i class="fas fa-wifi"></i> Wi-Fi</span>
+                            <span>${wifiStatus}</span>
+                        </div>
                         <div class="indicator">
-                            <span class="indicator-label">Nível de Ruído:</span>
-                            <span class="badge noise ${ruidoClass}">
-                                <i class="fas ${getRuidoIcon(ruido)}"></i> ${ruidoLabel}
-                            </span>
-                        </div>` : ''}
+                            <span class="indicator-label"><i class="fas fa-plug"></i> Tomadas</span>
+                            <span>${tomadasStatus}</span>
+                        </div>
+                        <div class="indicator">
+                            <span class="indicator-label"><i class="fas ${getRuidoIcon(ruido)}"></i> Ruído</span>
+                            <span class="badge noise ${ruidoClass}">${ruidoLabel}</span>
+                        </div>
+                        <div class="indicator">
+                            <span class="indicator-label"><i class="fas fa-thermometer-half"></i> Temperatura</span>
+                            <span class="badge temperature-badge" style="background:${getTemperatureColor(temperatura)}">${temperatura !== null ? temperatura + '°C' : 'N/A'}</span>
+                        </div>
                     </div>
                     <div class="room-actions">
-                        <button class="button secondary detalhes-btn">
-                            <i class="fas fa-info-circle"></i> Detalhes
-                        </button>
-                        <a href="ficheiros_html/mapa.html?sala=${encodeURIComponent(name)}&id=${data.id}" class="button primary">
-                            <i class="fas fa-map-marker-alt"></i> Ver no Mapa
+                        <button class="button primary detalhes-btn">Detalhes</button>
+                        <a class="button secondary ver-mapa-btn" href="ficheiros_html/mapa.html?sala=" + encodeURIComponent(data.name || '') + "&id=" + data.id + "" style="margin-left:0.5em; background:#fff; color:#6366f1; border:1px solid #6366f1; font-weight:600; box-shadow:0 2px 8px rgba(59,130,246,0.10); display:inline-flex; align-items:center; gap:0.5em; text-decoration:none; padding:10px 16px; border-radius:8px; font-size:1em;">
+                            <i class="fas fa-map-marker-alt"></i> Ver no mapa
                         </a>
                     </div>
                 `;
@@ -740,190 +755,147 @@
             });
         }
 
-        // Filter tabs functionality
-        document.querySelectorAll('.filter-group .tab:not(.search-tab)').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Clear search input
-                document.getElementById('search-input').value = '';
-                
-                // Remove active class from all tabs
-                document.querySelectorAll('.filter-group .tab:not(.search-tab)').forEach(t => {
-                    t.classList.remove('active');
-                });
-                
-                // Add active class to clicked tab
-                this.classList.add('active');
-                
-                // Render rooms with selected filter
-                renderRooms(this.getAttribute('data-filter'));
+        // User profile dropdown logic
+        function setupUserDropdown() {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userAvatar = document.querySelector('.user-avatar');
+            let hideTimeout;
+            if (!userDropdown || !userAvatar) return;
+            userAvatar.addEventListener('mouseenter', () => {
+                userDropdown.style.display = 'block';
+                clearTimeout(hideTimeout);
             });
-        });
+            userAvatar.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    userDropdown.style.display = 'none';
+                }, 2000);
+            });
+            userDropdown.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                userDropdown.style.display = 'block';
+            });
+            userDropdown.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    userDropdown.style.display = 'none';
+                }, 2000);
+            });
+            // Favoritos click: always go to index.html and trigger favorite filter
+            const favoritesLink = document.getElementById('favoritesLink');
+            if (favoritesLink) {
+                favoritesLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.setItem('showOnlyFavorites', 'true');
+                    window.location.href = '/index.html';
+                });
+            }
+        }
 
-        // Login modal functionality
-        const loginModal = document.getElementById('loginModal');
-        const loginBtn = document.getElementById('loginBtn');
-        const closeBtn = document.querySelector('.close');
-        
-        loginBtn.addEventListener('click', function() {
-            loginModal.style.display = 'block';
-        });
-        
-        closeBtn.addEventListener('click', function() {
-            loginModal.style.display = 'none';
-        });
-        
-        window.addEventListener('click', function(event) {
-            if (event.target === loginModal) {
-                loginModal.style.display = 'none';
-            }
-        });
-        
-        // Modal tabs
-        document.querySelectorAll('.modal-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active class from all tabs
-                document.querySelectorAll('.modal-tab').forEach(t => {
-                    t.classList.remove('active');
-                });
-                
-                // Add active class to clicked tab
-                this.classList.add('active');
-                
-                // Hide all tab content
-                document.querySelectorAll('.modal-body').forEach(content => {
-                    content.style.display = 'none';
-                });
-                
-                // Show selected tab content
-                const tabId = this.getAttribute('data-tab');
-                document.getElementById(`${tabId}Tab`).style.display = 'block';
-            });
-        });
-        
-        // Login form submission
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                loginModal.style.display = 'none';
-                showNotification('Login realizado com sucesso!', 'success');
-            } catch (error) {
-                console.error("Error signing in:", error);
-                showNotification('Erro ao fazer login. Verifique suas credenciais.', 'error');
-            }
-        });
-        
-        // Register form submission
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                showNotification('As senhas não coincidem.', 'error');
-                return;
-            }
-            
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Create user document
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    email: email,
-                    displayName: name,
-                    favorites: []
-                });
-                
-                loginModal.style.display = 'none';
-                showNotification('Conta criada com sucesso!', 'success');
-            } catch (error) {
-                console.error("Error registering:", error);
-                showNotification('Erro ao criar conta. Tente novamente.', 'error');
-            }
-        });
-        
-        // Google sign in
-        document.querySelector('.google-btn').addEventListener('click', async function() {
-            try {
-                const result = await signInWithPopup(auth, provider);
-                
-                // Check if user document exists
-                const userDocRef = doc(db, "users", result.user.uid);
-                const userDoc = await getDoc(userDocRef);
-                
-                if (!userDoc.exists()) {
-                    // Create user document if it doesn't exist
-                    await setDoc(userDocRef, {
-                        email: result.user.email,
-                        displayName: result.user.displayName || '',
-                        favorites: []
-                    });
+        // On page load, check if favoritos filter should be active
+        if (localStorage.getItem('showOnlyFavorites') === 'true') {
+            showOnlyFavorites = true;
+            const favBtn = document.getElementById('favoritesFilterBtn');
+            if (favBtn) favBtn.classList.add('active');
+            localStorage.removeItem('showOnlyFavorites');
+        }
+
+        // Call setupUserDropdown on DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupUserDropdown);
+        } else {
+            setupUserDropdown();
+        }
+
+        // Logout logic
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                    // Optionally, clear any user-related localStorage/sessionStorage
+                    localStorage.removeItem('showOnlyFavorites');
+                    // Sync logout across tabs/pages
+                    localStorage.setItem('spaceek-logout', Date.now());
+                    window.location.reload();
+                } catch (error) {
+                    alert('Erro ao fazer logout.');
                 }
-                
-                loginModal.style.display = 'none';
-                showNotification('Login com Google realizado com sucesso!', 'success');
-            } catch (error) {
-                console.error("Error signing in with Google:", error);
-                showNotification('Erro ao fazer login com Google.', 'error');
-            }
-        });
-        
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', async function() {
-            try {
-                await signOut(auth);
-                showNotification('Logout realizado com sucesso!', 'success');
-            } catch (error) {
-                console.error("Error signing out:", error);
-                showNotification('Erro ao fazer logout.', 'error');
-            }
-        });
-        
-        // Show notification
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <div class="notification-content">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                    <span>${message}</span>
-                </div>
-                <button class="notification-close">&times;</button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Show notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 5000);
-            
-            // Close button
-            notification.querySelector('.notification-close').addEventListener('click', function() {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
             });
         }
 
+        // Login logic (Google only)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure modal is shown and only Google login is available
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('loginModal').style.display = 'block';
+                });
+            }
+            // Close modal logic
+            const closeModal = document.querySelector('#loginModal .close');
+            if (closeModal) {
+                closeModal.addEventListener('click', function() {
+                    document.getElementById('loginModal').style.display = 'none';
+                });
+            }
+            // Hide email/password and register forms, show only Google login
+            const loginTab = document.getElementById('loginTab');
+            if (loginTab) {
+                loginTab.innerHTML = `
+                    <h2>Login</h2>
+                    <div class="social-login">
+                        <button class="button google-btn"><i class="fab fa-google"></i> Entrar com Google</button>
+                    </div>
+                `;
+            }
+            const registerTab = document.getElementById('registerTab');
+            if (registerTab) {
+                registerTab.style.display = 'none';
+            }
+            // Google login button logic
+            const googleBtn = document.querySelector('.google-btn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    try {
+                        const result = await signInWithPopup(auth, provider);
+                        const user = result.user;
+                        // Create user in Firestore if not exists
+                        const userDocRef = doc(db, "users", user.uid);
+                        const userDoc = await getDoc(userDocRef);
+                        if (!userDoc.exists()) {
+                            await setDoc(userDocRef, {
+                                email: user.email,
+                                displayName: user.displayName || '',
+                                favorites: []
+                            });
+                        }
+                        // Sync login across tabs/pages
+                        localStorage.setItem('spaceek-login', Date.now());
+                        document.getElementById('loginModal').style.display = 'none';
+                    } catch (error) {
+                        alert('Erro ao fazer login com Google.');
+                    }
+                });
+            }
+        });
+
+        // Sync login/logout state across tabs/pages (index.html & mapa.html)
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'spaceek-logout') {
+                signOut(auth).then(() => {
+                    window.location.reload();
+                });
+            } else if (event.key === 'spaceek-login') {
+                window.location.reload();
+            }
+        });
+
         // Initialize
         getNames();
+        openSplitViewFromQuery();
 
         // Banner logic
         function updateBanner(room) {
@@ -934,14 +906,75 @@
                 Ocupação: ... 
             `;
         }
+
+        // Handle Favoritos click in user dropdown (both pages)
+        document.addEventListener('DOMContentLoaded', function() {
+            const favoritesLink = document.getElementById('favoritesLink');
+            if (favoritesLink) {
+                favoritesLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (!currentUser) {
+                        document.getElementById('loginModal').style.display = 'block';
+                        return;
+                    }
+                    // Set a flag in localStorage to show only favorites on index.html
+                    localStorage.setItem('showOnlyFavorites', 'true');
+                    window.location.href = '/index.html';
+                });
+            }
+            // On page load, check if we should show only favorites
+            if (localStorage.getItem('showOnlyFavorites') === 'true') {
+                showOnlyFavorites = true;
+                localStorage.removeItem('showOnlyFavorites');
+                // Activate favorites filter button if present
+                const favBtn = document.getElementById('favoritesFilterBtn');
+                if (favBtn) favBtn.classList.add('active');
+                renderRooms(getCurrentFilter());
+            }
+        });
+
+        // On page load, check for splitview query param and open splitview for that room
+        function openSplitViewFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('splitview') === '1' && params.get('id')) {
+                const roomId = params.get('id');
+                // Wait for allRooms to be loaded
+                const tryShow = () => {
+                    if (allRooms && allRooms.length > 0) {
+                        const room = allRooms.find(r => r.id === roomId);
+                        if (room) {
+                            showSplitView(room);
+                        }
+                    } else {
+                        setTimeout(tryShow, 100);
+                    }
+                };
+                tryShow();
+            }
+        }
     </script>
     <style>
     /* Split view styles */
     #split-view {
         display: flex;
-        gap: 2rem;
+        flex-direction: column;
+        gap: 0;
         margin-top: 2rem;
         min-height: 420px;
+    }
+    .splitview-content {
+        display: flex;
+        gap: 2rem;
+        width: 100%;
+        align-items: stretch;
+        margin-top: 0.5rem; /* Reduce upper margin to bring closer to Voltar */
+    }
+    @media (max-width: 900px) {
+        .splitview-content {
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 0.5rem; /* Keep reduced margin on mobile */
+        }
     }
     .split-card {
         flex: 1 1 0;
@@ -965,11 +998,7 @@
         background: #e5e7eb;
     }
     @media (max-width: 900px) {
-        #split-view {
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .split-card, .split-map-container {
+        .split-card, .split-map_container {
             max-width: 100%;
             width: 100%;
         }
@@ -1179,6 +1208,65 @@
         background: none;
         border: none;
         cursor: pointer;
+    }
+    /* Split map controls */
+    .split-map-controls {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .split-map-btn {
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #3b82f6;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .split-map-btn:hover {
+        background: #e0e7ff;
+        box-shadow: 0 4px 12px rgba(59,130,246,0.12);
+    }
+    #split-map { position: relative; }
+    /* End of split map controls */
+
+    /* Add map-controls CSS (bottom right, column, same as mapa.html) */
+    .map-controls {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 1000;
+    }
+    .map-control-btn {
+        background-color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-size: 1.2rem;
+    }
+    .map-control-btn:hover {
+        background-color: var(--color-secondary);
     }
     </style>
 </body>
