@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaceek Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6d28d9;
+            --primary-light: #8b5cf6;
+            --primary-lighter: #c4b5fd;
+            --primary-lightest: #ede9fe;
+            --text: #18181b;
+            --text-light: #64748b;
+            --background: #f8f8ff;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --rounded-sm: 0.5rem;
+            --rounded-md: 1rem;
+            --rounded-lg: 1.5rem;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--primary-lightest);
+            padding: 1.2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .button {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.6rem 1.4rem;
+            border-radius: var(--rounded-sm);
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(167, 139, 250, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .button:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+        }
+        
+        .button-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+        
+        .button-outline:hover {
+            background: rgba(109, 40, 217, 0.1);
+        }
+        
+        .blog-container {
+            max-width: 1800px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        
+        .blog-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .blog-header h1 {
+            color: var(--primary);
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .blog-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 4px;
+            background: var(--primary-light);
+            border-radius: 2px;
+        }
+        
+        .blog-header p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            color: var(--text-light);
+        }
+        
+        .blog-posts {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.6rem 0.6rem; /* Espaçamento ainda mais reduzido */
+            justify-items: center;
+    justify-content: center;
+    align-items: stretch;
+        }
+        
+        .blog-post {
+            /* width: 100%; */   /* comenta ou remove esta linha */
+            max-width: 320px;
+            min-width: 0;
+            margin: 0;
+            background: var(--white);
+            border-radius: var(--rounded-md);
+            box-shadow: 0 2px 12px rgba(80,60,180,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        
+        .blog-post:hover {
+            box-shadow: 0 8px 24px rgba(80,60,180,0.13);
+            transform: translateY(-6px) scale(1.03);
+        }
+        
+        .post-cover {
+            width: 100%;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            border-top-left-radius: var(--rounded-md);
+            border-top-right-radius: var(--rounded-md);
+        }
+        
+        .post-header {
+            padding: 1rem 1.2rem 0.5rem;
+        }
+        
+        .post-category {
+            display: inline-block;
+            background: var(--primary-lightest);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .post-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+        
+        .post-meta {
+            font-size: 0.85rem;
+            gap: 0.7rem;
+            margin-bottom: 1rem;
+        }
+        
+        .post-content {
+            padding: 0 1.2rem 1.2rem;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        .post-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin: 0.5rem 0 0.5rem 0;
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        
+        .post-stats i {
+            margin-right: 0.4em;
+            color: var(--primary-light);
+        }
+        
+        .read-more {
+            display: inline-block;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .read-more:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+        
+        .like-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3em;
+            transition: color 0.2s;
+        }
+        .like-btn.liked, .like-btn:hover {
+            color: #e11d48;
+        }
+        .like-btn:focus { outline: none; }
+        .views {
+            color: var(--primary-light);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 1rem;
+            }
+            
+            .button {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .blog-header h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .post-header, .post-content { padding-left: 1rem; padding-right: 1rem; }
+            .post-cover { height: 120px; }
+        }
+        
+        @media (max-width: 480px) {
+            .blog-container {
+                padding: 0 1rem;
+            }
+            
+            .blog-header h1 {
+                font-size: 2rem;
+            }
+            
+            .post-header {
+                padding: 1rem 1.5rem 0;
+            }
+            
+            .post-content {
+                padding: 0 1.5rem 1rem;
+            }
+        }
+        
+        @media (max-width: 1400px) {
+    .blog-posts {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 900px) {
+    .blog-posts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .blog-posts {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="../imagens/logo.png" alt="Logo do Spaceek" class="logo">
+                <span class="logo-text">Spaceek</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="../index.html" class="button">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                <a href="sobre.html" class="button button-outline">
+                    <i class="fas fa-info-circle"></i> Sobre
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="blog-container">
+        <div class="blog-header">
+            <h1>Spaceek Blog</h1>
+            <p>Welcome! This blog documents the progress of Spaceek. Follow our updates and milestones.</p>
+        </div>
+        
+        <div class="blog-posts">
+            <article class="blog-post">
+                <div class="post-cover" style="background-image: url('../imagens/blog/capa1.jpg');"></div>
+                <div class="post-header">
+                    <span class="post-category">Announcement</span>
+                    <h2 class="post-title">Welcome to Spaceek</h2>
+                    <div class="post-meta">
+                        <span class="author">Team Spaceek</span>
+                        <span>Feb 20 · 1 min read</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Welcome! This blog documents the progress of Spaceek. Follow our updates and milestones.</p>
+                    <div class="post-stats">
+                        <button class="like-btn" onclick="likePost(this)">
+                            <i class="fas fa-heart"></i> <span class="like-count">45</span>
+                        </button>
+                        <span class="views"><i class="fas fa-eye"></i> <span class="view-count">123</span></span>
+                    </div>
+                    <a href="blog/post1.html" class="read-more">Continuar a ler →</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="post-cover" style="background-image: url('../imagens/blog/capa2.jpg');"></div>
+                <div class="post-header">
+                    <span class="post-category">Buyer</span>
+                    <h2 class="post-title">Understanding Our Users</h2>
+                    <div class="post-meta">
+                        <span class="author">Beatriz Guia</span>
+                        <span>May 7 · 1 min read</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>This week we conducted interviews with potential users to better understand their needs and pain points when searching for study spaces on campus.</p>
+                    <div class="post-stats">
+                        <button class="like-btn" onclick="likePost(this)">
+                            <i class="fas fa-heart"></i> <span class="like-count">32</span>
+                        </button>
+                        <span class="views"><i class="fas fa-eye"></i> <span class="view-count">98</span></span>
+                    </div>
+                    <a href="blog/post2.html" class="read-more">Continue reading →</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="post-cover" style="background-image: url('../imagens/blog/capa3.jpg');"></div>
+                <div class="post-header">
+                    <span class="post-category">Survey</span>
+                    <h2 class="post-title">Desenvolvimento da WebApp: A Criar uma Experiência Intuitiva para os Utilizadores</h2>
+                    <div class="post-meta">
+                        <span class="author">Beatriz Guia</span>
+                        <span>Maio 15 · 2 min de leitura</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Nos últimos dias, eu, Beatriz Guia, juntamente com o meu colega Tiago Gomes, estivemos dedicados ao desenvolvimento da aplicação web do projeto Spaceek.</p>
+                        <button class="like-btn" onclick="likePost(this)">
+                            <i class="fas fa-heart"></i> <span class="like-count">27</span>
+                        </button>
+                        <span class="views"><i class="fas fa-eye"></i> <span class="view-count">76</span></span>
+                    </div>
+                    <a href="blog/post3.html" class="read-more">Continue reading →</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="post-cover" style="background-image: url('../imagens/blog/pipipii.jpg');"></div>
+                <div class="post-header">
+                    <h2 class="post-title">Primeiros Passos Técnicos: Aplicação Web, Algoritmos e Caixa 3D (Week 9)</h2>
+                    <div class="post-meta">
+                        <span class="author">Beatriz Guia</span>
+                        <span>Maio 7 · 1 min de leitura</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Esta semana, a nossa equipa reuniu-se para organizar as tarefas, especialmente tendo em conta que ainda não recebemos todo o material — incluindo um sensor crucial, essencial para avançarmos com os testes.</p>
+                    <div class="post-stats">
+                        <button class="like-btn" onclick="likePost(this)">
+                            <i class="fas fa-heart"></i> <span class="like-count">19</span>
+                        </button>
+                        <span class="views"><i class="fas fa-eye"></i> <span class="view-count">54</span></span>
+                    </div>
+                    <a href="blog/post4.html" class="read-more">Continuar a ler →</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="post-cover" style="background-image: url('../imagens/blog/survey.png');"></div>
+                <div class="post-header">
+                    <h2 class="post-title">A Voz dos Estudantes: O Que Esperam de Uma App de Salas de Estudo (Week 5)</h2>
+                    <div class="post-meta">
+                        <span class="author">Beatriz Guia</span>
+                        <span>Mar 20 · 4 min de leitura</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Realizámos uma série de entrevistas com estudantes para compreender melhor as suas expectativas em relação a uma aplicação de salas de estudo. </p>
+                    <div class="post-stats">
+                        <button class="like-btn" onclick="likePost(this)">
+                            <i class="fas fa-heart"></i> <span class="like-count">22</span>
+                        </button>
+                        <span class="views"><i class="fas fa-eye"></i> <span class="view-count">61</span></span>
+                    </div>
+                    <a href="blog/post5.html" class="read-more">Continuar a ler →</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="post-cover" style="background-image: url('../imagens/blog/laboratorio_pedro_nunes.jpg');"></div>
+                <div class="post-header">
+                    <h2 class="post-title">Parceria Estabelecida (Week 4)</h2>
+                    <div class="post-meta">
+                        <span class="author">Beatriz Guia</span>
+                        <span>Mar 15 · 1 min de leitura</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Esta semana, estabelecemos uma parceria com a gestão de espaços do campus norte para testar o nosso sistema de monitorização.</p>
+                    <div class="post-stats">
+                        <button class="like-btn" onclick="likePost(this)">
+                            <i class="fas fa-heart"></i> <span class="like-count">15</span>
+                        </button>
+                        <span class="views"><i class="fas fa-eye"></i> <span class="view-count">39</span></span>
+                    </div>
+                    <a href="blog/post6.html" class="read-more">Continuar a ler →</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="post-cover" style="background-image: url('../imagens/logo.png');"></div>
+                <div class="post-header">
+                    <h2 class="post-title">Bem vindo ao Spaceek (Week 4)</h2>
+                    <div class="post-meta">
+                        <span class="author">Beatriz Guia</span>
+                        <span>Mar 15 · 1 min de leitura</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Olá e bem-vindo! Este blog tem como objetivo documentar o progresso do nosso projeto, Spaceek.</p>
+                    <div class="post-stats">
+                        <button class="like-btn" onclick="likePost(this)">
+                            <i class="fas fa-heart"></i> <span class="like-count">10</span>
+                        </button>
+                        <span class="views"><i class="fas fa-eye"></i> <span class="view-count">25</span></span>
+                    </div>
+                    <a href="blog/post7.html" class="read-more">Continuar a ler →</a>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <script>
+function likePost(btn) {
+    btn.classList.toggle('liked');
+    let count = btn.querySelector('.like-count');
+    let n = parseInt(count.textContent, 10);
+    if (btn.classList.contains('liked')) {
+        count.textContent = n + 1;
+    } else {
+        count.textContent = n - 1;
+    }
+}
+</script>
+</body>
+</html>

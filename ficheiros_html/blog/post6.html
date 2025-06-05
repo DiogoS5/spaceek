@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Blog Spaceek</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8f8ff;
+            font-family: 'Poppins', Arial, sans-serif;
+            color: #18181b;
+        }
+        .post-container {
+            max-width: 700px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px rgba(80,60,180,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .post-title {
+            font-size: 2rem;
+            color: #6d28d9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .post-meta {
+            color: #8b5cf6;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .post-meta i {
+            margin-right: 0.4em;
+        }
+        .post-content p {
+            margin-bottom: 1.2rem;
+            color: #444;
+            font-size: 1.08rem;
+        }
+        .post-illustration {
+            display: block;
+            margin: 2rem auto 0 auto;
+            max-width: 90%;
+            width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(80,60,180,0.08);
+            background: #f3f3fd;
+            padding: 0.5rem;
+        }
+        .post-illustration + .post-illustration {
+            margin-top: 1.5rem; /* Espaço extra entre imagens */
+        }
+        .img-caption {
+            text-align: center;
+            color: #6d28d9;
+            font-size: 0.95rem;
+            margin-top: 0.4rem;
+            margin-bottom: 1.2rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            background: #6d28d9;
+            color: #fff;
+            padding: 0.6em 1.3em;
+            border-radius: 0.7em;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px #a78bfa33;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #8b5cf6;
+        }
+        @media (max-width: 800px) {
+            .post-container { padding: 1rem; }
+            .post-title { font-size: 1.3rem; }
+            .post-illustration { max-width: 90vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <a href="../blog.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Blog</a>
+        <h1 class="post-title">Primeiros Passos com o Técnico: Parceria e Espaços para Testes</h1>
+        <div class="post-meta">
+            <span><i class="fas fa-user"></i> Beatriz Guia</span>
+            <span><i class="fas fa-calendar-alt"></i> Março 2025</span>
+        </div>
+        <div class="post-content">
+            
+            <p>No início desta semana, no dia 10 de março de 2025, reunimo-nos com a responsável pela gestão dos espaços da Torre Norte do Instituto Superior Técnico para discutir a possibilidade de este departamento se tornar parceiro no nosso projeto. Os membros da equipa presentes nesta reunião foram o Miguel Fialho, o Daniel Burke e o Diogo Sousa.</p>
+            <p>Durante o encontro, apresentámos a nossa proposta de monitorização da ocupação de salas, que assenta na utilização de um sensor térmico — uma abordagem que não levanta preocupações em termos de privacidade de dados. A responsável mostrou-se recetiva à iniciativa e autorizou o acesso à sala 4.14 (Laboratório Pedro Nunes), bem como a possibilidade de utilizar a sala de estudo localizada no rés-do-chão para os testes que decorrerão entre maio e junho.</p>
+            <p>Em baixo, apresentamos as plantas com a localização das salas cedidas para testes, destacadas a amarelo.</p>
+        </div>
+        <img src="../../imagens/blog/laboratorio_pedro_nunes.jpg" alt="Laboratório Pedro Nunes" class="post-illustration">
+        <div class="img-caption">Laboratório Pedro Nunes (sala 4.14)</div>
+        <img src="../../imagens/blog/sala_de_eletro.jpg" alt="Sala de estudo rés-do-chão" class="post-illustration">
+        <div class="img-caption">Sala de estudo no rés-do-chão</div>
+    </div>
+</body>
+</html>

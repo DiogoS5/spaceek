@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Blog Spaceek</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8f8ff;
+            font-family: 'Poppins', Arial, sans-serif;
+            color: #18181b;
+        }
+        .post-container {
+            max-width: 700px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px rgba(80,60,180,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .post-title {
+            font-size: 2rem;
+            color: #6d28d9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .post-meta {
+            color: #8b5cf6;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .post-meta i {
+            margin-right: 0.4em;
+        }
+        .post-content p {
+            margin-bottom: 1.2rem;
+            color: #444;
+            font-size: 1.08rem;
+        }
+        .post-illustration {
+            display: block;
+            margin: 2rem auto 0 auto;
+            max-width: 320px;
+            width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(80,60,180,0.08);
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            background: #6d28d9;
+            color: #fff;
+            padding: 0.6em 1.3em;
+            border-radius: 0.7em;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px #a78bfa33;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #8b5cf6;
+        }
+        @media (max-width: 800px) {
+            .post-container { padding: 1rem; }
+            .post-title { font-size: 1.3rem; }
+            .post-illustration { max-width: 90vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <a href="../blog.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Blog</a>
+        <h1 class="post-title">Primeiros Passos Técnicos: Aplicação Web, Algoritmos e Caixa 3D</h1>
+        <div class="post-meta">
+            <span><i class="fas fa-user"></i> Beatriz Guia</span>
+            <span><i class="fas fa-calendar-alt"></i> Maio 2025</span>
+        </div>
+        <div class="post-content">
+            <p>Esta semana, a nossa equipa reuniu-se para organizar as tarefas, especialmente tendo em conta que ainda não recebemos todo o material — incluindo um sensor crucial, essencial para avançarmos com os testes.</p>
+            <p>Para aproveitar este período de espera, o nosso colega Gonzalo tomou a iniciativa de começar a desenhar uma caixa personalizada para impressão 3D. Esta estrutura irá alojar o sensor principal, o microcontrolador ESP32, bem como os sensores de temperatura e ruído. As imagens abaixo mostram o progresso feito até ao momento.</p>
+            <p>Entretanto, eu (Beatriz Guia) e o meu colega Tiago Gomes demos início ao desenvolvimento da aplicação web. Após discutirmos a estrutura da plataforma, decidimos construir a aplicação com Java para o backend e HTML e CSS para o frontend.</p>
+            <p>O nosso colega Daniel Burke está a investigar como podemos enviar dados através da rede eduroam, enquanto o Miguel Fialho e o Diogo Sousa estão atualmente concentrados no desenvolvimento do algoritmo de deteção de entradas e saídas nas salas de estudo.</p>
+        </div>
+        <img src="../../imagens/blog/pepe.jpg" alt="Ilustração Spaceek" class="post-illustration">
+        <img src="../../imagens/blog/pipipii.jpg" alt="Caixa 3D - Vista 1" class="post-illustration">
+        <div class="img-caption">Caixa 3D - Vista 1</div>
+        <img src="../../imagens/blog/popopo.jpg" alt="Caixa 3D - Vista 2" class="post-illustration">
+        <div class="img-caption">Caixa 3D - Vista 2</div>
+        <img src="../../imagens/blog/pupu.jpg" alt="Caixa 3D - Vista 3" class="post-illustration">
+        <div class="img-caption">Caixa 3D - Vista 3</div>
+    </div>
+</body>
+</html>

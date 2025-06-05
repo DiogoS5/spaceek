@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaceek - Sobre o Projeto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6d28d9;
+            --primary-light: #8b5cf6;
+            --primary-lighter: #c4b5fd;
+            --primary-lightest: #ede9fe;
+            --text: #18181b;
+            --text-light: #64748b;
+            --background: #f8f8ff;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --rounded-sm: 0.5rem;
+            --rounded-md: 1rem;
+            --rounded-lg: 1.5rem;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--primary-lightest);
+            padding: 1.2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .button {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.6rem 1.4rem;
+            border-radius: var(--rounded-sm);
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(167, 139, 250, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .button:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+        }
+        
+        .button-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+        
+        .button-outline:hover {
+            background: rgba(109, 40, 217, 0.1);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            background: var(--white);
+            border-radius: var(--rounded-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1.5rem;
+            position: relative;
+            padding-left: 1rem;
+        }
+        
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Team Section */
+        .team-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .team-row {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+        }
+        
+        .team-member {
+            flex: 1;
+            background: var(--white);
+            border-radius: var(--rounded-md);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--primary-lightest);
+            position: relative;
+            overflow: hidden;
+            max-width: 300px;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(109, 40, 217, 0.15);
+        }
+        
+        .team-member::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-light);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .team-member:hover::before {
+            opacity: 1;
+        }
+        
+        .team-photo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            border: 3px solid var(--primary-lightest);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        
+        .team-member:hover .team-photo {
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+        }
+        
+        .team-member strong {
+            display: block;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .team-member span {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* Sensor Info */
+        .sensor-info {
+            background: var(--primary-lightest);
+            border-radius: var(--rounded-md);
+            padding: 2rem;
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            border: 1px solid var(--primary-lighter);
+        }
+        
+        .sensor-img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: var(--rounded-sm);
+            background: var(--white);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+        
+        .sensor-details {
+            flex: 1;
+        }
+        
+        /* Cards sections */
+        .cards-section {
+            margin: 3rem 0;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .card {
+            background: var(--white);
+            border-radius: var(--rounded-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--primary-lightest);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.1);
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-lightest);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .card strong {
+            display: block;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* Blog Section */
+        .blog-container {
+            max-width: 800px;
+            margin: 3rem auto;
+        }
+        
+        .blog-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .blog-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .blog-header p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .blog-posts {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+        
+        .blog-post {
+            background: var(--white);
+            border-radius: var(--rounded-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .blog-post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(109, 40, 217, 0.15);
+        }
+        
+        .post-header {
+            padding: 1.5rem 2rem 0;
+        }
+        
+        .post-category {
+            display: inline-block;
+            background: var(--primary-lightest);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .post-title {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .post-meta .author {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .post-content {
+            padding: 0 2rem 1.5rem;
+            color: var(--text-light);
+        }
+        
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .read-more {
+            display: inline-block;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+        
+        .read-more:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container, .blog-container {
+                padding: 2rem;
+                margin: 2rem 1rem;
+            }
+            
+            .team-row {
+                flex-wrap: wrap;
+            }
+            
+            .team-member {
+                flex: 1 1 calc(50% - 2rem);
+                min-width: 200px;
+            }
+            
+            .sensor-info {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .sensor-img {
+                width: 120px;
+                height: 120px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .header-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 1rem;
+            }
+            
+            .button {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .container, .blog-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .team-member {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="../imagens/logo.png" alt="Logo do Spaceek" class="logo">
+                <span class="logo-text">Spaceek</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="../index.html" class="button">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                <a href="blog.html" class="button button-outline">
+                    <i class="fas fa-newspaper"></i> Blog
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- About Page Content -->
+    <div class="container" id="about">
+        <h1>Sobre o Spaceek</h1>
+        
+        <h2>Motivação do Projeto</h2>
+        <p>Como estudantes universitários, enfrentamos muitas vezes dificuldades em encontrar salas de estudo disponíveis, especialmente durante a época de exames. A incerteza sobre a ocupação dos espaços leva à perda de tempo.</p>
+        <p>Para resolver este problema, desenvolvemos um sistema que monitoriza em tempo real a ocupação das salas, facilitando o acesso a espaços livres e permitindo que os estudantes se foquem no que realmente importa: estudar.</p>
+
+        <h2>O nosso sensor</h2>
+        <div class="sensor-info">
+            <img src="../imagens/sensor.png" alt="Sensor Spaceek" class="sensor-img">
+            <div class="sensor-details">
+                <p>O nosso avançado sistema de monitorização de ocupação tira partido do sensor de imagem térmica MLX90641 para fornecer, em tempo real, informações precisas sobre a utilização dos espaços. Instalado de forma estratégica nas entradas das salas, este sensor deteta movimentos através da captação de variações térmicas, permitindo uma contagem rigorosa de pessoas — tudo isto sem comprometer a privacidade dos utilizadores.</p>
+                <p>Seja em salas de estudo, escritórios ou espaços partilhados, esta tecnologia oferece uma forma simples, discreta e eficaz de melhorar a gestão dos espaços e a experiência dos utilizadores.</p>
+            </div>
+        </div>
+
+        <div class="cards-section">
+            <h2>Objetivos</h2>
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-search-location"></i>
+                    </div>
+                    <strong>Facilitar a procura de salas</strong>
+                    <p>Permitir aos estudantes encontrar rapidamente salas de estudo disponíveis e adequadas às suas necessidades.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <strong>Otimizar recursos</strong>
+                    <p>Promover uma gestão eficiente dos espaços e poupança energética nas instituições.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <strong>Privacidade e conforto</strong>
+                    <p>Monitorizar ocupação sem comprometer a privacidade, garantindo ambientes confortáveis e inteligentes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-section">
+            <h2>Informações Disponibilizadas</h2>
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <strong>Ocupação</strong>
+                    <p>Contagem de pessoas em tempo real.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <strong>Temperatura</strong>
+                    <p>Monitorização da temperatura ambiente.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <strong>Nível de ruído</strong>
+                    <p>Avaliação do ambiente sonoro.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <strong>Tomadas</strong>
+                    <p>Disponibilidade de tomadas elétricas.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <strong>Wi-Fi</strong>
+                    <p>Qualidade e disponibilidade da rede sem fios.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2>Quem somos?</h2>
+        <p>Somos uma equipa de estudantes apaixonados por tecnologia, dedicados a resolver problemas reais da vida universitária através de soluções inovadoras.</p>
+        <div class="team-grid">
+            <!-- First row with 3 members -->
+            <div class="team-row">
+                <div class="team-member">
+                    <img src="../imagens/spaceek_team/bibs.jpg" alt="Beatriz Guia" class="team-photo">
+                    <strong>Beatriz Guia</strong>
+                    <span>Frontend & Backend</span>
+                </div>
+                <div class="team-member">
+                    <img src="../imagens/spaceek_team/Gonzalo.jpg" alt="Gonzalo Marques" class="team-photo">
+                    <strong>Gonzalo Marques</strong>
+                    <span>Hardware</span>
+                </div>
+                <div class="team-member">
+                    <img src="../imagens/spaceek_team/Tiago_gome.jpg" alt="Tiago Gomes" class="team-photo">
+                    <strong>Tiago Gomes</strong>
+                    <span>Backend</span>
+                </div>
+            </div>
+            <!-- Second row with 3 members -->
+            <div class="team-row">
+                <div class="team-member">
+                    <img src="../imagens/spaceek_team/Danel.jpg" alt="Daniel Burke" class="team-photo">
+                    <strong>Daniel Burke</strong>
+                    <span>Backend</span>
+                </div>
+                <div class="team-member">
+                    <img src="../imagens/spaceek_team/Diogo.jpg" alt="Diogo Sousa" class="team-photo">
+                    <strong>Diogo Sousa</strong>
+                    <span>Data Processing</span>
+                </div>
+                <div class="team-member">
+                    <img src="../imagens/spaceek_team/miguel.jpg" alt="Miguel Fialho" class="team-photo">
+                    <strong>Miguel Fialho</strong>
+                    <span>Data Processing</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Page Content (would be in a separate blog.html file) -->
+    <!--
+    <div class="blog-container" id="blog">
+        <div class="blog-header">
+            <h1>Spaceek Blog</h1>
+            <p>Acompanhe o desenvolvimento do nosso projeto e fique a par das últimas atualizações.</p>
+        </div>
+        
+        <div class="blog-posts">
+            <article class="blog-post">
+                <div class="post-header">
+                    <span class="post-category">Buyer</span>
+                    <h2 class="post-title">Understanding Our Users</h2>
+                    <div class="post-meta">
+                        <span class="author">Beatriz Guia</span>
+                        <span>May 7 · 1 min read</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>No último mês, nossa equipa tem-se dedicado a compreender melhor as necessidades e desafios dos nossos utilizadores. Através de conversas abertas e feedback direto, começámos a delinear um perfil mais claro de quem são os nossos utilizadores e como podemos servi-los melhor.</p>
+                    <p>Uma das principais conclusões até agora é que muitos utilizadores valorizam a simplicidade e a eficiência. Eles procuram soluções que lhes poupem tempo e que sejam fáceis de usar. Além disso, a privacidade é uma preocupação central - os utilizadores querem ter a certeza de que os seus dados estão seguros e que a sua privacidade é respeitada.</p>
+                    <a href="#" class="read-more">Continuar a ler</a>
+                </div>
+            </article>
+            <article class="blog-post">
+                <div class="post-header">
+                    <span class="post-category">Dev</span>
+                    <h2 class="post-title">A Nossa Jornada até Agora</h2>
+                    <div class="post-meta">
+                        <span class="author">Tiago Gomes</span>
+                        <span>May 10 · 2 min read</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Desde o início do nosso projeto, temos enfrentado uma série de desafios e aprendizados. Cada membro da equipa trouxe uma perspetiva única e habilidades valiosas, permitindo-nos abordar os problemas de forma criativa e eficaz.</p>
+                    <p>Um dos maiores desafios foi integrar o hardware com o software. Após várias tentativas e muito trabalho de equipa, conseguimos desenvolver uma solução que não só funciona bem, como também é escalável e fácil de manter.</p>
+                    <a href="#" class="read-more">Continuar a ler</a>
+                </div>
+            </article>
+        </div>
+    </div>
+    -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>

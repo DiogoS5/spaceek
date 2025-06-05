@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Blog Spaceek</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8f8ff;
+            font-family: 'Poppins', Arial, sans-serif;
+            color: #18181b;
+        }
+        .post-container {
+            max-width: 700px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px rgba(80,60,180,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .post-title {
+            font-size: 2rem;
+            color: #6d28d9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .post-meta {
+            color: #8b5cf6;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .post-meta i {
+            margin-right: 0.4em;
+        }
+        .post-content p {
+            margin-bottom: 1.2rem;
+            color: #444;
+            font-size: 1.08rem;
+        }
+        .post-illustration {
+            display: block;
+            margin: 2rem auto 0 auto;
+            max-width: 320px;
+            width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(80,60,180,0.08);
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            background: #6d28d9;
+            color: #fff;
+            padding: 0.6em 1.3em;
+            border-radius: 0.7em;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px #a78bfa33;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #8b5cf6;
+        }
+        @media (max-width: 800px) {
+            .post-container { padding: 1rem; }
+            .post-title { font-size: 1.3rem; }
+            .post-illustration { max-width: 90vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <a href="../blog.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Blog</a>
+        <h1 class="post-title">Desenvolvimento da WebApp: A Criar uma Experiência Intuitiva para os Utilizadores</h1>
+        <div class="post-meta">
+            <span><i class="fas fa-user"></i> Beatriz Guia</span>
+            <span><i class="fas fa-calendar-alt"></i> Maio 2025</span>
+        </div>
+        <div class="post-content">
+            <p>Nos últimos dias, eu, Beatriz Guia, juntamente com o meu colega Tiago Gomes, estivemos dedicados ao desenvolvimento da aplicação web do projeto Spaceek. O nosso principal objetivo é garantir que todas as funcionalidades sejam apresentadas de forma clara, eficiente e intuitiva para os utilizadores.</p>
+            <p>Estamos a trabalhar com HTML, CSS e JavaScript, tanto no frontend, responsável pela interface que os estudantes irão utilizar, como no backend, que trata da lógica e da comunicação com os dados.</p>
+            <p>Como parte do progresso, já conectámos a aplicação à Firebase, o que nos permite receber e armazenar dados em tempo real. Para testar esta integração e garantir que tudo funciona corretamente, criámos dados fictícios que simulam os valores de ocupação, ruído e temperatura. Assim que o protótipo estiver operacional, faremos a transição para os dados reais recolhidos pelos sensores.</p>
+            <p>Este passo marca um avanço importante no projeto, aproximando-nos de uma versão funcional e pronta para testes em contexto real!</p>
+        </div>
+        <img src="../../imagens/logo.png" alt="Ilustração Spaceek" class="post-illustration">
+    </div>
+</body>
+</html>
