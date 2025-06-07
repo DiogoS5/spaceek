@@ -77,19 +77,19 @@
 <body>
     <div class="post-container">
         <a href="../blog.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Blog</a>
-        <h1 class="post-title">Bem-vindo ao Blog Spaceek</h1>
+        <h1 class="post-title">Desenvolvimento do algoritmo: problemas, soluções, testes e conclusões (Week 15)</h1>
         <div class="post-meta">
-            <span><i class="fas fa-user"></i> Beatriz Guia</span>
-            <span><i class="fas fa-calendar-alt"></i> Março 2025</span>
+            <span><i class="fas fa-user"></i> Miguel Fialho</span>
+            <span><i class="fas fa-calendar-alt"></i> Maio 2025</span>
         </div>
         <div class="post-content">
-            <p>Olá e bem-vindo!</p>
-            <p>Este blog tem como objetivo documentar o desenvolvimento do nosso projeto — Spaceek — criado para responder a um desafio comum enfrentado por muitos estudantes universitários: encontrar salas de estudo disponíveis. Seja na universidade, na biblioteca ou noutros espaços adequados ao estudo, a nossa missão é tornar este processo mais simples, rápido e eficaz.</p>
-            <p>O Spaceek foi pensado para fornecer atualizações em tempo real sobre a ocupação das salas, permitindo que os estudantes identifiquem rapidamente lugares livres e se concentrem no que realmente importa: estudar.</p>
-            <p>Ao longo deste blog, iremos partilhar convosco a nossa jornada, o processo de desenvolvimento, os principais marcos alcançados e as lições que formos aprendendo pelo caminho.</p>
-            <p>Obrigado por nos acompanhares nesta aventura. Fica atento às próximas atualizações enquanto damos vida ao Spaceek!</p>
+            <p>Nas últimas semanas, eu, Miguel Fialho, juntamente com os membros Diogo Sousa e Daniel Burke, temos andado a desenvolver o algoritmo que vai ser responsável pela deteção das saídas e entradas de cada sala onde os nossos módulos ficarão instalados. </p>
+            <p>O algoritmo tem a tarefa de, através das imagens fornecidas pelo sensor térmico, detetar quando é que uma pessoa entra no seu campo de visão (deteção de "blops") e perceber a direção do seu movimento, ou seja, se está a sair ou a entrar da sala ("tracking").</p>
+            <p>No início, começámos por correr este algoritmo no ESP32, mas depois passámos a executá-lo num servidor para termos mais facilidade em testar, encontrar problemas e alterar parâmetros. A comunicação entre o ESP32 e o servidor é feita por protocolo TCP, onde o ESP32 envia as "frames" para o servidor fazer todo o processamento.</p>
+            <p>O algoritmo já é capaz de detetar, na maior parte das vezes, os movimentos de forma correta, mas tem problemas quando as pessoas passam muito devagar ou quando passam muito juntas umas das outras. Resolver estas situações é agora o nosso objetivo.</p>
+            <p>Vamos também começar a tratar da comunicação do servidor com o website para atualizar a lotação das salas de forma instantânea, sempre que forem detetadas entradas e saídas.</p>
         </div>
-        <img src="../../imagens/logo.png" alt="Ilustração Spaceek" class="post-illustration">
+        <img src="../../imagens/blog/Imagem_termica.jpg" alt="Imagem captada através do sensor com deteção de blops" class="post-illustration">
     </div>
 </body>
 </html>
