@@ -208,89 +208,135 @@ void showFrame(const vector<Blob>& blobs) {
 
 // --- New: marker‐based watershed blob finder ---
 void findBlobsWatershed(vector<Blob>& blobs) {
-    // 1) build a binary mask at dynamicThreshold
+    //
+    //  1) Build a binary mask “bin” at dynamicThreshold:
+    //
     cv::Mat bin(ROWS, COLS, CV_8U);
-    for(int r=0;r<ROWS;r++){
-      for(int c=0;c<COLS;c++){
-        bin.at<uchar>(r,c) = (frame[r*COLS+c] > dynamicThreshold ? 255 : 0);
-      }
+    for (int r = 0; r < ROWS; r++) {
+        for (int c = 0; c < COLS; c++) {
+            float Tval = frame[r * COLS + c];
+            bin.at<uchar>(r, c) = (Tval > dynamicThreshold ? 255 : 0);
+        }
     }
 
-    // 2) sure background = dilate
-    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT,{3,3});
+    //
+    //  2) Apply a 3×3 morphological opening to break any 1–2 pixel bridges:
+    //     (This is the new line we inserted.)
+    //
+    {
+        cv::Mat kernelOpen = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+        // One iteration of open → erode then dilate
+        cv::morphologyEx(bin, bin, cv::MORPH_OPEN, kernelOpen, cv::Point(-1, -1), 1);
+    }
+
+    //
+    //  3) sure background = 3‐times dilated version of bin:
+    //
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     cv::Mat sureBg;
-    cv::dilate(bin, sureBg, kernel, {}, 3);
+    cv::dilate(bin, sureBg, kernel, cv::Point(-1, -1), 3);
 
-    // 3) distance transform on the mask
+    //
+    //  4) Distance transform on the opened “bin”:
+    //
     cv::Mat dist;
-    cv::distanceTransform(bin, dist, cv::DIST_L2, 5);
+    cv::distanceTransform(bin, dist, cv::DIST_L2, 3);
 
-    // 4) threshold dist to get sure foreground markers
-    double maxD;
+    // Normalize dist so we can threshold against a fraction of its max.
+    double maxD = 0.0;
     cv::minMaxLoc(dist, nullptr, &maxD);
+
+    //
+    //  5) sure foreground
+    //
     cv::Mat sureFg;
-    cv::threshold(dist, sureFg, 0.4*maxD, 255, cv::THRESH_BINARY);
+    cv::threshold(dist, sureFg, 0.5 * maxD, 255, cv::THRESH_BINARY); // Changed 0.3 to 0.5
     sureFg.convertTo(sureFg, CV_8U);
 
-    // 5) unknown region = background minus foreground
-    cv::Mat unknown = sureBg - sureFg;
+    //
+    //  6) unknown region = sureBg − sureFg
+    //
+    cv::Mat unknown;
+    cv::subtract(sureBg, sureFg, unknown);
 
-    // 6) label the foreground markers
+    //
+    //  7) Label the foreground markers (connected components on sureFg):
+    //
     cv::Mat markers;
     int nMarkers = cv::connectedComponents(sureFg, markers);
-    // shift so background=1, objects = 2…nMarkers
+    // Shift labels by +1 so that background is 1, objects are 2..nMarkers
     markers += 1;
-    // mark unknown with zero
+    // Mark “unknown” (the border region) with zero:
     markers.setTo(0, unknown);
 
-    // 7) prepare a 3-channel image for watershed
-    cv::Mat raw(ROWS, COLS, CV_32F, frame);
-    raw -= dynamicThreshold;
-    double mn, mx;
+    //
+    //  8) Prepare a 3‐channel image for watershed.  
+    //     We’ll draw ROI = Raw Thermal minus threshold, then normalize→gray→BGR:
+    //
+    cv::Mat raw(ROWS, COLS, CV_32F, frame); 
+    raw -= dynamicThreshold;  // apply threshold offset
+    
+    double mn = 0.0, mx = 0.0;
     cv::minMaxLoc(raw, &mn, &mx);
+
     cv::Mat norm8;
-    raw.convertTo(norm8, CV_8U,
-                  255.0/(mx-mn),
-                  -mn*255.0/(mx-mn));
+    raw.convertTo(norm8, CV_8U, 255.0 / (mx - mn), -mn * 255.0 / (mx - mn));
     cv::Mat color;
     cv::cvtColor(norm8, color, cv::COLOR_GRAY2BGR);
 
-    // 8) run watershed
+    //
+    //  9) Run the watershed algorithm on “color” image using our markers:
+    //
     cv::watershed(color, markers);
 
-    // 9) extract each label as its own Blob
-    for(int lbl = 2; lbl <= nMarkers; lbl++){
-      float sx=0, sy=0;
-      int count=0, minR=ROWS, maxR=0, minC=COLS, maxC=0;
-      float peak=-1e9;
-      for(int r=0;r<ROWS;r++){
-        for(int c=0;c<COLS;c++){
-          if(markers.at<int>(r,c) != lbl) continue;
-          count++;
-          sx += c; sy += r;
-          float t = frame[r*COLS+c];
-          peak = max(peak, t);
-          minR = min(minR, r); maxR = max(maxR, r);
-          minC = min(minC, c); maxC = max(maxC, c);
+    //
+    // 10) Extract each label (2..nMarkers) as its own Blob:
+    //
+    for (int lbl = 2; lbl <= nMarkers; lbl++) {
+        float sx = 0.0f, sy = 0.0f;
+        int count = 0, minR = ROWS, maxR = 0, minC = COLS, maxC = 0;
+        float peak = -1e9f;
+
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLS; c++) {
+                if (markers.at<int>(r, c) != lbl) 
+                    continue;
+
+                count++;
+                sx += c;
+                sy += r;
+
+                float t = frame[r * COLS + c];
+                peak = max(peak, t);
+
+                minR = min(minR, r);
+                maxR = max(maxR, r);
+                minC = min(minC, c);
+                maxC = max(maxC, c);
+            }
         }
-      }
-      if(count < MIN_BLOB_PIXELS || count > MAX_BLOB_PIXELS) continue;
-      if(peak < MIN_PEAK_TEMP) continue;
-      Blob b;
-      b.id = 0;
-      b.x  = sx/count;
-      b.y  = sy/count;
-      b.minRow = minR;
-      b.maxRow = maxR;
-      b.minCol = minC;
-      b.maxCol = maxC;
-      b.countedEntry = b.countedExit = false;
-      b.confidence = 0;
-      blobs.push_back(b);
+
+        // Discard blobs that are too small, too large, or below peak‐temperature cutoff
+        if (count < MIN_BLOB_PIXELS || count > MAX_BLOB_PIXELS) 
+            continue;
+        if (peak < MIN_PEAK_TEMP) 
+            continue;
+
+        Blob b;
+        b.id = 0;  // will be assigned in trackAndReport()
+        b.x = sx / count;
+        b.y = sy / count;
+        b.minRow = minR;
+        b.maxRow = maxR;
+        b.minCol = minC;
+        b.maxCol = maxC;
+        b.countedEntry = b.countedExit = false;
+        b.confidence = 1;
+
+        blobs.push_back(b);
     }
 }
 
-// rest of your tracker unchanged
 float dist2(float x1,float y1,float x2,float y2) {
     float dx=x1-x2, dy=y1-y2; return dx*dx+dy*dy;
 }
