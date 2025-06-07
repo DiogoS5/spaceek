@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Blog Spaceek</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8f8ff;
+            font-family: 'Poppins', Arial, sans-serif;
+            color: #18181b;
+        }
+        .post-container {
+            max-width: 700px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px rgba(80,60,180,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .post-title {
+            font-size: 2rem;
+            color: #6d28d9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .post-meta {
+            color: #8b5cf6;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .post-meta i {
+            margin-right: 0.4em;
+        }
+        .post-content p {
+            margin-bottom: 1.2rem;
+            color: #444;
+            font-size: 1.08rem;
+        }
+        .post-illustration {
+            display: block;
+            margin: 2rem auto 0 auto;
+            max-width: 320px;
+            width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(80,60,180,0.08);
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            background: #6d28d9;
+            color: #fff;
+            padding: 0.6em 1.3em;
+            border-radius: 0.7em;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px #a78bfa33;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #8b5cf6;
+        }
+        @media (max-width: 800px) {
+            .post-container { padding: 1rem; }
+            .post-title { font-size: 1.3rem; }
+            .post-illustration { max-width: 90vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <a href="../blog.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Blog</a>
+        <h1 class="post-title">Bem-vindo ao Blog Spaceek</h1>
+        <div class="post-meta">
+            <span><i class="fas fa-user"></i> Beatriz Guia</span>
+            <span><i class="fas fa-calendar-alt"></i> Março 2025</span>
+        </div>
+        <div class="post-content">
+            <p>Olá e bem-vindo!</p>
+            <p>Este blog tem como objetivo documentar o desenvolvimento do nosso projeto — Spaceek — criado para responder a um desafio comum enfrentado por muitos estudantes universitários: encontrar salas de estudo disponíveis. Seja na universidade, na biblioteca ou noutros espaços adequados ao estudo, a nossa missão é tornar este processo mais simples, rápido e eficaz.</p>
+            <p>O Spaceek foi pensado para fornecer atualizações em tempo real sobre a ocupação das salas, permitindo que os estudantes identifiquem rapidamente lugares livres e se concentrem no que realmente importa: estudar.</p>
+            <p>Ao longo deste blog, iremos partilhar convosco a nossa jornada, o processo de desenvolvimento, os principais marcos alcançados e as lições que formos aprendendo pelo caminho.</p>
+            <p>Obrigado por nos acompanhares nesta aventura. Fica atento às próximas atualizações enquanto damos vida ao Spaceek!</p>
+        </div>
+        <img src="../../imagens/logo.png" alt="Ilustração Spaceek" class="post-illustration">
+    </div>
+</body>
+</html>
