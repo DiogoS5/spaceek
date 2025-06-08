@@ -72,3 +72,57 @@ function highlightMarker(roomId) {
         }, 2000);
     }
 }
+
+document.querySelectorAll('.detalhes-btn').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    const container = this.closest('.room-card').querySelector('.details-container');
+    const isOpening = container.style.display === 'none';
+
+    // Toggle visibility
+    container.style.display = isOpening ? 'block' : 'none';
+
+    // Only load data when first opening
+    if (isOpening && !container.dataset.loaded) {
+      const roomId = this.closest('.room-card').dataset.roomId;
+
+      // Fetch hourly data from Firestore
+      const hourlyData = await fetchHourlyData(roomId);
+
+      // Render the chart
+      const chartContainer = container.querySelector('.hourly-chart');
+      if (chartContainer) {
+        renderHourlyChart(chartContainer, hourlyData);
+      }
+      container.dataset.loaded = 'true';
+    }
+  });
+});
+
+// Fetch hourly data from Firestore
+async function fetchHourlyData(roomId) {
+  const docRef = doc(db, "salas", roomId);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists() ? (docSnap.data().hourlyAverages || Array(24).fill(0)) : Array(24).fill(0);
+}
+
+// Render the hourly histogram
+function renderHourlyChart(container, averages) {
+  const now = new Date();
+  const currentHour = now.getHours();
+
+  container.innerHTML = averages.map((avg, hour) => `
+    <div class="chart-bar">
+      <div class="bar${hour === currentHour ? ' current-hour' : ''}" 
+           style="height: ${(avg || 0)}%; background: ${getOcupacaoColor(avg)};">
+      </div>
+      <span class="bar-label">${hour}h</span>
+    </div>
+  `).join('');
+}
+
+// Color helper
+function getOcupacaoColor(percent) {
+  if (percent >= 75) return 'var(--color-danger)';
+  if (percent >= 50) return 'var(--color-warning)';
+  return 'var(--color-success)';
+}
