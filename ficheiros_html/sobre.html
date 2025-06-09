@@ -176,13 +176,17 @@
         
         .team-row {
             display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
             justify-content: center;
             gap: 2rem;
-            width: 100%;
         }
         
         .team-member {
-            flex: 1;
+            flex: 1 1 30%;
+            max-width: 300px;
+            min-width: 180px;
+            width: 100%;
             background: var(--white);
             border-radius: var(--rounded-md);
             padding: 1.5rem;
@@ -192,7 +196,6 @@
             border: 1px solid var(--primary-lightest);
             position: relative;
             overflow: hidden;
-            max-width: 300px;
         }
         
         .team-member:hover {
@@ -480,9 +483,18 @@
                 font-size: 1.5rem;
             }
             
+            .team-row {
+                gap: 1rem;
+            }
             .team-member {
-                flex: 1 1 100%;
-                max-width: 100%;
+                flex: 1 1 45%;
+                max-width: 48vw;
+                min-width: 120px;
+                width: 100%;
+            }
+            .team-photo {
+                width: 80px;
+                height: 80px;
             }
         }
     </style>
@@ -610,9 +622,6 @@
                     <strong>Tiago Gomes</strong>
                     <span>Backend</span>
                 </div>
-            </div>
-            <!-- Second row with 3 members -->
-            <div class="team-row">
                 <div class="team-member">
                     <img src="../imagens/spaceek_team/Danel.jpg" alt="Daniel Burke" class="team-photo">
                     <strong>Daniel Burke</strong>
