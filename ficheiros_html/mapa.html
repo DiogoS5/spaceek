@@ -11,11 +11,22 @@
           crossorigin=""/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+
+        header {
+            z-index: 100;
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
         #map-container {
+            overflow: visible !important; /* allow content like popups to overflow */
+            z-index: 0;
             width: 100%;
             height: 500px;
             border-radius: var(--border-radius);
-            margin-top: 90px; /* Ajusta conforme a altura real do teu header */
+            margin-top: 50px; /* Ajusta conforme a altura real do teu header */
             position: relative;
         }
         
@@ -159,7 +170,7 @@
             animation: fadeInDown 0.5s ease-out, pulse-light 2s infinite;
             max-width: 90%;
             white-space: nowrap;
-            overflow: hidden;
+            
             text-overflow: ellipsis;
             border: 2px solid white;
         }
@@ -502,21 +513,28 @@
         }
         
         /* Custom popup styles */
-        .custom-popup .leaflet-popup-content-wrapper {
+        .leaflet-popup-pane  {
             border-radius: var(--border-radius);
             padding: 0;
-            overflow: hidden;
+            z-index: 3000 !important;
+    position: relative;
         }
         
         .custom-popup .leaflet-popup-content {
             margin: 0;
             width: 250px !important;
+            z-index: 2000;
         }
         
+        .custom-popup .leaflet-popup-content-wrapper {
+    z-index: 2000;
+    position: relative;
+}
+
         .custom-popup .leaflet-popup-tip {
             background-color: white;
         }
-        
+
         /* User location marker pulse animation */
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
@@ -536,14 +554,14 @@
             z-index: -1;
             animation: pulse 2s infinite;
         }
+        
+        #main-subtitle {
+            font-weight: bold;
+            color: #d765f3;         /* Light purple, adjust as needed */
+            font-size: 1.3rem;      /* Bigger size */
+            margin-bottom: 1.5rem;
+        }
 
-        #map-container, #map {
-            z-index: 1;
-        }
-        header {
-            z-index: 10;
-            position: sticky;
-        }
     </style>
 </head>
 <body>
@@ -553,7 +571,7 @@
             <img src="../imagens/logo.png" alt="Logo do Spaceek" class="logo">
             <span class="nome-empresa">Spaceek</span>
           </div>
-          <nav class="menu">
+          <nav class="menu" id="mainMenu">
             <a href="../index.html">Início</a>
             <a class="active">Mapa</a>
             <a href="https://group4pic.wixstudio.com/spaceseek">Sobre</a>
@@ -568,7 +586,7 @@
               <a href="#" id="logoutBtn">Sair</a>
             </div>
           </div>
-          <div class="menu-hamburger" onclick="toggleMenu()">&#9776;</div>
+          <div class="menu-hamburger" id="menuHamburger">&#9776;</div>
         </div>
     </header>
     
@@ -576,7 +594,7 @@
         <section class="results">
             <div class="container">
                 <h2>Mapa de Salas de Estudo</h2>
-                <p>Visualize a localização das salas de estudo no campus.</p>
+                <p id="main-subtitle">Visualize a localização das salas de estudo no campus.</p>
                 
                 <!-- FILTER BUTTONS: Match index.html style and layout -->
                 <div class="filter-tabs" id="filterTabs">
@@ -592,6 +610,10 @@
                 
                 <div id="map-container">
                     <div id="map"></div>
+                    <div id="infoCard" style="display:none; position:absolute; z-index:5000; background:white; box-shadow:0 4px 24px rgba(0,0,0,0.18); border-radius:16px; padding:24px; max-width:350px; min-width:220px;">
+                        <button id="closeInfoCard" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:1.3em; cursor:pointer;">&times;</button>
+                        <div id="infoCardContent"></div>
+                    </div>
                     <div class="map-controls">
                         <button class="map-control-btn" id="userLocationBtn" title="Minha Localização" aria-label="Minha Localização">
                             <i class="fas fa-location-arrow"></i>
@@ -712,6 +734,7 @@
         
         let map;
         let markers = [];
+        let openPopupMarker = null; // tracks the currently open popup marker
         let currentUser = null;
         let userFavorites = [];
         let currentFilter = 'all';
@@ -796,9 +819,68 @@
         // Função para inicializar o mapa com dados do Firebase
         async function initMapWithFirebase() {
             // Coordenadas do IST
-            map = L.map('map').setView(istCoordinates, 17);
+            // Rectangle bounds: [southWest, northEast]
+            const bounds = [
+                [38.735182, -9.143602], // Southwest (minLat, minLng)
+                [38.738292609237, -9.136187229319052] // Northeast (maxLat, maxLng)
+            ];
+
+            // ...existing code...
+            window.map = map = L.map('map', {
+                zoomControl: true,
+                attributionControl: false,
+                maxZoom: 22,
+                minZoom: 17,
+                maxBounds: bounds,
+                maxBoundsViscosity: 1.0,
+            }).fitBounds(bounds);
+
+            const minDesiredZoom = 16; // or 16 for even more area
+            if (map.getZoom() > minDesiredZoom) {
+                map.setZoom(minDesiredZoom);
+            }
+            setTimeout(() => map.invalidateSize(), 300);
+
+            // --- Enable map interaction only while pressing/touching ---
+            map.dragging.disable();
+            map.scrollWheelZoom.disable();
+            map.doubleClickZoom.disable();
+            map.boxZoom.disable();
+            map.keyboard.disable();
+            if (map.tap) map.tap.disable();
+
+            const mapContainer = map.getContainer();
+
+            function enableMapInteraction() {
+                map.dragging.enable();
+                map.scrollWheelZoom.enable();
+                map.doubleClickZoom.enable();
+                map.boxZoom.enable();
+                map.keyboard.enable();
+                if (map.tap) map.tap.enable();
+            }
+
+            function disableMapInteraction() {
+                map.dragging.disable();
+                map.scrollWheelZoom.disable();
+                map.doubleClickZoom.disable();
+                map.boxZoom.disable();
+                map.keyboard.disable();
+                if (map.tap) map.tap.disable();
+            }
+
+            // Mouse events
+            mapContainer.addEventListener('mousedown', enableMapInteraction);
+            mapContainer.addEventListener('mouseup', disableMapInteraction);
+            mapContainer.addEventListener('mouseleave', disableMapInteraction);
+
+            // Touch events (for mobile)
+            mapContainer.addEventListener('touchstart', enableMapInteraction);
+            mapContainer.addEventListener('touchend', disableMapInteraction);
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 22
             }).addTo(map);
             // Ensure default zoom control is enabled (top left)
             map.zoomControl.setPosition('topleft');
@@ -833,9 +915,6 @@
                     // Set as selected room
                     selectedRoomId = roomId;
                     // Show info box/banner for this room
-                    showRoomDetails(room);
-                    // Optionally, show the banner above the map as well
-                    // showSelectedRoomBanner(room);
                 }
             }
             
@@ -918,6 +997,12 @@
                     clearSelectedRoom();
                 }
             });
+
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+
+            
         }
         
         // Create markers for rooms
@@ -991,7 +1076,7 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem;">
             <div>
                 <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #6d28d9;">${room.name || 'Sala'}</h3>
-                <div style="font-size: 0.97em; color: #64748b; margin-top: 2px; margin-bottom: 0.7em;">${room.building || ''}</div>
+                <div style="font-size: 0.97em; color: #64748b; margin-top: 2px; margin-bottom: 0.7em;">${room.Location || ''}</div>
             </div>
             <button class="favorite-btn${isFavorite ? ' active' : ''}" data-room-id="${room.id}" style="background: none; border: none; cursor: pointer; font-size: 1.4em; color: ${isFavorite ? '#f59e0b' : '#d1d5db'}; z-index: 10; padding: 0; margin: 0; align-self: flex-start;">
                 <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
@@ -1033,25 +1118,44 @@
 `; 
 
                     const popup = L.popup({
-                        closeButton: false, // Remove the cross from the popup
-                        className: 'custom-popup'
-                    }).setContent(popupContent);
-                    
-                    marker.bindPopup(popup);
-                    
-                    // Always open popup above marker if selected
-                    if (isSelected) {
-                        marker.bindPopup(popup).openPopup();
-                    } else {
-                        marker.bindPopup(popup);
-                    }
+    closeButton: false, // Remove the cross from the popup
+    className: 'custom-popup',
+    autoPan: true, // Ensure the map pans to keep the popup visible
+    pane: 'popupPane' // Use the popup pane for proper z-index
+}).setContent(popupContent);
+
+                
                     
                     // Add click event to select room
-                    marker.on('click', function() {
-                        highlightMarker(room.id);
-                        // Restore: show the selected room banner above the map (like before)
-                        // showSelectedRoomBanner(room);
-                    });
+   marker.on('click', function(e) {
+    // If this marker is already selected, hide the info card
+    if (selectedRoomId === room.id) {
+        document.getElementById('infoCard').style.display = 'none';
+        selectedRoomId = null;
+        return;
+    }
+
+    // Get the pixel position of the marker relative to the map container
+    const map = window.map;
+    const latlng = marker.getLatLng();
+    const point = map.latLngToContainerPoint(latlng);
+
+    // Position the info card near the marker (above and centered)
+    const infoCard = document.getElementById('infoCard');
+    infoCard.style.left = (point.x) + 'px';
+    infoCard.style.top = (point.y - 10) + 'px'; // 10px above the marker
+    infoCard.style.transform = 'translate(-50%, -100%)'; // center horizontally, above marker
+
+    // Show info card with this room's content
+    selectedRoomId = room.id;
+    document.getElementById('infoCardContent').innerHTML = popupContent;
+    infoCard.style.display = 'block';
+});
+// Close button handler (only add this once, outside the marker loop)
+document.getElementById('closeInfoCard').onclick = function() {
+    document.getElementById('infoCard').style.display = 'none';
+    selectedRoomId = null;
+};
 
                     // Add favorite button event
                     marker.on('popupopen', function() {
@@ -1090,24 +1194,6 @@
             selectedRoomId = roomId;
             createMarkers(window.roomsData);
             // Do NOT showRoomDetails or showSelectedRoomBanner here
-        }
-
-        // Show room details in the panel
-        function showRoomDetails(room) {
-            const panel = document.getElementById('room-details-panel');
-            const content = document.getElementById('room-details-content');
-            content.innerHTML = `
-                <h3 style="color:#6d28d9">${room.name || 'Sala'}</h3>
-                <p><b>Edifício:</b> ${room.building || '-'}</p>
-                <p><b>Ocupação:</b> ${(room.curOcc && room.maxOcc) ? Math.round((room.curOcc / room.maxOcc) * 100) + '%' : 'N/A'}</p>
-                <p><b>Temperatura:</b> ${room.temperature !== undefined ? room.temperature + '°C' : 'N/A'}</p>
-                <p><b>Ruído:</b> ${room.noise_lvl !== undefined ? room.noise_lvl : 'N/A'}</p>
-                <p><b>Wi-Fi:</b> ${room.wifi ? 'Disponível' : 'Não disponível'}</p>
-                <p><b>Tomadas:</b> ${room.outlets ? 'Disponíveis' : 'Não disponíveis'}</p>
-            `;
-            panel.classList.add('open');
-            // Do not hide the selected room banner here
-            // Do not hide the nearby rooms panel here
         }
 
         // Close room details panel
@@ -1329,17 +1415,17 @@
             if (loginBtn) {
                 loginBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    loginModal.style.display = 'block';
+                    loginModal.classList.add('open');
                 });
             }
             if (closeBtn) {
                 closeBtn.addEventListener('click', function() {
-                    loginModal.style.display = 'none';
+                    loginModal.classList.remove('open');
                 });
             }
             window.addEventListener('click', function(event) {
                 if (event.target === loginModal) {
-                    loginModal.style.display = 'none';
+                    loginModal.classList.remove('open');
                 }
             });
             // Google login button logic
@@ -1362,7 +1448,7 @@
                                 });
                             }
                             localStorage.setItem('spaceek-login', Date.now());
-                            loginModal.style.display = 'none';
+                            loginModal.classList.remove('open');
                         } catch (error) {
                             alert('Erro ao fazer login com Google.');
                         }
@@ -1405,6 +1491,20 @@
         document.addEventListener('DOMContentLoaded', function() {
             initMapWithFirebase();
         });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.getElementById('menuHamburger');
+    const menu = document.getElementById('mainMenu');
+    if (hamburger && menu) {
+        hamburger.addEventListener('click', function() {
+            menu.classList.toggle('active');
+            setTimeout(() => {
+                if (window.map) window.map.invalidateSize();
+            }, 350); // Wait for menu animation if any
+        });
+    }
+});
     </script>
 </body>
 </html>
