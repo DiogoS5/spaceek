@@ -1515,6 +1515,49 @@
     font-size: 1.3rem;      /* Bigger size */
     margin-bottom: 1.5rem;
     }
+
+    @media (max-width: 700px) {
+    .details-container {
+        padding: 0.5rem !important;
+    }
+    .splitview-content-row {
+        flex-direction: column !important;
+        gap: 2.5rem !important; /* aumenta o espaço entre mapa e cartão */
+    }
+    .split-map-container,
+    .split-card {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        margin-bottom: 1.5rem; /* espaço extra abaixo de cada bloco */
+    }
+    #split-map {
+        min-width: 0 !important;
+        width: 100% !important;
+        height: 250px !important;
+        margin-bottom: 1.5rem; /* espaço extra abaixo do mapa */
+    }
+    .split-card .room-card {
+        margin: 0 auto 1.5rem auto;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+    .split-stats {
+        display: flex;
+        justify-content: center;
+        width: 100% !important;
+        margin-top: 2rem;
+    }
+    .histogram-row {
+        display: flex;
+        justify-content: center;
+        width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: auto;
+        margin-bottom: 1.5rem;
+    }
+}
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

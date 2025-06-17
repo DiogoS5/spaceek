@@ -83,13 +83,26 @@
             <span><i class="fas fa-calendar-alt"></i> Março 2025</span>
         </div>
         <div class="post-content">
-            <p>Olá e bem-vindo!</p>
-            <p>Este blog tem como objetivo documentar o desenvolvimento do nosso projeto — Spaceek — criado para responder a um desafio comum enfrentado por muitos estudantes universitários: encontrar salas de estudo disponíveis. Seja na universidade, na biblioteca ou noutros espaços adequados ao estudo, a nossa missão é tornar este processo mais simples, rápido e eficaz.</p>
-            <p>O Spaceek foi pensado para fornecer atualizações em tempo real sobre a ocupação das salas, permitindo que os estudantes identifiquem rapidamente lugares livres e se concentrem no que realmente importa: estudar.</p>
-            <p>Ao longo deste blog, iremos partilhar convosco a nossa jornada, o processo de desenvolvimento, os principais marcos alcançados e as lições que formos aprendendo pelo caminho.</p>
-            <p>Obrigado por nos acompanhares nesta aventura. Fica atento às próximas atualizações enquanto damos vida ao Spaceek!</p>
+            <p>Nas últimas três semanas, estivemos a desenvolver e a testar a deteção de movimentos, através da imagem de uma câmara térmica (MLX90641), montada na entrada de uma sala, apontando para baixo.</p>
+
+<p>Decidimos implementar uma pipeline em C++, que consiga processar as frames 12x16, a 16 Hz, fazendo a identificação e o tracking do movimento das pessoas.</p>
+
+<p>Após muitos testes e ajustes, chegámos a uma pipeline que se resume nos seguintes passos:</p>
+
+<p>
+    <strong>1. Estimação da temperatura ambiente:</strong> cálculo do percentil 25 das temperaturas adquiridas.<br>
+    <strong>2. Máscara binária:</strong> identificação dos píxeis acima de um limiar dinâmico (temperatura ambiente + 3 °C).<br>
+    <strong>3. Filtragem morfológica:</strong> remoção de ruído e pequenas regiões por operação morfológica de abertura.<br>
+    <strong>4. Filtro Gaussiano:</strong> suavização da imagem para melhorar os contornos dos objetos.<br>
+    <strong>5. Segmentação em blobs:</strong> aplicação do algoritmo de Watershed com marcadores obtidos pela transformada da distância.<br>
+    <strong>6. Tracking:</strong> tracking das blobs entre frames consecutivas. Calculamos a velocidade das blobs, de forma a prevermos a sua posição, e mantemos um score de confiança para remover falsas deteções.<br>
+    <strong>7. Contagem:</strong> registo das entradas e saídas, demarcadas por uma linha no centro da imagem.
+</p>
+
+<p>Com a pipeline finalizada, implementámos a comunicação entre o microcontrolador e o servidor, através de uma ligação TCP, que permite atualizar a ocupação da sala em tempo real.</p>
+
         </div>
-        <img src="../../imagens/logo.png" alt="Ilustração Spaceek" class="post-illustration">
+        <img src="../../imagens/blog/Imagem_termica.jpg" alt="deteção de uma pessoa" class="post-illustration">
     </div>
 </body>
 </html>
