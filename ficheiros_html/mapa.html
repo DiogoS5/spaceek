@@ -1150,6 +1150,15 @@
     selectedRoomId = room.id;
     document.getElementById('infoCardContent').innerHTML = popupContent;
     infoCard.style.display = 'block';
+
+    // Add click handler for "Ver Detalhes" button
+    const verDetalhesBtn = document.getElementById('verDetalhesBtn');
+    if (verDetalhesBtn) {
+    verDetalhesBtn.onclick = function(e) {
+        e.stopPropagation();
+        window.location.href = '../index.html?splitview=1&id=' + room.id;
+    };
+    }
 });
 // Close button handler (only add this once, outside the marker loop)
 document.getElementById('closeInfoCard').onclick = function() {

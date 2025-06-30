@@ -62,6 +62,9 @@
                         <button class="tab ocupacao-btn" id="ocupacaoBtn">
                             Ocupação <i class="fas fa-sort-amount-down" id="ocupacaoIcon"></i>
                         </button>
+                        <button class="tab" id="semMonitorizacaoBtn">
+                            <i class="fas fa-ban"></i> Sem monitorização
+                        </button>
                         <button class="tab" id="favoritesFilterBtn">
                             <i class="far fa-star"></i> Favoritos
                         </button>
@@ -130,6 +133,7 @@
         let currentUser = null;
         let userFavorites = [];
         let showOnlyFavorites = false;
+        let showOnlyUnmonitored = false;
 
         // Auth state observer
         onAuthStateChanged(auth, (user) => {
@@ -257,6 +261,15 @@
             renderRooms(getCurrentFilter());
         });
 
+        const semMonitorizacaoBtn = document.getElementById('semMonitorizacaoBtn');
+        if (semMonitorizacaoBtn) {
+            semMonitorizacaoBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                showOnlyUnmonitored = this.classList.contains('active');
+                renderRooms(getCurrentFilter());
+            });
+        }
+
         // Filter tab logic
         const filterTabs = document.querySelectorAll('.filter-group .tab');
         filterTabs.forEach(tab => {
@@ -301,6 +314,15 @@
         } else {
             filteredRooms = allRooms;
         }
+    }
+
+    // Apply unmonitored filter if active
+    if (showOnlyUnmonitored) {
+        filteredRooms = filteredRooms.filter(room => room.func === false);
+    }
+
+    if (showOnlyFavorites) {
+    filteredRooms = filteredRooms.filter(room => userFavorites.includes(room.id));
     }
 
     filteredRooms.sort((a, b) => {
@@ -351,8 +373,8 @@
                 </div>
                 <div class="indicator">
                     <span class="indicator-label"><i class="fas fa-thermometer-half"></i> Temperatura</span>
-                    <span class="badge temperature-badge" style="background:${getTemperatureColor(data.temperature)}">
-                        ${data.temperature !== null && data.temperature !== undefined ? data.temperature + '°C' : 'N/A'}
+                    <span class="badge temperature-badge" style="background:${isRoomOpen(data) ? getTemperatureColor(data.temperature) : '#d1d5db'}">
+                        ${isRoomOpen(data) && data.temperature !== null && data.temperature !== undefined ? data.temperature + '°C' : 'N/A'}
                     </span>
                 </div>
                 <div class="indicator">
@@ -361,12 +383,13 @@
                         ${isRoomOpen(data) ? 'Aberto' : 'Fechado'}
                     </span>
                 </div>
-                ${data.noise_lvl !== undefined ? `<div class="indicator">
+                <div class="indicator">
                     <span class="indicator-label">Nível de Ruído:</span>
-                    <span class="badge noise ${getRuidoClass(data.noise_lvl)}">
-                        <i class="fas ${getRuidoIcon(data.noise_lvl)}"></i> ${getRuidoLabel(data.noise_lvl)}
+                    <span class="badge noise ${isRoomOpen(data) && data.noise_lvl !== undefined ? getRuidoClass(data.noise_lvl) : ''}">
+                        <i class="fas ${isRoomOpen(data) && data.noise_lvl !== undefined ? getRuidoIcon(data.noise_lvl) : 'fa-volume-mute'}"></i>
+                        ${isRoomOpen(data) && data.noise_lvl !== undefined ? getRuidoLabel(data.noise_lvl) : 'N/A'}
                     </span>
-                </div>` : ''}
+                </div>
             </div>
             <div class="room-actions">
                 <button class="button primary detalhes-btn" data-room-idx="${idx}">
@@ -466,6 +489,17 @@
         </div>
     `;
 
+    let opinionBoxHTML = '';
+    if (roomData.func === false) {
+        opinionBoxHTML = `
+        <div class="user-opinion-box" style="display:flex;align-items:center;justify-content:center;margin-left:2rem;">
+            <span style="font-size:1.15rem; color:#6366f1; font-weight:600;">
+            Queres dar a tua opinião ?
+            </span>
+        </div>
+        `;
+    }
+        
     // Responsive layout: map on top, then info-card and histogram side-by-side (stacked on mobile)
    splitView.innerHTML = `
   <div class="details-container">
@@ -516,11 +550,38 @@
         </div>
       </div>
     </div>
-    <div class="split-stats">
-      <div class="histogram-row">
-        <div id="histogram-container"></div>
-      </div>
-    </div>
+    ${roomData.func === false
+        ? `<div class="split-stats center-stats">
+                <div class="histogram-row">
+                    <div id="histogram-container"></div>
+                </div>
+                    <div class="user-opinion-box">
+                        <div class="stickman-container">
+                            <div class="speech-bubble">
+                                Queres dar a tua opinião ?
+                            </div>
+                            <svg class="stickman-svg" width="48" height="80" viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Head -->
+                            <circle cx="24" cy="14" r="12" stroke="#9370db" stroke-width="3" fill="#ede9fe"/>
+                            <!-- Body -->
+                            <line x1="24" y1="26" x2="24" y2="54" stroke="#9370db" stroke-width="3" />
+                            <!-- Arms -->
+                            <line x1="24" y1="34" x2="8" y2="44" stroke="#9370db" stroke-width="3" />
+                            <line x1="24" y1="34" x2="40" y2="44" stroke="#9370db" stroke-width="3" />
+                            <!-- Legs -->
+                            <line x1="24" y1="54" x2="10" y2="76" stroke="#9370db" stroke-width="3" />
+                            <line x1="24" y1="54" x2="38" y2="76" stroke="#9370db" stroke-width="3" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+        : `<div class="split-stats">
+                <div class="histogram-row">
+                    <div id="histogram-container"></div>
+                </div>
+            </div>`
+    }
   </div>
 `;
     
@@ -548,7 +609,7 @@
     let selectedHour = null;
 
     function renderHistogramAtHour(hour) {
-        histogramContainer.innerHTML = renderHourlyChart(averages, roomData.maxOcc, hour, start, end);
+        histogramContainer.innerHTML = renderHourlyChart(averages, roomData.maxOcc, hour, start, end, roomData.func);
         // Re-attach click handlers
         histogramContainer.querySelectorAll('.histogram-hour-btn').forEach(bar => {
             bar.onclick = () => renderHistogramAtHour(Number(bar.dataset.hour));
@@ -858,11 +919,82 @@
     return arr;
 }
 
-    function renderHourlyChart(averages, maxOcc, selectedHour = null, hourStart = 8, hourEnd = 20) {
+    function renderHourlyChart(averages, maxOcc, selectedHour = null, hourStart = 8, hourEnd = 20, func = true) {
+    if (!func) {
+        // For unmonitored rooms: 5 fixed bars, each representing a range
+        const levels = [
+            { label: "Vazio (0-25%)", value: 1},
+            { label: "Pouco Movimentado (25%-50%)", value: 2},
+            { label: "Algum Movimento (50%-75%)", value: 3},
+            { label: "Muito Movimentado (75%-100%)", value: 4},
+            { label: "Lotado (100%)", value: 5}
+        ];
+
+          // For each hour, get the level (from averages or default to 1)
+        const hours = [];
+        for (let h = hourStart; h <= hourEnd; h++) hours.push(h);
+
+        // Pick the selected hour (default: current hour or first open hour)
+        const now = new Date();
+        let hourToShow = selectedHour;
+        if (hourToShow === null) {
+            hourToShow = (now.getHours() >= hourStart && now.getHours() <= hourEnd) ? now.getHours() : hourStart;
+        }
+
+        // For each hour, get the level (1-5) from averages[hour] or default to 1
+        function getLevel(val) {
+            // If you store user poll as 1-5, just return val or 1
+            if (!val) return 1;
+            // If you store as percent, map to 1-5
+            if (val >= 90) return 5;
+            if (val >= 75) return 4;
+            if (val >= 50) return 3;
+            if (val >= 25) return 2;
+            return 1;
+        }
+
+        // Get the level for the selected hour
+        const selectedLevel = getLevel(averages[hourToShow]);
+
+        return `
+            <div class="histogram-header">
+                <span class="histogram-title">Estado de Ocupação nas últimas 24h</span>
+                <div class="histogram-message-row">
+                    <span class="histogram-message">
+                        <i class="fas fa-users"></i>
+                        <b>${hourToShow.toString().padStart(2, '0')}:00</b> :
+                        ${levels[selectedLevel - 1].label}
+                    </span>
+                </div>
+            </div>
+            <div class="hourly-chart">
+                <div class="bars-row">
+                    ${hours.map(hour => {
+                        const level = getLevel(averages[hour]);
+                        return `
+                        <div class="hour-bar${hour === hourToShow ? ' current-hour' : ''} histogram-hour-btn" data-hour="${hour}">
+                            <div class="bar" style="
+                                height: ${level * 44}px;
+                                background: var(--color-primary);
+                                opacity: ${hour === hourToShow ? 1 : 0.5};
+                                border-radius: 6px 6px 0 0;
+                                ">
+                            </div>
+                            <div class="x-label" style="margin-top:8px;font-size:1rem;">
+                                ${hour.toString().padStart(2, '0')}
+                            </div>
+                        </div>
+                        `;
+                        }).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
     const now = new Date();
     const currentHour = now.getHours();
     const hours = [];
-    for (let h = hourStart; h < 24; h++) hours.push(h);
+    for (let h = hourStart; h <= hourEnd; h++) hours.push(h);
 
     let hourToShow = selectedHour;
     if (hourToShow === null) {
@@ -1242,6 +1374,37 @@
                 tryShow();
             }
         }
+
+                // Open poll modal when speech bubble is clicked
+        document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('speech-bubble')) {
+            document.getElementById('pollModal').classList.add('open');
+            document.getElementById('pollThanks').style.display = 'none';
+            document.getElementById('pollForm').style.display = '';
+        }
+        });
+
+        // Close poll modal
+        document.getElementById('closePollModal').onclick = function() {
+        document.getElementById('pollModal').classList.remove('open');
+        };
+        document.getElementById('pollModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+        });
+
+        // Handle poll submission
+        document.getElementById('pollForm').onsubmit = function(e) {
+        e.preventDefault();
+        // You can send the data to Firebase here if you want!
+        document.getElementById('pollForm').style.display = 'none';
+        document.getElementById('pollThanks').style.display = '';
+        setTimeout(() => {
+            document.getElementById('pollModal').classList.remove('open');
+            document.getElementById('pollForm').reset();
+            document.getElementById('pollForm').style.display = '';
+            document.getElementById('pollThanks').style.display = 'none';
+        }, 1800);
+        };
     </script>
     <script src="script.js"></script>
     <style>
@@ -1593,5 +1756,44 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+<!-- Poll Modal -->
+<div id="pollModal" class="modal">
+  <div class="modal-content" style="max-width:400px;">
+    <span class="close" id="closePollModal">&times;</span>
+    <h2 style="color:#9370db; margin-bottom:1.5rem;">Partilhe a sua opinião</h2>
+    <form id="pollForm">
+      <div class="form-group">
+        <label><b>Qual o nível de ocupação?</b></label>
+        <div>
+            <label class="poll-radio"><input type="radio" name="ocupacao" value="Lotado" required> <span>Lotado (100%)</span></label>
+            <label class="poll-radio"><input type="radio" name="ocupacao" value="Muito Movimentado"> <span>Muito Movimentado (75%-100%)</span></label>
+            <label class="poll-radio"><input type="radio" name="ocupacao" value="Algum Movimento"> <span>Algum Movimento (50%-75%)</span></label>
+            <label class="poll-radio"><input type="radio" name="ocupacao" value="Pouco Movimentado"> <span>Pouco Movimentado (25%-50%)</span></label>
+            <label class="poll-radio"><input type="radio" name="ocupacao" value="Vazio"> <span>Vazio (0%-25%)</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label><b>Qual a temperatura atual?</b></label>
+        <div>
+            <label class="poll-radio"><input type="radio" name="temperatura" value="Alta" required> <span>Alta</span></label>
+            <label class="poll-radio"><input type="radio" name="temperatura" value="Média"> <span>Média</span></label>
+            <label class="poll-radio"><input type="radio" name="temperatura" value="Baixa"> <span>Baixa</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label><b>Há muito barulho?</b></label>
+        <div>
+            <label class="poll-radio"><input type="radio" name="barulho" value="Muito" required> <span>Muito</span></label>
+            <label class="poll-radio"><input type="radio" name="barulho" value="Normal"> <span>Normal</span></label>
+            <label class="poll-radio"><input type="radio" name="barulho" value="Pouco"> <span>Pouco</span></label>
+        </div>
+      </div>
+      <button type="submit" class="button primary" style="width:100%;margin-top:1rem;">Submeter</button>
+    </form>
+    <div id="pollThanks" style="display:none; color:#22c55e; font-weight:600; text-align:center; margin-top:1.5rem;">
+      Obrigado pela sua opinião!
+    </div>
+  </div>
+</div>
 </body>
 </html>
