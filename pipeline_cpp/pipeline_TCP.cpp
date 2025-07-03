@@ -24,9 +24,10 @@ static const int COLS         = ORIG_COLS * INTERP_FACTOR;
 static const int NPIX         = ROWS * COLS;
 static const int ORIG_NPIX    = ORIG_ROWS * ORIG_COLS;
 static const int CROSS_COL    = COLS/2;        // crossing line at halfway (vertical)
-static const int MIN_BLOB_PIXELS = (2*INTERP_FACTOR)*(2*INTERP_FACTOR);
+static const int MIN_BLOB_PIXELS = (1*INTERP_FACTOR)*(1*INTERP_FACTOR);
 static const int MAX_BLOB_PIXELS = (5*INTERP_FACTOR)*(5*INTERP_FACTOR);
 static const float MIN_PEAK_TEMP  = 0.0f;     // ignore tiny warm specks
+static const int SPLIT_TRESHOLD = 5 * INTERP_FACTOR; // split blobs wider than this in interpolated space
 
 int occupancy = 2;
 int n_mov = 0;
@@ -48,7 +49,7 @@ vector<Blob> tracks;
 int      nextId = 1;
 
 // TCP Configuration
-const std::string LOCAL_IP = "172.20.10.4"; // Server IP, check by running `ifconfig` on the terminal of the server
+const std::string LOCAL_IP = "192.168.175.72"; // Server IP, check by running `ifconfig` on the terminal of the server
 const int TCP_PORT = 5002;                  // Server Listening Port
 
 int setupTCPSocket() {
@@ -297,6 +298,9 @@ void findBlobsWatershed(vector<Blob>& blobs) {
         int count = 0, minR = ROWS, maxR = 0, minC = COLS, maxC = 0;
         float peak = -1e9f;
 
+        // Collect pixel coordinates for possible splitting
+        std::vector<cv::Point2f> blobPixels;
+
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
                 if (markers.at<int>(r, c) != lbl) 
@@ -313,6 +317,8 @@ void findBlobsWatershed(vector<Blob>& blobs) {
                 maxR = max(maxR, r);
                 minC = min(minC, c);
                 maxC = max(maxC, c);
+
+                blobPixels.emplace_back(c, r);
             }
         }
 
@@ -321,6 +327,66 @@ void findBlobsWatershed(vector<Blob>& blobs) {
             continue;
         if (peak < MIN_PEAK_TEMP) 
             continue;
+
+        int width = maxC - minC + 1;
+        int height = maxR - minR + 1;
+        float diagonal = std::sqrt(width * width + height * height);
+
+        // If the blob is more than SPLIT_TRESHOLD across in width, height, or diagonal, split it
+        if (width > SPLIT_TRESHOLD || height > SPLIT_TRESHOLD || diagonal > SPLIT_TRESHOLD) {
+            // Use k-means to split into 2 blobs
+            if (blobPixels.size() >= 2) {
+                cv::Mat points(blobPixels.size(), 2, CV_32F);
+                for (size_t i = 0; i < blobPixels.size(); ++i) {
+                    points.at<float>(i, 0) = blobPixels[i].x;
+                    points.at<float>(i, 1) = blobPixels[i].y;
+                }
+                cv::Mat labels, centers;
+                cv::kmeans(points, 2, labels,
+                           cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT, 10, 1.0),
+                           1, cv::KMEANS_PP_CENTERS, centers);
+
+                // Collect stats for each cluster
+                struct ClusterStats {
+                    float sx = 0, sy = 0, peak = -1e9f;
+                    int count = 0, minR = ROWS, maxR = 0, minC = COLS, maxC = 0;
+                } stats[2];
+
+                for (size_t i = 0; i < blobPixels.size(); ++i) {
+                    int k = labels.at<int>(i);
+                    float x = blobPixels[i].x, y = blobPixels[i].y;
+                    stats[k].sx += x;
+                    stats[k].sy += y;
+                    stats[k].count++;
+                    int ix = int(x), iy = int(y);
+                    float t = frame[iy * COLS + ix];
+                    stats[k].peak = std::max(stats[k].peak, t);
+                    stats[k].minR = std::min(stats[k].minR, iy);
+                    stats[k].maxR = std::max(stats[k].maxR, iy);
+                    stats[k].minC = std::min(stats[k].minC, ix);
+                    stats[k].maxC = std::max(stats[k].maxC, ix);
+                }
+
+                for (int k = 0; k < 2; ++k) {
+                    if (stats[k].count < MIN_BLOB_PIXELS || stats[k].count > MAX_BLOB_PIXELS)
+                        continue;
+                    if (stats[k].peak < MIN_PEAK_TEMP)
+                        continue;
+                    Blob b;
+                    b.id = 0;
+                    b.x = stats[k].sx / stats[k].count;
+                    b.y = stats[k].sy / stats[k].count;
+                    b.minRow = stats[k].minR;
+                    b.maxRow = stats[k].maxR;
+                    b.minCol = stats[k].minC;
+                    b.maxCol = stats[k].maxC;
+                    b.countedEntry = b.countedExit = false;
+                    b.confidence = 1;
+                    blobs.push_back(b);
+                }
+            }
+            continue; // Skip adding the original unsplit blob
+        }
 
         Blob b;
         b.id = 0;  // will be assigned in trackAndReport()
