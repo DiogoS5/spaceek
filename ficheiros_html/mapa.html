@@ -14,19 +14,17 @@
 
         header {
             z-index: 100;
-            position: sticky;
-            top: 0;
-            left: 0;
+            position: relative;  /* Changed from sticky to relative */
             width: 100%;
         }
 
         #map-container {
-            overflow: visible !important; /* allow content like popups to overflow */
+            overflow: visible !important;
             z-index: 0;
             width: 100%;
             height: 500px;
             border-radius: var(--border-radius);
-            margin-top: 50px; /* Ajusta conforme a altura real do teu header */
+            margin-top: 20px; /* Reduced from 50px to 20px */
             position: relative;
         }
         
@@ -331,20 +329,65 @@
             color: #6d28d9;
             cursor: pointer;
         }
-        @media (max-width: 600px) {
-            .room-details-panel {
-                width: 100vw;
-                left: 0;
-                right: 0;
-                top: auto;
-                bottom: 0;
-                height: auto;
-                min-height: 40vh;
-                border-radius: 1.2rem 1.2rem 0 0;
-                padding: 1.2rem 1rem 1rem 1rem;
-                box-shadow: 0 -2px 24px rgba(80,60,180,0.10);
-            }
-        }
+
+        /* Mobile-specific styling for info card - MUCH SMALLER */
+@media (max-width: 768px) {
+    #infoCard {
+        max-width: 160px !important;
+        min-width: 160px !important;
+        padding: 4px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    /* Keep the same proportional layout as desktop, just smaller */
+    .split-card {
+        width: 160px !important;
+        padding: 0.5rem !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+    
+    .split-card h3 {
+        font-size: 0.8rem !important;
+        margin-bottom: 0.3rem !important;
+    }
+    
+    .split-card div[style*="font-size: 0.8em"] {
+        font-size: 0.65rem !important;
+    }
+    
+    .split-card span[style*="font-size: 0.85em"] {
+        font-size: 0.7rem !important;
+    }
+    
+    .split-card span[style*="font-size: 0.8em"] {
+        font-size: 0.65rem !important;
+    }
+    
+    /* Target all buttons in split-card */
+    .split-card button,
+    .split-card .button {
+        padding: 2px 0 !important;
+        font-size: 0.6rem !important;
+        height: 16px !important;
+        line-height: 1 !important;
+    }
+    
+    .split-card button i,
+    .split-card .button i {
+        font-size: 0.5rem !important;
+    }
+    /* Keep progress bar proportional */
+    .split-card div[style*="height: 6px"] {
+        height: 3px !important;
+    }
+    
+    /* Keep favorite button proportional */
+    .split-card .favorite-btn {
+        font-size: 0.7rem !important;
+    }
+}
+
 
         /* Notification styles */
         .notification {
@@ -393,23 +436,28 @@
         }
         
         /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        /* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s;
+}
+
+.modal.open {
+    display: block !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
         
         .modal-content {
             background-color: #fefefe;
@@ -561,6 +609,23 @@
             font-size: 1.3rem;      /* Bigger size */
             margin-bottom: 1.5rem;
         }
+
+        /* Add this to your     existing CSS around line 600: */
+#infoCard {
+    position: absolute;
+    z-index: 9999 !important;
+    background: white;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 350px;
+    min-width: 220px;
+    display: none;
+    /* Add these constraints */
+    max-height: 90vh;
+    overflow-y: auto;
+    pointer-events: auto;
+}
 
     </style>
 </head>
@@ -825,12 +890,12 @@
                 [38.738292609237, -9.136187229319052] // Northeast (maxLat, maxLng)
             ];
 
-            // ...existing code...
+            // --- Initialize the map ---
             window.map = map = L.map('map', {
                 zoomControl: true,
                 attributionControl: false,
                 maxZoom: 22,
-                minZoom: 17,
+                minZoom: 16,
                 maxBounds: bounds,
                 maxBoundsViscosity: 1.0,
             }).fitBounds(bounds);
@@ -1072,48 +1137,47 @@
                     
                     // Create popup content
                     const popupContent = `
-                        <div class="split-card" style="background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); padding: 1.2rem 1.2rem 1rem 1.2rem; min-width: 260px; max-width: 340px; font-family: inherit; position: relative;">
+    <div class="split-card" style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); padding: 0.8rem; min-width: 200px; max-width: 250px; font-family: inherit; position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem;">
             <div>
-                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #6d28d9;">${room.name || 'Sala'}</h3>
-                <div style="font-size: 0.97em; color: #64748b; margin-top: 2px; margin-bottom: 0.7em;">${room.Location || ''}</div>
+                <h3 style="margin: 0; font-size: 1rem; font-weight: 600; color: #6d28d9;">${room.name || 'Sala'}</h3>
+                <div style="font-size: 0.8em; color: #64748b; margin-top: 2px;">${room.Location || ''}</div>
             </div>
-            <button class="favorite-btn${isFavorite ? ' active' : ''}" data-room-id="${room.id}" style="background: none; border: none; cursor: pointer; font-size: 1.4em; color: ${isFavorite ? '#f59e0b' : '#d1d5db'}; z-index: 10; padding: 0; margin: 0; align-self: flex-start;">
+            <button class="favorite-btn${isFavorite ? ' active' : ''}" data-room-id="${room.id}" style="background: none; border: none; cursor: pointer; font-size: 1.2em; color: ${isFavorite ? '#f59e0b' : '#d1d5db'}; padding: 0;">
                 <i class="${isFavorite ? 'fas' : 'far'} fa-star"></i>
             </button>
         </div>
-        <div style="height: 8px;"></div>
-        <div style="display: flex; flex-direction: column; gap: 0.5em; margin-bottom: 0.7em; width: 100%;">
-            <div style="display: flex; align-items: center; width: 100%; gap: 0.2em;">
-                <span style="font-size: 1em; font-weight: bold; color: #334155; min-width: 60px; text-align: left;">Ocupação</span>
-                <div style="flex: 1 1 0; display: flex; align-items: center; justify-content: center; margin: 0 0.2em;">
-                    <div style="height: 10px; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; width: 100%; max-width: 120px; min-width: 60px;">
-                        <div style="height: 100%; width: ${ocupacao}%; background-color: ${getOccupancyColor(ocupacao)};"></div>
-                    </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.4em; margin-bottom: 0.6rem;">
+            <div style="display: flex; align-items: center; gap: 0.5em;">
+                <span style="font-size: 0.85em; font-weight: 600; color: #334155; min-width: 50px;">Ocupação</span>
+                <div style="flex: 1; height: 6px; background-color: #e5e7eb; border-radius: 3px; overflow: hidden;">
+                    <div style="height: 100%; width: ${ocupacao}%; background-color: ${getOccupancyColor(ocupacao)};"></div>
                 </div>
-                <span style="font-size: 0.97em; color: #222; min-width: 36px; text-align: right; margin-left: 0.15em;">${ocupacao}%</span>
+                <span style="font-size: 0.8em; color: #222; min-width: 28px; text-align: right;">${ocupacao}%</span>
             </div>
+            
             ${room.temperature !== undefined ? `
-            <div style="display: flex; align-items: center; width: 100%; gap: 0.7em;">
-                <span style="font-size: 1em; font-weight: bold; color: #334155; min-width: 0px; text-align: center;">Temperatura</span>
-                <span style="flex: 1;"></span>
-                <span style="font-size: 0.93em; background-color: ${getTemperatureColor(room.temperature)}; color: white; padding: 2px 2px; border-radius: 5px; display: flex; align-items: center; gap: 0.3em; min-width: 44px; max-width: 54px; justify-content: flex-end; text-align: right; font-weight: normal;">
-                    <i class="fas fa-thermometer-half"></i> ${room.temperature}°C
+            <div style="display: flex; align-items: center; gap: 0.5em;">
+                <span style="font-size: 0.85em; font-weight: 600; color: #334155; min-width: 50px;">Temp</span>
+                <div style="flex: 1;"></div>
+                <span style="font-size: 0.8em; background-color: ${getTemperatureColor(room.temperature)}; color: white; padding: 1px 4px; border-radius: 3px;">
+                    <i class="fas fa-thermometer-half" style="font-size: 0.7em;"></i> ${room.temperature}°C
                 </span>
             </div>` : ''}
-            <div style="display: flex; align-items: center; width: 100%; gap: 0.7em;">
-                <span style="font-size: 1em; font-weight: bold; color: #334155; min-width: 90px; text-align: left;">Ruído</span>
-                <span style="flex: 1;"></span>
-                <span style="font-size: 0.93em; background-color: ${ruidoColor}; color: white; padding: 2px 6px; border-radius: 6px; display: flex; align-items: center; gap: 0.3em; min-width: 60px; justify-content: flex-end; text-align: right; font-weight: normal;">
-                    <i class="fas ${getRuidoIcon(room.noise_lvl)}"></i> ${ruidoLabel}
+            
+            <div style="display: flex; align-items: center; gap: 0.5em;">
+                <span style="font-size: 0.85em; font-weight: 600; color: #334155; min-width: 50px;">Ruído</span>
+                <div style="flex: 1;"></div>
+                <span style="font-size: 0.8em; background-color: ${ruidoColor}; color: white; padding: 1px 4px; border-radius: 3px;">
+                    <i class="fas ${getRuidoIcon(room.noise_lvl)}" style="font-size: 0.7em;"></i> ${ruidoLabel}
                 </span>
             </div>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 0.5em;">
-            <button class="button primary" style="text-align: center; margin-top: 0.7em; padding: 10px 0; border-radius: 8px; background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); color: #fff; text-decoration: none; font-size: 1.07em; font-weight: 600; box-shadow: 0 2px 8px rgba(59,130,246,0.10); width: 88%; max-width: 240px; border: none; transition: background 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5em;" id="verDetalhesBtn">
-                <i class="fas fa-info-circle"></i> Ver Detalhes
-            </button>
-        </div>
+        
+        <button class="button primary" style="width: 100%; padding: 4px 0; border-radius: 4px; background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); color: #fff; font-size: 0.75em; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.2em; height: 20px; line-height: 1;" id="verDetalhesBtn">
+    <i class="fas fa-info-circle" style="font-size: 0.65em;"></i> Detalhes
+</button>
     </div>
 `; 
 
@@ -1136,15 +1200,56 @@
     }
 
     // Get the pixel position of the marker relative to the map container
-    const map = window.map;
     const latlng = marker.getLatLng();
     const point = map.latLngToContainerPoint(latlng);
-
-    // Position the info card near the marker (above and centered)
+    
+    // Get map container dimensions
+    const mapContainer = document.getElementById('map-container');
+    const mapRect = mapContainer.getBoundingClientRect();
+    const mapWidth = mapRect.width;
+    const mapHeight = mapRect.height;
+    
+    // Get info card dimensions
     const infoCard = document.getElementById('infoCard');
-    infoCard.style.left = (point.x) + 'px';
-    infoCard.style.top = (point.y - 10) + 'px'; // 10px above the marker
-    infoCard.style.transform = 'translate(-50%, -100%)'; // center horizontally, above marker
+    const isMobile = window.innerWidth <= 768;
+    const cardWidth = isMobile ? 160 : 250;
+    const cardHeight = isMobile ? 140 : 200;
+    
+    // Calculate position with boundary constraints
+    let left = point.x;
+    let top = point.y - 10;
+    let transform = 'translate(-50%, -100%)';
+    
+    // Check if card would go outside left boundary
+    if (left - cardWidth/2 < 10) {
+        left = cardWidth/2 + 10;
+        transform = 'translate(-50%, -100%)';
+    }
+    
+    // Check if card would go outside right boundary
+    if (left + cardWidth/2 > mapWidth - 10) {
+        left = mapWidth - cardWidth/2 - 10;
+        transform = 'translate(-50%, -100%)';
+    }
+    
+    // Check if card would go outside top boundary
+    if (top - cardHeight < 10) {
+        // Position below marker instead
+        top = point.y + 40;
+        transform = 'translate(-50%, 0%)';
+    }
+    
+    // Check if card would go outside bottom boundary
+    if (top + cardHeight > mapHeight - 10) {
+        // Position above marker but adjust if needed
+        top = mapHeight - cardHeight - 10;
+        transform = 'translate(-50%, 0%)';
+    }
+
+    // Apply positioning
+    infoCard.style.left = left + 'px';
+    infoCard.style.top = top + 'px';
+    infoCard.style.transform = transform;
 
     // Show info card with this room's content
     selectedRoomId = room.id;
@@ -1154,13 +1259,13 @@
     // Add click handler for "Ver Detalhes" button
     const verDetalhesBtn = document.getElementById('verDetalhesBtn');
     if (verDetalhesBtn) {
-    verDetalhesBtn.onclick = function(e) {
-        e.stopPropagation();
-        window.location.href = '../index.html?splitview=1&id=' + room.id;
-    };
+        verDetalhesBtn.onclick = function(e) {
+            e.stopPropagation();
+            window.location.href = '../index.html?splitview=1&id=' + room.id;
+        };
     }
 });
-// Close button handler (only add this once, outside the marker loop)
+                    // Close button handler (only add this once, outside the marker loop)
 document.getElementById('closeInfoCard').onclick = function() {
     document.getElementById('infoCard').style.display = 'none';
     selectedRoomId = null;
@@ -1421,22 +1526,26 @@ document.getElementById('closeInfoCard').onclick = function() {
             // Modal open/close logic
             const loginBtn = document.getElementById('loginBtn');
             const closeBtn = loginModal ? loginModal.querySelector('.close') : null;
-            if (loginBtn) {
-                loginBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    loginModal.classList.add('open');
-                });
-            }
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    loginModal.classList.remove('open');
-                });
-            }
-            window.addEventListener('click', function(event) {
-                if (event.target === loginModal) {
-                    loginModal.classList.remove('open');
-                }
-            });
+
+if (loginBtn) {
+    loginBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        loginModal.style.display = 'block'; // Use style.display instead of classList
+    });
+}
+
+if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+        loginModal.style.display = 'none'; // Use style.display instead of classList
+    });
+}
+
+window.addEventListener('click', function(event) {
+    if (event.target === loginModal) {
+        loginModal.style.display = 'none'; // Use style.display instead of classList
+    }
+});
+
             // Google login button logic
             setTimeout(() => {
                 const googleBtn = document.querySelector('.google-btn');
@@ -1457,7 +1566,7 @@ document.getElementById('closeInfoCard').onclick = function() {
                                 });
                             }
                             localStorage.setItem('spaceek-login', Date.now());
-                            loginModal.classList.remove('open');
+                            loginModal.style.display = 'none'; // Use style.display instead of classList
                         } catch (error) {
                             alert('Erro ao fazer login com Google.');
                         }

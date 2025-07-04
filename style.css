@@ -260,64 +260,55 @@ header {
 /*Telemovel-----------------------------------------------------------------------*/
 /* Menu responsivo (para telas pequenas) */
 @media screen and (max-width: 768px) {
-   .menu {
+  .menu {
     display: none;
     flex-direction: column;
-    background: #a259e6;
-    position: absolute;
-    top: 100%;
-    right: 0;         /* <-- changed from left: 0 to right: 0 */
-    left: auto;
-    width: 80vw;      /* or 100% if you want full width */
-    max-width: 150px; /* optional: controls menu width */
+    background: linear-gradient(135deg, #9370db 0%, #7b68ee 100%);
+    position: fixed;
+    top: 80px; /* Position below header */
+    right: 0;
+    width: 250px;
+    max-width: 90vw;
     z-index: 3000;
-    border-radius: 0 0 0 16px;
-    box-shadow: -2px 4px 16px rgba(0,0,0,0.08);
-    margin-top: 2rem;
+    border-radius: 0 0 16px 16px; /* Rounded bottom corners */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    padding: 1rem;
+    transform: translateY(-100%); /* Start hidden above */
+    transition: transform 0.3s ease;
   }
   
   .menu.active {
     display: flex;
+    transform: translateY(0); /* Slide down into view */
+  }
+
+  .menu a {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    text-align: center;
+    display: block;
+    color: white;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .menu a:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .menu-hamburger {
     display: block;
-    font-size: 2rem;
+    font-size: 1.5rem;
     cursor: pointer;
     color: white;
-    margin-left: auto;
+    padding: 0.5rem;
   }
-}
 
-@media (max-width: 600px) {
-  .filter-tabs {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-  .filter-group {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    /* Hide scrollbar for aesthetics */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .filter-group::-webkit-scrollbar {
-    display: none;
-  }
-  .tab,
-  .tab.search-tab {
-    white-space: nowrap;
-    flex: 0 0 auto;
-  }
-  .filter-options {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    width: 100%;
-    justify-content: flex-start;
+  /* Hide user profile in mobile menu */
+  .user-profile {
+    display: none !important;
   }
 }
 
@@ -728,7 +719,12 @@ header {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     background: #e5e7eb;
-    position: relative;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+#split-map .leaflet-container {
+    background: #e5e7eb !important;
 }
 
 /* Login Modal */
@@ -1227,74 +1223,6 @@ footer nav a:hover {
   justify-content: center;
 }
 
-@media (max-width: 600px) {
-  .modal {
-    display: none !important;
-    align-items: flex-start !important;
-    justify-content: center;
-  }
-  .modal.open {
-    display: flex !important;
-    align-items: flex-start !important;
-    justify-content: center;
-  }
-  .modal-content {
-    margin: 18vh auto 0 auto !important;
-    padding: 1rem !important;
-    width: 98vw !important;
-    max-width: 99vw !important;
-    border-radius: var(--border-radius) !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-    min-height: 180px !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-  }
-  .close {
-    position: absolute;
-    top: 0.7rem;
-    right: 1rem;
-    font-size: 2rem;
-    z-index: 10;
-  }
-}
-
-@media (max-width: 600px) {
-  .details-container .splitview-content-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 0.5rem !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-  }
-  .details-container .split-map-container,
-  .details-container .split-card {
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    max-width: 50vw !important;
-    width: 50vw !important;
-    margin: 0 !important;
-    padding: 0.5rem !important;
-    box-sizing: border-box !important;
-  }
-  .details-container .split-stats {
-    width: calc(100vw - 2rem) !important;
-    max-width: calc(100vw - 2rem) !important;
-    margin: 1rem auto 0 auto !important;
-    padding: 1rem !important;
-    border-radius: var(--border-radius) !important;
-    border: 1px solid var(--color-border) !important;
-    box-sizing: border-box !important;
-    display: block !important;
-  }
-}
-
 /*----------------------------------------------------------------------------------------------------*/
 
 /* Stickman + speech bubble for user opinion */
@@ -1407,3 +1335,471 @@ footer nav a:hover {
   flex-direction: column;
   gap: 0.1em;
 }
+
+/*_-------------------------------------------------------------------------*/
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+  /* Header improvements */
+  .container-header {
+    padding: 0 0.75rem;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    height: 50px;
+    max-width: 120px;
+  }
+  
+  .nome-empresa {
+    font-size: 1.25rem;
+  }
+
+  /* Filter tabs mobile layout */
+  .filter-tabs {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .filter-group {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .filter-group::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .filter-options {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+  
+  .tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: fit-content;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  /* Room cards mobile layout */
+  .study-rooms {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+  
+  .room-card {
+    margin-bottom: 1rem;
+  }
+  
+  .room-header {
+    padding: 1rem 1rem 0.5rem;
+  }
+  
+  .room-name {
+    font-size: 1.1rem;
+  }
+  
+  .room-indicators {
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+  }
+  
+  .indicator {
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+  }
+  
+  .indicator-label {
+    min-width: 70px;
+  }
+  
+  .progress-container {
+    width: 4rem;
+    margin: 0 0.25rem;
+  }
+  
+  .room-actions {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .room-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .ver-mapa-btn {
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+  }
+
+  /* Split view mobile layout */
+  #split-view {
+    margin-top: 1rem;
+  }
+  
+  .details-container {
+    padding: 0.75rem !important;
+    margin: 0;
+  }
+  
+  .splitview-content-row {
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+  }
+  
+  .split-map-container {
+    width: 100% !important;
+    margin-bottom: 1rem;
+  }
+  
+  #split-map {
+    height: 250px !important;
+    border-radius: 0.5rem;
+  }
+  
+  .split-card {
+    width: 100% !important;
+  }
+  
+  .split-card .room-card {
+    margin: 0;
+  }
+  
+  .split-stats {
+    width: 100% !important;
+    margin-top: 1.5rem !important;
+    padding: 1rem !important;
+  }
+  
+  .split-stats.center-stats {
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    align-items: center;
+  }
+  
+  .histogram-row {
+    width: 100% !important;
+    overflow-x: auto;
+  }
+  
+  .bars-row {
+    min-width: 300px;
+    gap: 8px;
+  }
+  
+  .user-opinion-box {
+    margin-left: 0 !important;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .speech-bubble {
+    min-width: 150px;
+    max-width: 200px;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  /* Search tab mobile */
+  .tab.search-tab:focus-within input[type="search"],
+  .tab.search-tab:hover input[type="search"] {
+    width: 100px;
+  }
+
+  /* Map controls mobile */
+  .map-controls {
+    bottom: 0.5rem;
+    right: 0.5rem;
+    gap: 0.25rem;
+  }
+  
+  .map-control-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small screens */
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .results h2 {
+    font-size: 1.5rem;
+  }
+  
+  #main-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .room-card {
+    border-radius: 0.375rem;
+  }
+  
+  .room-actions {
+    flex-direction: column;
+  }
+  
+  .room-actions a {
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+  }
+  
+  /* Button improvements */
+  .button {
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+  }
+  
+  .tab {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  /* Filter options mobile stacking */
+  .filter-options {
+    width: 100%;
+    flex-direction: column;
+    margin-left: 0;
+  }
+  
+  .filter-options .tab {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* User profile dropdown mobile */
+  .user-dropdown {
+    right: 0;
+    top: 120%;
+    min-width: 150px;
+  }
+
+  /* Stickman container mobile */
+  .stickman-container {
+    gap: 0.25rem;
+  }
+  
+  .speech-bubble {
+    font-size: 0.9rem;
+    padding: 0.6em 1em;
+    min-width: 120px;
+    max-width: 180px;
+  }
+  
+  .stickman-svg {
+    width: 40px;
+    height: 65px;
+  }
+}
+
+/* Modal mobile improvements */
+@media (max-width: 768px) {
+  .modal {
+    padding: 1rem;
+  }
+  
+  .modal-content {
+    margin: 5vh auto !important;
+    width: 95vw !important;
+    max-width: 95vw !important;
+    padding: 1.5rem !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .poll-radio {
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+  }
+  
+  .poll-radio input[type="radio"] {
+    width: 1.2em;
+    height: 1.2em;
+  }
+  
+  .form-group label {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .button.primary {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (pointer: coarse) {
+  .button {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  .tab {
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+  }
+  
+  .favorite-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem;
+  }
+  
+  .map-control-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Landscape phone orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  #split-map {
+    height: 200px !important;
+  }
+  
+  .split-stats.center-stats {
+    flex-direction: row !important;
+    gap: 2rem !important;
+  }
+  
+  .user-opinion-box {
+    margin-left: 1rem !important;
+  }
+}
+
+/* Loading states for mobile */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #9370db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Map mobile specific */
+@media (max-width: 768px) {
+  #map-container {
+    margin-top: 20px;
+    height: 400px;
+  }
+  
+  #map {
+    height: 100%;
+  }
+  
+  .nearby-rooms-panel {
+    width: 90vw;
+    max-width: 280px;
+    top: 1rem;
+    right: 1rem;
+    left: auto;
+  }
+  
+  .filter-chip {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .leaflet-popup-content {
+    margin: 0.5rem;
+  }
+  
+  .leaflet-popup-content-wrapper {
+    max-width: 250px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .container-header {
+    padding: 0 0.5rem;
+  }
+  
+  .logo {
+    height: 40px;
+    max-width: 100px;
+  }
+  
+  .nome-empresa {
+    font-size: 1.1rem;
+  }
+  
+  .room-header {
+    padding: 0.75rem 0.75rem 0.25rem;
+  }
+  
+  .room-indicators {
+    padding: 0.25rem 0.75rem;
+  }
+  
+  .room-actions {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .speech-bubble {
+    font-size: 0.8rem;
+    min-width: 100px;
+    max-width: 150px;
+  }
+  
+  .poll-radio {
+    font-size: 0.9rem;
+  }
+}
+
+/* Prevent zoom on double tap for iOS */
+@media (max-width: 768px) {
+  .room-card,
+  .button,
+  .tab,
+  .favorite-btn {
+    touch-action: manipulation;
+  }
+}
+
+/* Improve scrolling on mobile */
+@media (max-width: 768px) {
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .filter-group {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .histogram-row {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+

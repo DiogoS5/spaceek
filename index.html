@@ -2,7 +2,7 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Spaceek - Salas de Estudo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -12,23 +12,23 @@
     <header>
     <div class="container-header">
         <div class="logo-area">
-        <img src="imagens/logo.png" alt="Logo do Spaceek" class="logo">
-        <span class="nome-empresa">Spaceek</span>
+            <img src="imagens/logo.png" alt="Logo do Spaceek" class="logo">
+            <span class="nome-empresa">Spaceek</span>
         </div>
         <nav class="menu" id="mainMenu">
-        <a class="active">Início</a>
-        <a href="ficheiros_html/mapa.html">Mapa</a>
-        <a href="ficheiros_html/sobre.html">Sobre</a>
-        <a href="#" id="loginBtn" class="login-btn">Login</a>
+            <a class="active">Início</a>
+            <a href="ficheiros_html/mapa.html">Mapa</a>
+            <a href="ficheiros_html/sobre.html">Sobre</a>
+            <a href="#" id="loginBtn" class="login-btn">Login</a>
         </nav>
         <div class="user-profile" style="display: none;">
-        <div class="user-avatar">
-            <span id="userInitial">A</span>
-        </div>
-        <div class="user-dropdown">
-            <a href="#" id="favoritesLink">Meus Favoritos</a>
-            <a href="#" id="logoutBtn">Sair</a>
-        </div>
+            <div class="user-avatar">
+                <span id="userInitial">A</span>
+            </div>
+            <div class="user-dropdown">
+                <a href="#" id="favoritesLink">Meus Favoritos</a>
+                <a href="#" id="logoutBtn">Sair</a>
+            </div>
         </div>
         <div class="menu-hamburger" id="menuHamburger">&#9776;</div>
     </div>
@@ -40,7 +40,6 @@
                 <div class="results-header-flex">
                     <h2 id="main-header">Salas Disponíveis</h2>
                 </div>
-                <p id="main-subtitle">(Os dados exibidos são apenas ilustrativos)</p>
                 <div id="voltar-btn-container" style="display:none;margin-bottom:0.5rem;"></div>
                 <br>
                 <div id="banner"></div>
@@ -95,6 +94,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Poll Modal -->
+<div id="pollModal" class="modal">
+  <div class="modal-content" style="max-width:400px;">
+    <span class="close" id="closePollModal">&times;</span>
+    <h2 style="color:#9370db; margin-bottom:1.5rem;">Partilhe a sua opinião</h2>
+    <form id="pollForm">
+      <div class="form-group">
+        <label><b>Qual o nível de ocupação?</b></label>
+        <div>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Lotado" required> <span>Lotado (100%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Muito Movimentado"> <span>Muito Movimentado (75%-100%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Algum Movimento"> <span>Algum Movimento (50%-75%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Pouco Movimentado"> <span>Pouco Movimentado (25%-50%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Vazio"> <span>Vazio (0%-25%)</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label><b>Qual a temperatura atual?</b></label>
+        <div>
+          <label class="poll-radio"><input type="radio" name="temperatura" value="Alta" required> <span>Alta</span></label>
+          <label class="poll-radio"><input type="radio" name="temperatura" value="Média"> <span>Média</span></label>
+          <label class="poll-radio"><input type="radio" name="temperatura" value="Baixa"> <span>Baixa</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label><b>Há muito barulho?</b></label>
+        <div>
+          <label class="poll-radio"><input type="radio" name="barulho" value="Muito" required> <span>Muito</span></label>
+          <label class="poll-radio"><input type="radio" name="barulho" value="Normal"> <span>Normal</span></label>
+          <label class="poll-radio"><input type="radio" name="barulho" value="Pouco"> <span>Pouco</span></label>
+        </div>
+      </div>
+      <button type="submit" class="button primary" style="width:100%;margin-top:1rem;">Submeter</button>
+    </form>
+    <div id="pollThanks" style="display:none; color:#22c55e; font-weight:600; text-align:center; margin-top:1.5rem;">
+      Obrigado pela sua opinião!
+    </div>
+  </div>
+</div>
 
     <script src="script.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -454,9 +493,13 @@
     const subtitle = document.getElementById('main-subtitle');
     // Store original values to restore later
     header.dataset.original = header.textContent;
-    subtitle.dataset.original = subtitle.textContent;
+
+    if (subtitle) {
+        subtitle.dataset.original = subtitle.textContent;
+        subtitle.textContent = roomData.Location;
+    }
+
     header.textContent = roomData.name || 'Sala';
-    subtitle.textContent = roomData.Location;
 
     // Add Voltar button
     let voltarBtn = document.getElementById('voltar-btn-container');
@@ -470,7 +513,9 @@
             voltarBtn.style.display = 'none';
 
             header.textContent = header.dataset.original || 'Salas Disponíveis';
-            subtitle.textContent = subtitle.dataset.original || '(Os dados exibidos são apenas ilustrativos)';
+            if (subtitle) {
+                subtitle.textContent = subtitle.dataset.original || '';
+            }
         };
     }
 
@@ -632,20 +677,11 @@
             return 'Muito Baixo';
         }
         
-        function renderSplitMap(roomData) {
+         function renderSplitMap(roomData) {
             const mapDiv = document.getElementById('split-map');
             mapDiv.innerHTML = '';
             mapDiv.style.width = '100%';
             mapDiv.style.height = '400px';
-
-            // Add map control buttons container (bottom right, column, same as mapa.html)
-            let controlsDiv = document.createElement('div');
-            controlsDiv.className = 'map-controls';
-            controlsDiv.innerHTML = `
-                <button id="splitMapLocationBtn" title="Minha Localização" class="map-control-btn"><i class="fas fa-location-arrow"></i></button>
-                <button id="splitMapResetBtn" title="Vista Inicial" class="map-control-btn"><i class="fas fa-home"></i></button>
-            `;
-            mapDiv.appendChild(controlsDiv);
 
             // Rectangle bounds: [southWest, northEast]
             const bounds = [
@@ -655,6 +691,7 @@
 
             if (roomData.location && typeof roomData.location.latitude === 'number' && typeof roomData.location.longitude === 'number') {
                 const roomLatLng = [roomData.location.latitude, roomData.location.longitude];
+                // Initialize the map directly with the split-map div
                 const splitMap = L.map(mapDiv, {
                     zoomControl: true,
                     attributionControl: false,
@@ -663,7 +700,22 @@
                     maxBounds: bounds,
                     maxBoundsViscosity: 1.0
                 });
-                splitMap.fitBounds(bounds);
+                
+                // CENTER AND ZOOM ON THE ROOM LOCATION instead of fitting bounds
+                splitMap.setView(roomLatLng, 19); // Zoom level 20 for close-up view
+
+                // Add tile layer FIRST
+                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19,
+                    subdomains: ['a', 'b', 'c'],
+                    crossOrigin: true
+                }).addTo(splitMap);
+
+                // Force map to render properly
+                setTimeout(() => {
+                    splitMap.invalidateSize();
+                }, 100);
 
                 // --- Enable map interaction only while pressing/touching ---
                 splitMap.dragging.disable();
@@ -702,25 +754,38 @@
                 splitMapContainer.addEventListener('touchstart', enableSplitMapInteraction);
                 splitMapContainer.addEventListener('touchend', disableSplitMapInteraction);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '',
-                    maxZoom: 22
-                }).addTo(splitMap);
-
-                // Add marker for the room
+                // Add marker for the room with click event
                 let ocupacao = 0;
                 if (roomData.curOcc !== undefined && roomData.maxOcc) {
                     ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
                 }
                 let ocupacaoColor = getOcupacaoColor(ocupacao);
-                L.marker(roomLatLng, {
+                
+                const roomMarker = L.marker(roomLatLng, {
                     icon: L.divIcon({
                         className: 'custom-marker highlighted-marker',
-                        html: `<div style="background-color: ${ocupacaoColor}; width: 32px; height: 32px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 12px #3b82f6;"></div>`,
+                        html: `<div style="background-color: ${ocupacaoColor}; width: 32px; height: 32px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 12px #3b82f6; cursor: pointer;"></div>`,
                         iconSize: [32, 32],
                         iconAnchor: [16, 16]
                     })
                 }).addTo(splitMap);
+
+                // Add click event to the marker to zoom in further
+                roomMarker.on('click', function() {
+                    splitMap.setView(roomLatLng, 21, {
+                        animate: true,
+                        duration: 0.5
+                    });
+                });
+
+                // Add map control buttons AFTER the map is created
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'map-controls';
+                controlsDiv.innerHTML = `
+                    <button id="splitMapLocationBtn" title="Minha Localização" class="map-control-btn"><i class="fas fa-location-arrow"></i></button>
+                    <button id="splitMapResetBtn" title="Vista Inicial" class="map-control-btn"><i class="fas fa-home"></i></button>
+                `;
+                mapDiv.appendChild(controlsDiv);
 
                 // Location button logic
                 document.getElementById('splitMapLocationBtn').onclick = function() {
@@ -753,29 +818,20 @@
                     }
                 };
 
-                // Reset view button logic
+                // Reset view button logic - now resets to room location
                 document.getElementById('splitMapResetBtn').onclick = function() {
-                    splitMap.fitBounds(bounds);
+                    splitMap.setView(roomLatLng, 20, {
+                        animate: true,
+                        duration: 0.5
+                    });
                 };
+
+                // Store map reference for potential cleanup
+                mapDiv._leafletMap = splitMap;
+                
             } else {
                 mapDiv.innerHTML += '<div style="padding:1rem; color:red;">Localização da sala não disponível.</div>';
             }
-        }
-
-        // Helper to update split map location button color (same as mapa.html)
-        function updateSplitMapLocationBtnColor(roomData) {
-            const btn = document.getElementById('splitMapLocationBtn');
-            if (!btn) return;
-            let color = '';
-            if (roomData && roomData.curOcc !== undefined && roomData.maxOcc) {
-                const ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
-                color = getOcupacaoColor(ocupacao);
-            }
-            btn.style.backgroundColor = color || 'white';
-            btn.style.color = 'white'; // Always white icon
-            // Update icon color for contrast
-            const icon = btn.querySelector('i');
-            if (icon) icon.style.color = 'white';
         }
 
         // Search functionality
@@ -1377,34 +1433,28 @@
 
                 // Open poll modal when speech bubble is clicked
         document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('speech-bubble')) {
-            document.getElementById('pollModal').classList.add('open');
-            document.getElementById('pollThanks').style.display = 'none';
-            document.getElementById('pollForm').style.display = '';
-        }
-        });
-
-        // Close poll modal
-        document.getElementById('closePollModal').onclick = function() {
-        document.getElementById('pollModal').classList.remove('open');
-        };
-        document.getElementById('pollModal').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('open');
+            if (e.target.classList.contains('speech-bubble')) {
+                document.getElementById('pollModal').classList.add('open');
+                document.getElementById('pollThanks').style.display = 'none';
+                document.getElementById('pollForm').style.display = '';
+            }
         });
 
         // Handle poll submission
         document.getElementById('pollForm').onsubmit = function(e) {
-        e.preventDefault();
-        // You can send the data to Firebase here if you want!
-        document.getElementById('pollForm').style.display = 'none';
-        document.getElementById('pollThanks').style.display = '';
-        setTimeout(() => {
-            document.getElementById('pollModal').classList.remove('open');
-            document.getElementById('pollForm').reset();
-            document.getElementById('pollForm').style.display = '';
-            document.getElementById('pollThanks').style.display = 'none';
-        }, 1800);
+            e.preventDefault();
+            // You can send the data to Firebase here if you want!
+            document.getElementById('pollForm').style.display = 'none';
+            document.getElementById('pollThanks').style.display = '';
+            setTimeout(() => {
+                document.getElementById('pollModal').classList.remove('open');
+                document.getElementById('pollForm').reset();
+                document.getElementById('pollForm').style.display = '';
+                document.getElementById('pollThanks').style.display = 'none';
+            }, 1800);
         };
+        
+    </script>
     </script>
     <script src="script.js"></script>
     <style>
@@ -1572,6 +1622,17 @@
     }
     .tab.search-tab button.search-button {
         background: none;
+        color: var(--color-text);
+    }
+    .tab.search-tab:focus-within input[type="search"],
+    .tab.search-tab:hover input[type="search"] {
+        width: 140px;
+        opacity: 1;
+        padding: 0 0.75em;
+        background: transparent;
+    }
+    .tab.search-tab button.search-button {
+        background: none;
         border: none;
         color: #000;
         width: 2.2em;
@@ -1581,13 +1642,7 @@
         justify-content: center;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
         transition: background 0.2s;
-        padding: 0 0.2em;
     }
-    .tab.search-tab:focus-within button.search-button,
-    .tab.search-tab:hover button.search-button {
-        background: var(--color-secondary);
-    }
-    .tab.search-tab:focus-within .search-label,
     .tab.search-tab:hover .search-label {
         display: inline-block;
     }
@@ -1692,7 +1747,7 @@
         width: 100% !important;
         min-width: 0 !important;
         max-width: 100% !important;
-        margin-bottom: 1.5rem; /* espaço extra abaixo de cada bloco */
+        margin-bottom:  1.5rem; /* espaço extra abaixo de cada bloco */
     }
     #split-map {
         min-width: 0 !important;
@@ -1717,7 +1772,7 @@
         justify-content: center;
         width: 100% !important;
         min-width: 0 !important;
-        overflow-x: auto;
+               overflow-x: auto;
         margin-bottom: 1.5rem;
     }
 }
@@ -1726,12 +1781,28 @@
         document.addEventListener('DOMContentLoaded', function() {
         const hamburger = document.getElementById('menuHamburger');
         const menu = document.getElementById('mainMenu');
+        
         if (hamburger && menu) {
-            hamburger.addEventListener('click', function() {
-            menu.classList.toggle('active');
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                menu.classList.toggle('active');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+                    menu.classList.remove('active');
+                }
+            });
+            
+            // Close menu when clicking on a link
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function() {
+                    menu.classList.remove('active');
+                });
             });
         }
-        });
+    });
     </script>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1756,44 +1827,5 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-<!-- Poll Modal -->
-<div id="pollModal" class="modal">
-  <div class="modal-content" style="max-width:400px;">
-    <span class="close" id="closePollModal">&times;</span>
-    <h2 style="color:#9370db; margin-bottom:1.5rem;">Partilhe a sua opinião</h2>
-    <form id="pollForm">
-      <div class="form-group">
-        <label><b>Qual o nível de ocupação?</b></label>
-        <div>
-            <label class="poll-radio"><input type="radio" name="ocupacao" value="Lotado" required> <span>Lotado (100%)</span></label>
-            <label class="poll-radio"><input type="radio" name="ocupacao" value="Muito Movimentado"> <span>Muito Movimentado (75%-100%)</span></label>
-            <label class="poll-radio"><input type="radio" name="ocupacao" value="Algum Movimento"> <span>Algum Movimento (50%-75%)</span></label>
-            <label class="poll-radio"><input type="radio" name="ocupacao" value="Pouco Movimentado"> <span>Pouco Movimentado (25%-50%)</span></label>
-            <label class="poll-radio"><input type="radio" name="ocupacao" value="Vazio"> <span>Vazio (0%-25%)</span></label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label><b>Qual a temperatura atual?</b></label>
-        <div>
-            <label class="poll-radio"><input type="radio" name="temperatura" value="Alta" required> <span>Alta</span></label>
-            <label class="poll-radio"><input type="radio" name="temperatura" value="Média"> <span>Média</span></label>
-            <label class="poll-radio"><input type="radio" name="temperatura" value="Baixa"> <span>Baixa</span></label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label><b>Há muito barulho?</b></label>
-        <div>
-            <label class="poll-radio"><input type="radio" name="barulho" value="Muito" required> <span>Muito</span></label>
-            <label class="poll-radio"><input type="radio" name="barulho" value="Normal"> <span>Normal</span></label>
-            <label class="poll-radio"><input type="radio" name="barulho" value="Pouco"> <span>Pouco</span></label>
-        </div>
-      </div>
-      <button type="submit" class="button primary" style="width:100%;margin-top:1rem;">Submeter</button>
-    </form>
-    <div id="pollThanks" style="display:none; color:#22c55e; font-weight:600; text-align:center; margin-top:1.5rem;">
-      Obrigado pela sua opinião!
-    </div>
-  </div>
-</div>
 </body>
 </html>
