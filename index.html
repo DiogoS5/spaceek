@@ -502,22 +502,34 @@
     header.textContent = roomData.name || 'Sala';
 
     // Add Voltar button
-    let voltarBtn = document.getElementById('voltar-btn-container');
-    if (voltarBtn) {
-        voltarBtn.innerHTML = `<button class="button secondary voltar-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
-        voltarBtn.style.display = 'block';
-        voltarBtn.querySelector('.voltar-btn').onclick = function() {
-            splitView.style.display = 'none';
-            document.getElementById('study-rooms').style.display = '';
-            document.getElementById('filterTabs').style.display = '';
-            voltarBtn.style.display = 'none';
+    // Add Voltar button
+let voltarBtn = document.getElementById('voltar-btn-container');
+if (voltarBtn) {
+    voltarBtn.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+            <button class="button secondary voltar-btn">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <a href="http://127.0.0.1:5502/ficheiros_html/mapa.html" 
+               class="button primary ir-mapa-btn" 
+               style="background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-map-marker-alt"></i> Ir para o mapa
+            </a>
+        </div>
+    `;
+    voltarBtn.style.display = 'block';
+    voltarBtn.querySelector('.voltar-btn').onclick = function() {
+        splitView.style.display = 'none';
+        document.getElementById('study-rooms').style.display = '';
+        document.getElementById('filterTabs').style.display = '';
+        voltarBtn.style.display = 'none';
 
-            header.textContent = header.dataset.original || 'Salas Disponíveis';
-            if (subtitle) {
-                subtitle.textContent = subtitle.dataset.original || '';
-            }
-        };
-    }
+        header.textContent = header.dataset.original || 'Salas Disponíveis';
+        if (subtitle) {
+            subtitle.textContent = subtitle.dataset.original || '';
+        }
+    };
+}
 
     // Histogram logic for all rooms
     let histogramHTML = '';
@@ -1767,15 +1779,26 @@
         width: 100% !important;
         margin-top: 2rem;
     }
-    .histogram-row {
-        display: flex;
-        justify-content: center;
+}
+    /* Add this to your existing styles around line 1780 */
+@media (max-width: 600px) {
+    #voltar-btn-container > div {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        align-items: stretch !important;
+    }
+    
+    .ir-mapa-btn {
         width: 100% !important;
-        min-width: 0 !important;
-               overflow-x: auto;
-        margin-bottom: 1.5rem;
+        justify-content: center !important;
+    }
+    
+    .voltar-btn {
+        width: 100% !important;
+        justify-content: center !important;
     }
 }
+
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

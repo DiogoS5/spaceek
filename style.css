@@ -1487,16 +1487,6 @@ footer nav a:hover {
     align-items: center;
   }
   
-  .histogram-row {
-    width: 100% !important;
-    overflow-x: auto;
-  }
-  
-  .bars-row {
-    min-width: 300px;
-    gap: 8px;
-  }
-  
   .user-opinion-box {
     margin-left: 0 !important;
     width: 100%;
@@ -1797,9 +1787,72 @@ footer nav a:hover {
     -webkit-overflow-scrolling: touch;
   }
   
-  .histogram-row {
-    -webkit-overflow-scrolling: touch;
-  }
 }
 
-
+/* Responsive histogram for mobile devices */
+@media (max-width: 768px) {
+  .histogram-row {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    padding: 0 0.5rem !important;
+  }
+  .hourly-chart {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 0.5rem 0 !important;
+    overflow-x: hidden !important;
+  }
+   .bars-row {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    width: auto !important;
+    min-width: calc(24 * 18px); /* 24 bars, 18px each */
+    gap: 2px !important;
+    
+    overflow-x: auto !important;
+    padding-bottom: 8px;
+  }
+  .hour-bar {
+    min-width: 16px !important;
+    max-width: 22px !important;
+    width: 18px !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+  .hour-bar .bar {
+    min-width: 100% !important;
+    border-radius: 4px 4px 0 0 !important;
+  }
+  .x-label {
+    font-size: 0.7rem !important;
+    margin-top: 2px !important;
+    text-align: center !important;
+    word-break: break-all;
+  }
+  .histogram-header {
+    margin-bottom: 0.3rem !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  .histogram-title {
+    font-size: 1rem !important;
+    text-align: center !important;
+    word-break: break-word;
+    white-space: normal !important;
+    line-height: 1.2 !important;
+  }
+  .histogram-message-row {
+    margin-top: 0.2rem !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .histogram-message {
+    font-size: 0.85rem !important;
+    text-align: center !important;
+    word-break: break-word;
+    white-space: normal !important;
+    line-height: 1.2 !important;
+  }
+}
