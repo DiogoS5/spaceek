@@ -275,6 +275,30 @@
             }
         }
 
+        // After allRooms is loaded
+async function fetchTICRealtime() {
+    // Find the TIC room in allRooms
+    const ticRoom = allRooms.find(room => room.name === "TIC");
+    if (!ticRoom) return;
+    // Replace 'roomTIC' with the actual document ID for TIC in your Firestore
+    const ticDocRef = doc(db, "salas", ticRoom.id);
+    onSnapshot(ticDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            // Update the TIC room in allRooms with real values
+            ticRoom.temperature = data.temperature;
+            ticRoom.noise_lvl = data.noise_lvl;
+            ticRoom.curOcc = data.curOcc;
+            ticRoom.maxOcc = data.maxOcc;
+            // Optionally, re-render if TIC is in split view or visible
+            renderRooms(getCurrentFilter());
+        }
+    });
+}
+
+// Call this after getNames() finishes loading allRooms
+getNames().then(fetchTICRealtime);
+
         const ocupacaoBtn = document.getElementById('ocupacaoBtn');
         const ocupacaoIcon = document.getElementById('ocupacaoIcon');
         ocupacaoBtn.addEventListener('click', function() {
@@ -404,12 +428,18 @@
             </div>
             <div class="room-indicators">
                 <div class="indicator">
-                    <span class="indicator-label">Ocupação:</span>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${getOcupacaoColor(ocupacao)};"></div>
-                    </div>
-                    <span class="indicator-value">${ocupacao}%</span>
-                </div>
+    <span class="indicator-label">Ocupação:</span>
+    ${
+      data.name === "TIC"
+        ? `<span class="indicator-value">${curOcc} / ${maxOcc}</span>`
+        : `
+            <div class="progress-container">
+                <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${getOcupacaoColor(ocupacao)};"></div>
+            </div>
+            <span class="indicator-value">${ocupacao}%</span>
+          `
+    }
+</div>
                 <div class="indicator">
                     <span class="indicator-label"><i class="fas fa-thermometer-half"></i> Temperatura</span>
                     <span class="badge temperature-badge" style="background:${isRoomOpen(data) ? getTemperatureColor(data.temperature) : '#d1d5db'}">
@@ -535,8 +565,8 @@ if (voltarBtn) {
     let histogramHTML = '';
     const { start, end } = getRoomHours(roomData.name);
     let averages = [];
-    if (roomData.name === "Sala do PIC") {
-        averages = salaDoPICData.hourlyAverages;
+    if (roomData.name === "TIC") {
+        averages = getTICAffluence24h(); // Always use this for TIC
     } else {
         averages = generateFakeAverages(roomData);
     }
@@ -576,13 +606,10 @@ if (voltarBtn) {
             <p>${roomData.building || ''}</p>
           </div>
           <div class="room-indicators">
-            ${(roomData.curOcc && roomData.maxOcc) ? `<div class="indicator">
-              <span class="indicator-label">Ocupação:</span>
-              <div class="progress-container">
-                <div class="progress-bar" style="width: ${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%; background-color: ${getOcupacaoColor(Math.round((roomData.curOcc/roomData.maxOcc)*100))};"></div>
-              </div>
-              <span class="indicator-value">${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%</span>
-            </div>` : ''}
+            ${(roomData.curOcc !== undefined && roomData.maxOcc) ? `<div class="indicator">
+                <span class="indicator-label">Ocupação:</span>
+                <span class="indicator-value">${roomData.curOcc} / ${roomData.maxOcc}</span>
+                </div>` : ''}
             ${roomData.temperature !== undefined ? `<div class="indicator">
               <span class="indicator-label">Temperatura:</span>
               <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(roomData.temperature)}">
@@ -899,50 +926,7 @@ if (voltarBtn) {
             });
         });
 
-        // Configuration
-        const HOURS_TO_TRACK = 24;
-        let salaDoPICData = {
-            currentHourSamples: [],
-            hourlyAverages: Array(HOURS_TO_TRACK).fill(null)
-        };
-        let occupancyCheckTimer;
-
-        export function initSalaDoPICTracking() {
-            const salaRef = doc(db, "salas", "room5");
-            onSnapshot(salaRef, (docSnap) => {
-                if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.name === "Sala do PIC") {
-                    updateOccupancyData(data.curOcc);
-                }
-            }
-        });
-            startHourlyProcessing();
-        }
-
-        // Update occupancy data with new sample
-        function updateOccupancyData(currentOccupancy) {
-            const now = new Date();
-            salaDoPICData.currentHourSamples.push({
-                value: currentOccupancy,
-                timestamp: now.getTime()
-            });
-            // Optionally update live display here
-        }
-
-        // Process samples hourly
-        function processHourlyAverage() {
-            const now = new Date();
-            const currentHour = now.getHours();
-            if (salaDoPICData.currentHourSamples.length > 0) {
-                const sum = salaDoPICData.currentHourSamples.reduce((acc, sample) => acc + sample.value, 0);
-                const avg = Math.round(sum / salaDoPICData.currentHourSamples.length);
-                salaDoPICData.hourlyAverages[currentHour] = avg;
-                salaDoPICData.currentHourSamples = [];
-                // Optionally update chart here
-            }
-        }
-
+       
         // Start hourly processing timer
         function startHourlyProcessing() {
             const now = new Date();
@@ -987,78 +971,8 @@ if (voltarBtn) {
     return arr;
 }
 
-    function renderHourlyChart(averages, maxOcc, selectedHour = null, hourStart = 8, hourEnd = 20, func = true) {
-    if (!func) {
-        // For unmonitored rooms: 5 fixed bars, each representing a range
-        const levels = [
-            { label: "Vazio (0-25%)", value: 1},
-            { label: "Pouco Movimentado (25%-50%)", value: 2},
-            { label: "Algum Movimento (50%-75%)", value: 3},
-            { label: "Muito Movimentado (75%-100%)", value: 4},
-            { label: "Lotado (100%)", value: 5}
-        ];
-
-          // For each hour, get the level (from averages or default to 1)
-        const hours = [];
-        for (let h = hourStart; h <= hourEnd; h++) hours.push(h);
-
-        // Pick the selected hour (default: current hour or first open hour)
-        const now = new Date();
-        let hourToShow = selectedHour;
-        if (hourToShow === null) {
-            hourToShow = (now.getHours() >= hourStart && now.getHours() <= hourEnd) ? now.getHours() : hourStart;
-        }
-
-        // For each hour, get the level (1-5) from averages[hour] or default to 1
-        function getLevel(val) {
-            // If you store user poll as 1-5, just return val or 1
-            if (!val) return 1;
-            // If you store as percent, map to 1-5
-            if (val >= 90) return 5;
-            if (val >= 75) return 4;
-            if (val >= 50) return 3;
-            if (val >= 25) return 2;
-            return 1;
-        }
-
-        // Get the level for the selected hour
-        const selectedLevel = getLevel(averages[hourToShow]);
-
-        return `
-            <div class="histogram-header">
-                <span class="histogram-title">Estado de Ocupação nas últimas 24h</span>
-                <div class="histogram-message-row">
-                    <span class="histogram-message">
-                        <i class="fas fa-users"></i>
-                        <b>${hourToShow.toString().padStart(2, '0')}:00</b> :
-                        ${levels[selectedLevel - 1].label}
-                    </span>
-                </div>
-            </div>
-            <div class="hourly-chart">
-                <div class="bars-row">
-                    ${hours.map(hour => {
-                        const level = getLevel(averages[hour]);
-                        return `
-                        <div class="hour-bar${hour === hourToShow ? ' current-hour' : ''} histogram-hour-btn" data-hour="${hour}">
-                            <div class="bar" style="
-                                height: ${level * 44}px;
-                                background: var(--color-primary);
-                                opacity: ${hour === hourToShow ? 1 : 0.5};
-                                border-radius: 6px 6px 0 0;
-                                ">
-                            </div>
-                            <div class="x-label" style="margin-top:8px;font-size:1rem;">
-                                ${hour.toString().padStart(2, '0')}
-                            </div>
-                        </div>
-                        `;
-                        }).join('')}
-                </div>
-            </div>
-        `;
-    }
-    
+    function renderHourlyChart(averages, maxOcc, selectedHour = null, hourStart = 0, hourEnd = 23, func = true) {
+    const chartHeight = 220; // px
     const now = new Date();
     const currentHour = now.getHours();
     const hours = [];
@@ -1069,19 +983,18 @@ if (voltarBtn) {
         hourToShow = (currentHour >= hourStart && currentHour <= hourEnd) ? currentHour : hourStart;
     }
 
-    const scale = 220 / (maxOcc || 1);
+    // For TIC, averages are already percent (0-100)
+    const curVal = averages[hourToShow] || 0;
+    const percent = curVal; // Already percent for TIC
 
     function getOccupancyMessage(val) {
-        if (val > 0.75 * maxOcc) return "Muito movimentado";
-        if (val > 0.5 * maxOcc) return "Bem movimentado";
-        if (val > 0.25 * maxOcc) return "Pouco movimentado";
+        if (val >= 75) return "Muito movimentado";
+        if (val >= 50) return "Bem movimentado";
+        if (val >= 25) return "Pouco movimentado";
         if (val > 0) return "Nada movimentado";
         return "Sem dados";
     }
-
-    const curVal = averages[hourToShow] || 0;
     const message = getOccupancyMessage(curVal);
-    const percent = maxOcc ? Math.round((curVal / maxOcc) * 100) : 0;
 
     return `
         <div class="histogram-header">
@@ -1099,7 +1012,7 @@ if (voltarBtn) {
                 ${hours.map(hour => `
                     <div class="hour-bar${hour === hourToShow ? ' current-hour' : ''} histogram-hour-btn" data-hour="${hour}">
                         <div class="bar" style="
-                            height: ${(averages[hour] ? averages[hour] * scale : 4)}px;
+                            height: ${(averages[hour] || 0) / 100 * chartHeight}px;
                             background: var(--color-primary);
                             opacity: ${hour === hourToShow ? 1 : 0.5};
                             border-radius: 6px 6px 0 0;
@@ -1120,20 +1033,6 @@ if (voltarBtn) {
             if (percent >= 50) return '#f59e0b'; // Yellow
             return '#22c55e'; // Green
         }
-
-        // Initialize when Firebase is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            onAuthStateChanged(auth, (user) => {
-                initSalaDoPICTracking();
-            });
-            
-            window.addEventListener('beforeunload', () => {
-                if (occupancyCheckTimer) {
-                    clearInterval(occupancyCheckTimer);
-                }
-            });
-        });
-
 
         function renderSearchResults(rooms) {
             const studyRooms = document.getElementById('study-rooms');
@@ -1468,7 +1367,6 @@ if (voltarBtn) {
         
     </script>
     </script>
-    <script src="script.js"></script>
     <style>
    
     /* Hero section styles */

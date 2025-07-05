@@ -1336,6 +1336,8 @@ footer nav a:hover {
   gap: 0.1em;
 }
 
+
+
 /*_-------------------------------------------------------------------------*/
 
 /* Enhanced Mobile Responsiveness */
@@ -1802,15 +1804,17 @@ footer nav a:hover {
     max-width: 100vw !important;
     padding: 0.5rem 0 !important;
     overflow-x: hidden !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-end !important;
   }
-   .bars-row {
+  .bars-row {
     display: flex !important;
     align-items: flex-end !important;
-    justify-content: flex-start !important;
+    justify-content: center !important; /* Center the bars horizontally */
     width: auto !important;
-    min-width: calc(24 * 18px); /* 24 bars, 18px each */
+    min-width: calc(24 * 18px);
     gap: 2px !important;
-    
     overflow-x: auto !important;
     padding-bottom: 8px;
   }
