@@ -2,7 +2,7 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Spaceek - Salas de Estudo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -12,23 +12,23 @@
     <header>
     <div class="container-header">
         <div class="logo-area">
-        <img src="imagens/logo.png" alt="Logo do Spaceek" class="logo">
-        <span class="nome-empresa">Spaceek</span>
+            <img src="imagens/logo.png" alt="Logo do Spaceek" class="logo">
+            <span class="nome-empresa">Spaceek</span>
         </div>
         <nav class="menu" id="mainMenu">
-        <a class="active">Início</a>
-        <a href="ficheiros_html/mapa.html">Mapa</a>
-        <a href="ficheiros_html/sobre.html">Sobre</a>
-        <a href="#" id="loginBtn" class="login-btn">Login</a>
+            <a class="active">Início</a>
+            <a href="ficheiros_html/mapa.html">Mapa</a>
+            <a href="ficheiros_html/sobre.html">Sobre</a>
+            <a href="#" id="loginBtn" class="login-btn">Login</a>
         </nav>
         <div class="user-profile" style="display: none;">
-        <div class="user-avatar">
-            <span id="userInitial">A</span>
-        </div>
-        <div class="user-dropdown">
-            <a href="#" id="favoritesLink">Meus Favoritos</a>
-            <a href="#" id="logoutBtn">Sair</a>
-        </div>
+            <div class="user-avatar">
+                <span id="userInitial">A</span>
+            </div>
+            <div class="user-dropdown">
+                <a href="#" id="favoritesLink">Meus Favoritos</a>
+                <a href="#" id="logoutBtn">Sair</a>
+            </div>
         </div>
         <div class="menu-hamburger" id="menuHamburger">&#9776;</div>
     </div>
@@ -40,7 +40,6 @@
                 <div class="results-header-flex">
                     <h2 id="main-header">Salas Disponíveis</h2>
                 </div>
-                <p id="main-subtitle">(Os dados exibidos são apenas ilustrativos)</p>
                 <div id="voltar-btn-container" style="display:none;margin-bottom:0.5rem;"></div>
                 <br>
                 <div id="banner"></div>
@@ -61,6 +60,9 @@
                     <div class="filter-options">
                         <button class="tab ocupacao-btn" id="ocupacaoBtn">
                             Ocupação <i class="fas fa-sort-amount-down" id="ocupacaoIcon"></i>
+                        </button>
+                        <button class="tab" id="semMonitorizacaoBtn">
+                            <i class="fas fa-ban"></i> Sem monitorização
                         </button>
                         <button class="tab" id="favoritesFilterBtn">
                             <i class="far fa-star"></i> Favoritos
@@ -92,6 +94,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Poll Modal -->
+<div id="pollModal" class="modal">
+  <div class="modal-content" style="max-width:400px;">
+    <span class="close" id="closePollModal">&times;</span>
+    <h2 style="color:#9370db; margin-bottom:1.5rem;">Partilhe a sua opinião</h2>
+    <form id="pollForm">
+      <div class="form-group">
+        <label><b>Qual o nível de ocupação?</b></label>
+        <div>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Lotado" required> <span>Lotado (100%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Muito Movimentado"> <span>Muito Movimentado (75%-100%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Algum Movimento"> <span>Algum Movimento (50%-75%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Pouco Movimentado"> <span>Pouco Movimentado (25%-50%)</span></label>
+          <label class="poll-radio"><input type="radio" name="ocupacao" value="Vazio"> <span>Vazio (0%-25%)</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label><b>Qual a temperatura atual?</b></label>
+        <div>
+          <label class="poll-radio"><input type="radio" name="temperatura" value="Alta" required> <span>Alta</span></label>
+          <label class="poll-radio"><input type="radio" name="temperatura" value="Média"> <span>Média</span></label>
+          <label class="poll-radio"><input type="radio" name="temperatura" value="Baixa"> <span>Baixa</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label><b>Há muito barulho?</b></label>
+        <div>
+          <label class="poll-radio"><input type="radio" name="barulho" value="Muito" required> <span>Muito</span></label>
+          <label class="poll-radio"><input type="radio" name="barulho" value="Normal"> <span>Normal</span></label>
+          <label class="poll-radio"><input type="radio" name="barulho" value="Pouco"> <span>Pouco</span></label>
+        </div>
+      </div>
+      <button type="submit" class="button primary" style="width:100%;margin-top:1rem;">Submeter</button>
+    </form>
+    <div id="pollThanks" style="display:none; color:#22c55e; font-weight:600; text-align:center; margin-top:1.5rem;">
+      Obrigado pela sua opinião!
+    </div>
+  </div>
+</div>
 
     <script src="script.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -130,6 +172,7 @@
         let currentUser = null;
         let userFavorites = [];
         let showOnlyFavorites = false;
+        let showOnlyUnmonitored = false;
 
         // Auth state observer
         onAuthStateChanged(auth, (user) => {
@@ -232,6 +275,30 @@
             }
         }
 
+        // After allRooms is loaded
+async function fetchTICRealtime() {
+    // Find the TIC room in allRooms
+    const ticRoom = allRooms.find(room => room.name === "TIC");
+    if (!ticRoom) return;
+    // Replace 'roomTIC' with the actual document ID for TIC in your Firestore
+    const ticDocRef = doc(db, "salas", ticRoom.id);
+    onSnapshot(ticDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            // Update the TIC room in allRooms with real values
+            ticRoom.temperature = data.temperature;
+            ticRoom.noise_lvl = data.noise_lvl;
+            ticRoom.curOcc = data.curOcc;
+            ticRoom.maxOcc = data.maxOcc;
+            // Optionally, re-render if TIC is in split view or visible
+            renderRooms(getCurrentFilter());
+        }
+    });
+}
+
+// Call this after getNames() finishes loading allRooms
+getNames().then(fetchTICRealtime);
+
         const ocupacaoBtn = document.getElementById('ocupacaoBtn');
         const ocupacaoIcon = document.getElementById('ocupacaoIcon');
         ocupacaoBtn.addEventListener('click', function() {
@@ -256,6 +323,15 @@
             showOnlyFavorites = this.classList.contains('active');
             renderRooms(getCurrentFilter());
         });
+
+        const semMonitorizacaoBtn = document.getElementById('semMonitorizacaoBtn');
+        if (semMonitorizacaoBtn) {
+            semMonitorizacaoBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                showOnlyUnmonitored = this.classList.contains('active');
+                renderRooms(getCurrentFilter());
+            });
+        }
 
         // Filter tab logic
         const filterTabs = document.querySelectorAll('.filter-group .tab');
@@ -303,6 +379,15 @@
         }
     }
 
+    // Apply unmonitored filter if active
+    if (showOnlyUnmonitored) {
+        filteredRooms = filteredRooms.filter(room => room.func === false);
+    }
+
+    if (showOnlyFavorites) {
+    filteredRooms = filteredRooms.filter(room => userFavorites.includes(room.id));
+    }
+
     filteredRooms.sort((a, b) => {
         // Open rooms first
         const openDiff = (isRoomOpen(b) ? 1 : 0) - (isRoomOpen(a) ? 1 : 0);
@@ -343,16 +428,22 @@
             </div>
             <div class="room-indicators">
                 <div class="indicator">
-                    <span class="indicator-label">Ocupação:</span>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${getOcupacaoColor(ocupacao)};"></div>
-                    </div>
-                    <span class="indicator-value">${ocupacao}%</span>
-                </div>
+    <span class="indicator-label">Ocupação:</span>
+    ${
+      data.name === "TIC"
+        ? `<span class="indicator-value">${curOcc} / ${maxOcc}</span>`
+        : `
+            <div class="progress-container">
+                <div class="progress-bar" style="width: ${ocupacao}%; background-color: ${getOcupacaoColor(ocupacao)};"></div>
+            </div>
+            <span class="indicator-value">${ocupacao}%</span>
+          `
+    }
+</div>
                 <div class="indicator">
                     <span class="indicator-label"><i class="fas fa-thermometer-half"></i> Temperatura</span>
-                    <span class="badge temperature-badge" style="background:${getTemperatureColor(data.temperature)}">
-                        ${data.temperature !== null && data.temperature !== undefined ? data.temperature + '°C' : 'N/A'}
+                    <span class="badge temperature-badge" style="background:${isRoomOpen(data) ? getTemperatureColor(data.temperature) : '#d1d5db'}">
+                        ${isRoomOpen(data) && data.temperature !== null && data.temperature !== undefined ? data.temperature + '°C' : 'N/A'}
                     </span>
                 </div>
                 <div class="indicator">
@@ -361,12 +452,13 @@
                         ${isRoomOpen(data) ? 'Aberto' : 'Fechado'}
                     </span>
                 </div>
-                ${data.noise_lvl !== undefined ? `<div class="indicator">
+                <div class="indicator">
                     <span class="indicator-label">Nível de Ruído:</span>
-                    <span class="badge noise ${getRuidoClass(data.noise_lvl)}">
-                        <i class="fas ${getRuidoIcon(data.noise_lvl)}"></i> ${getRuidoLabel(data.noise_lvl)}
+                    <span class="badge noise ${isRoomOpen(data) && data.noise_lvl !== undefined ? getRuidoClass(data.noise_lvl) : ''}">
+                        <i class="fas ${isRoomOpen(data) && data.noise_lvl !== undefined ? getRuidoIcon(data.noise_lvl) : 'fa-volume-mute'}"></i>
+                        ${isRoomOpen(data) && data.noise_lvl !== undefined ? getRuidoLabel(data.noise_lvl) : 'N/A'}
                     </span>
-                </div>` : ''}
+                </div>
             </div>
             <div class="room-actions">
                 <button class="button primary detalhes-btn" data-room-idx="${idx}">
@@ -431,32 +523,50 @@
     const subtitle = document.getElementById('main-subtitle');
     // Store original values to restore later
     header.dataset.original = header.textContent;
-    subtitle.dataset.original = subtitle.textContent;
+
+    if (subtitle) {
+        subtitle.dataset.original = subtitle.textContent;
+        subtitle.textContent = roomData.Location;
+    }
+
     header.textContent = roomData.name || 'Sala';
-    subtitle.textContent = roomData.Location;
 
     // Add Voltar button
-    let voltarBtn = document.getElementById('voltar-btn-container');
-    if (voltarBtn) {
-        voltarBtn.innerHTML = `<button class="button secondary voltar-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
-        voltarBtn.style.display = 'block';
-        voltarBtn.querySelector('.voltar-btn').onclick = function() {
-            splitView.style.display = 'none';
-            document.getElementById('study-rooms').style.display = '';
-            document.getElementById('filterTabs').style.display = '';
-            voltarBtn.style.display = 'none';
+    // Add Voltar button
+let voltarBtn = document.getElementById('voltar-btn-container');
+if (voltarBtn) {
+    voltarBtn.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+            <button class="button secondary voltar-btn">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <a href="http://127.0.0.1:5502/ficheiros_html/mapa.html" 
+               class="button primary ir-mapa-btn" 
+               style="background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-map-marker-alt"></i> Ir para o mapa
+            </a>
+        </div>
+    `;
+    voltarBtn.style.display = 'block';
+    voltarBtn.querySelector('.voltar-btn').onclick = function() {
+        splitView.style.display = 'none';
+        document.getElementById('study-rooms').style.display = '';
+        document.getElementById('filterTabs').style.display = '';
+        voltarBtn.style.display = 'none';
 
-            header.textContent = header.dataset.original || 'Salas Disponíveis';
-            subtitle.textContent = subtitle.dataset.original || '(Os dados exibidos são apenas ilustrativos)';
-        };
-    }
+        header.textContent = header.dataset.original || 'Salas Disponíveis';
+        if (subtitle) {
+            subtitle.textContent = subtitle.dataset.original || '';
+        }
+    };
+}
 
     // Histogram logic for all rooms
     let histogramHTML = '';
     const { start, end } = getRoomHours(roomData.name);
     let averages = [];
-    if (roomData.name === "Sala do PIC") {
-        averages = salaDoPICData.hourlyAverages;
+    if (roomData.name === "TIC") {
+        averages = getTICAffluence24h(); // Always use this for TIC
     } else {
         averages = generateFakeAverages(roomData);
     }
@@ -466,6 +576,17 @@
         </div>
     `;
 
+    let opinionBoxHTML = '';
+    if (roomData.func === false) {
+        opinionBoxHTML = `
+        <div class="user-opinion-box" style="display:flex;align-items:center;justify-content:center;margin-left:2rem;">
+            <span style="font-size:1.15rem; color:#6366f1; font-weight:600;">
+            Queres dar a tua opinião ?
+            </span>
+        </div>
+        `;
+    }
+        
     // Responsive layout: map on top, then info-card and histogram side-by-side (stacked on mobile)
    splitView.innerHTML = `
   <div class="details-container">
@@ -485,13 +606,10 @@
             <p>${roomData.building || ''}</p>
           </div>
           <div class="room-indicators">
-            ${(roomData.curOcc && roomData.maxOcc) ? `<div class="indicator">
-              <span class="indicator-label">Ocupação:</span>
-              <div class="progress-container">
-                <div class="progress-bar" style="width: ${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%; background-color: ${getOcupacaoColor(Math.round((roomData.curOcc/roomData.maxOcc)*100))};"></div>
-              </div>
-              <span class="indicator-value">${Math.round((roomData.curOcc/roomData.maxOcc)*100)}%</span>
-            </div>` : ''}
+            ${(roomData.curOcc !== undefined && roomData.maxOcc) ? `<div class="indicator">
+                <span class="indicator-label">Ocupação:</span>
+                <span class="indicator-value">${roomData.curOcc} / ${roomData.maxOcc}</span>
+                </div>` : ''}
             ${roomData.temperature !== undefined ? `<div class="indicator">
               <span class="indicator-label">Temperatura:</span>
               <span class="badge temperature-badge" style="background-color: ${getTemperatureColor(roomData.temperature)}">
@@ -516,11 +634,38 @@
         </div>
       </div>
     </div>
-    <div class="split-stats">
-      <div class="histogram-row">
-        <div id="histogram-container"></div>
-      </div>
-    </div>
+    ${roomData.func === false
+        ? `<div class="split-stats center-stats">
+                <div class="histogram-row">
+                    <div id="histogram-container"></div>
+                </div>
+                    <div class="user-opinion-box">
+                        <div class="stickman-container">
+                            <div class="speech-bubble">
+                                Queres dar a tua opinião ?
+                            </div>
+                            <svg class="stickman-svg" width="48" height="80" viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Head -->
+                            <circle cx="24" cy="14" r="12" stroke="#9370db" stroke-width="3" fill="#ede9fe"/>
+                            <!-- Body -->
+                            <line x1="24" y1="26" x2="24" y2="54" stroke="#9370db" stroke-width="3" />
+                            <!-- Arms -->
+                            <line x1="24" y1="34" x2="8" y2="44" stroke="#9370db" stroke-width="3" />
+                            <line x1="24" y1="34" x2="40" y2="44" stroke="#9370db" stroke-width="3" />
+                            <!-- Legs -->
+                            <line x1="24" y1="54" x2="10" y2="76" stroke="#9370db" stroke-width="3" />
+                            <line x1="24" y1="54" x2="38" y2="76" stroke="#9370db" stroke-width="3" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+        : `<div class="split-stats">
+                <div class="histogram-row">
+                    <div id="histogram-container"></div>
+                </div>
+            </div>`
+    }
   </div>
 `;
     
@@ -548,7 +693,7 @@
     let selectedHour = null;
 
     function renderHistogramAtHour(hour) {
-        histogramContainer.innerHTML = renderHourlyChart(averages, roomData.maxOcc, hour, start, end);
+        histogramContainer.innerHTML = renderHourlyChart(averages, roomData.maxOcc, hour, start, end, roomData.func);
         // Re-attach click handlers
         histogramContainer.querySelectorAll('.histogram-hour-btn').forEach(bar => {
             bar.onclick = () => renderHistogramAtHour(Number(bar.dataset.hour));
@@ -571,20 +716,11 @@
             return 'Muito Baixo';
         }
         
-        function renderSplitMap(roomData) {
+         function renderSplitMap(roomData) {
             const mapDiv = document.getElementById('split-map');
             mapDiv.innerHTML = '';
             mapDiv.style.width = '100%';
             mapDiv.style.height = '400px';
-
-            // Add map control buttons container (bottom right, column, same as mapa.html)
-            let controlsDiv = document.createElement('div');
-            controlsDiv.className = 'map-controls';
-            controlsDiv.innerHTML = `
-                <button id="splitMapLocationBtn" title="Minha Localização" class="map-control-btn"><i class="fas fa-location-arrow"></i></button>
-                <button id="splitMapResetBtn" title="Vista Inicial" class="map-control-btn"><i class="fas fa-home"></i></button>
-            `;
-            mapDiv.appendChild(controlsDiv);
 
             // Rectangle bounds: [southWest, northEast]
             const bounds = [
@@ -594,6 +730,7 @@
 
             if (roomData.location && typeof roomData.location.latitude === 'number' && typeof roomData.location.longitude === 'number') {
                 const roomLatLng = [roomData.location.latitude, roomData.location.longitude];
+                // Initialize the map directly with the split-map div
                 const splitMap = L.map(mapDiv, {
                     zoomControl: true,
                     attributionControl: false,
@@ -602,7 +739,22 @@
                     maxBounds: bounds,
                     maxBoundsViscosity: 1.0
                 });
-                splitMap.fitBounds(bounds);
+                
+                // CENTER AND ZOOM ON THE ROOM LOCATION instead of fitting bounds
+                splitMap.setView(roomLatLng, 19); // Zoom level 20 for close-up view
+
+                // Add tile layer FIRST
+                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19,
+                    subdomains: ['a', 'b', 'c'],
+                    crossOrigin: true
+                }).addTo(splitMap);
+
+                // Force map to render properly
+                setTimeout(() => {
+                    splitMap.invalidateSize();
+                }, 100);
 
                 // --- Enable map interaction only while pressing/touching ---
                 splitMap.dragging.disable();
@@ -641,25 +793,38 @@
                 splitMapContainer.addEventListener('touchstart', enableSplitMapInteraction);
                 splitMapContainer.addEventListener('touchend', disableSplitMapInteraction);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '',
-                    maxZoom: 22
-                }).addTo(splitMap);
-
-                // Add marker for the room
+                // Add marker for the room with click event
                 let ocupacao = 0;
                 if (roomData.curOcc !== undefined && roomData.maxOcc) {
                     ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
                 }
                 let ocupacaoColor = getOcupacaoColor(ocupacao);
-                L.marker(roomLatLng, {
+                
+                const roomMarker = L.marker(roomLatLng, {
                     icon: L.divIcon({
                         className: 'custom-marker highlighted-marker',
-                        html: `<div style="background-color: ${ocupacaoColor}; width: 32px; height: 32px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 12px #3b82f6;"></div>`,
+                        html: `<div style="background-color: ${ocupacaoColor}; width: 32px; height: 32px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 12px #3b82f6; cursor: pointer;"></div>`,
                         iconSize: [32, 32],
                         iconAnchor: [16, 16]
                     })
                 }).addTo(splitMap);
+
+                // Add click event to the marker to zoom in further
+                roomMarker.on('click', function() {
+                    splitMap.setView(roomLatLng, 21, {
+                        animate: true,
+                        duration: 0.5
+                    });
+                });
+
+                // Add map control buttons AFTER the map is created
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'map-controls';
+                controlsDiv.innerHTML = `
+                    <button id="splitMapLocationBtn" title="Minha Localização" class="map-control-btn"><i class="fas fa-location-arrow"></i></button>
+                    <button id="splitMapResetBtn" title="Vista Inicial" class="map-control-btn"><i class="fas fa-home"></i></button>
+                `;
+                mapDiv.appendChild(controlsDiv);
 
                 // Location button logic
                 document.getElementById('splitMapLocationBtn').onclick = function() {
@@ -692,29 +857,20 @@
                     }
                 };
 
-                // Reset view button logic
+                // Reset view button logic - now resets to room location
                 document.getElementById('splitMapResetBtn').onclick = function() {
-                    splitMap.fitBounds(bounds);
+                    splitMap.setView(roomLatLng, 20, {
+                        animate: true,
+                        duration: 0.5
+                    });
                 };
+
+                // Store map reference for potential cleanup
+                mapDiv._leafletMap = splitMap;
+                
             } else {
                 mapDiv.innerHTML += '<div style="padding:1rem; color:red;">Localização da sala não disponível.</div>';
             }
-        }
-
-        // Helper to update split map location button color (same as mapa.html)
-        function updateSplitMapLocationBtnColor(roomData) {
-            const btn = document.getElementById('splitMapLocationBtn');
-            if (!btn) return;
-            let color = '';
-            if (roomData && roomData.curOcc !== undefined && roomData.maxOcc) {
-                const ocupacao = Math.round((roomData.curOcc / roomData.maxOcc) * 100);
-                color = getOcupacaoColor(ocupacao);
-            }
-            btn.style.backgroundColor = color || 'white';
-            btn.style.color = 'white'; // Always white icon
-            // Update icon color for contrast
-            const icon = btn.querySelector('i');
-            if (icon) icon.style.color = 'white';
         }
 
         // Search functionality
@@ -770,50 +926,7 @@
             });
         });
 
-        // Configuration
-        const HOURS_TO_TRACK = 24;
-        let salaDoPICData = {
-            currentHourSamples: [],
-            hourlyAverages: Array(HOURS_TO_TRACK).fill(null)
-        };
-        let occupancyCheckTimer;
-
-        export function initSalaDoPICTracking() {
-            const salaRef = doc(db, "salas", "room5");
-            onSnapshot(salaRef, (docSnap) => {
-                if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.name === "Sala do PIC") {
-                    updateOccupancyData(data.curOcc);
-                }
-            }
-        });
-            startHourlyProcessing();
-        }
-
-        // Update occupancy data with new sample
-        function updateOccupancyData(currentOccupancy) {
-            const now = new Date();
-            salaDoPICData.currentHourSamples.push({
-                value: currentOccupancy,
-                timestamp: now.getTime()
-            });
-            // Optionally update live display here
-        }
-
-        // Process samples hourly
-        function processHourlyAverage() {
-            const now = new Date();
-            const currentHour = now.getHours();
-            if (salaDoPICData.currentHourSamples.length > 0) {
-                const sum = salaDoPICData.currentHourSamples.reduce((acc, sample) => acc + sample.value, 0);
-                const avg = Math.round(sum / salaDoPICData.currentHourSamples.length);
-                salaDoPICData.hourlyAverages[currentHour] = avg;
-                salaDoPICData.currentHourSamples = [];
-                // Optionally update chart here
-            }
-        }
-
+       
         // Start hourly processing timer
         function startHourlyProcessing() {
             const now = new Date();
@@ -858,30 +971,30 @@
     return arr;
 }
 
-    function renderHourlyChart(averages, maxOcc, selectedHour = null, hourStart = 8, hourEnd = 20) {
+    function renderHourlyChart(averages, maxOcc, selectedHour = null, hourStart = 0, hourEnd = 23, func = true) {
+    const chartHeight = 220; // px
     const now = new Date();
     const currentHour = now.getHours();
     const hours = [];
-    for (let h = hourStart; h < 24; h++) hours.push(h);
+    for (let h = hourStart; h <= hourEnd; h++) hours.push(h);
 
     let hourToShow = selectedHour;
     if (hourToShow === null) {
         hourToShow = (currentHour >= hourStart && currentHour <= hourEnd) ? currentHour : hourStart;
     }
 
-    const scale = 220 / (maxOcc || 1);
+    // For TIC, averages are already percent (0-100)
+    const curVal = averages[hourToShow] || 0;
+    const percent = curVal; // Already percent for TIC
 
     function getOccupancyMessage(val) {
-        if (val > 0.75 * maxOcc) return "Muito movimentado";
-        if (val > 0.5 * maxOcc) return "Bem movimentado";
-        if (val > 0.25 * maxOcc) return "Pouco movimentado";
+        if (val >= 75) return "Muito movimentado";
+        if (val >= 50) return "Bem movimentado";
+        if (val >= 25) return "Pouco movimentado";
         if (val > 0) return "Nada movimentado";
         return "Sem dados";
     }
-
-    const curVal = averages[hourToShow] || 0;
     const message = getOccupancyMessage(curVal);
-    const percent = maxOcc ? Math.round((curVal / maxOcc) * 100) : 0;
 
     return `
         <div class="histogram-header">
@@ -899,7 +1012,7 @@
                 ${hours.map(hour => `
                     <div class="hour-bar${hour === hourToShow ? ' current-hour' : ''} histogram-hour-btn" data-hour="${hour}">
                         <div class="bar" style="
-                            height: ${(averages[hour] ? averages[hour] * scale : 4)}px;
+                            height: ${(averages[hour] || 0) / 100 * chartHeight}px;
                             background: var(--color-primary);
                             opacity: ${hour === hourToShow ? 1 : 0.5};
                             border-radius: 6px 6px 0 0;
@@ -920,20 +1033,6 @@
             if (percent >= 50) return '#f59e0b'; // Yellow
             return '#22c55e'; // Green
         }
-
-        // Initialize when Firebase is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            onAuthStateChanged(auth, (user) => {
-                initSalaDoPICTracking();
-            });
-            
-            window.addEventListener('beforeunload', () => {
-                if (occupancyCheckTimer) {
-                    clearInterval(occupancyCheckTimer);
-                }
-            });
-        });
-
 
         function renderSearchResults(rooms) {
             const studyRooms = document.getElementById('study-rooms');
@@ -1242,8 +1341,32 @@
                 tryShow();
             }
         }
+
+                // Open poll modal when speech bubble is clicked
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('speech-bubble')) {
+                document.getElementById('pollModal').classList.add('open');
+                document.getElementById('pollThanks').style.display = 'none';
+                document.getElementById('pollForm').style.display = '';
+            }
+        });
+
+        // Handle poll submission
+        document.getElementById('pollForm').onsubmit = function(e) {
+            e.preventDefault();
+            // You can send the data to Firebase here if you want!
+            document.getElementById('pollForm').style.display = 'none';
+            document.getElementById('pollThanks').style.display = '';
+            setTimeout(() => {
+                document.getElementById('pollModal').classList.remove('open');
+                document.getElementById('pollForm').reset();
+                document.getElementById('pollForm').style.display = '';
+                document.getElementById('pollThanks').style.display = 'none';
+            }, 1800);
+        };
+        
     </script>
-    <script src="script.js"></script>
+    </script>
     <style>
    
     /* Hero section styles */
@@ -1409,6 +1532,17 @@
     }
     .tab.search-tab button.search-button {
         background: none;
+        color: var(--color-text);
+    }
+    .tab.search-tab:focus-within input[type="search"],
+    .tab.search-tab:hover input[type="search"] {
+        width: 140px;
+        opacity: 1;
+        padding: 0 0.75em;
+        background: transparent;
+    }
+    .tab.search-tab button.search-button {
+        background: none;
         border: none;
         color: #000;
         width: 2.2em;
@@ -1418,13 +1552,7 @@
         justify-content: center;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
         transition: background 0.2s;
-        padding: 0 0.2em;
     }
-    .tab.search-tab:focus-within button.search-button,
-    .tab.search-tab:hover button.search-button {
-        background: var(--color-secondary);
-    }
-    .tab.search-tab:focus-within .search-label,
     .tab.search-tab:hover .search-label {
         display: inline-block;
     }
@@ -1529,7 +1657,7 @@
         width: 100% !important;
         min-width: 0 !important;
         max-width: 100% !important;
-        margin-bottom: 1.5rem; /* espaço extra abaixo de cada bloco */
+        margin-bottom:  1.5rem; /* espaço extra abaixo de cada bloco */
     }
     #split-map {
         min-width: 0 !important;
@@ -1549,26 +1677,53 @@
         width: 100% !important;
         margin-top: 2rem;
     }
-    .histogram-row {
-        display: flex;
-        justify-content: center;
+}
+    /* Add this to your existing styles around line 1780 */
+@media (max-width: 600px) {
+    #voltar-btn-container > div {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        align-items: stretch !important;
+    }
+    
+    .ir-mapa-btn {
         width: 100% !important;
-        min-width: 0 !important;
-        overflow-x: auto;
-        margin-bottom: 1.5rem;
+        justify-content: center !important;
+    }
+    
+    .voltar-btn {
+        width: 100% !important;
+        justify-content: center !important;
     }
 }
+
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
         const hamburger = document.getElementById('menuHamburger');
         const menu = document.getElementById('mainMenu');
+        
         if (hamburger && menu) {
-            hamburger.addEventListener('click', function() {
-            menu.classList.toggle('active');
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                menu.classList.toggle('active');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+                    menu.classList.remove('active');
+                }
+            });
+            
+            // Close menu when clicking on a link
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function() {
+                    menu.classList.remove('active');
+                });
             });
         }
-        });
+    });
     </script>
     <script>
 document.addEventListener('DOMContentLoaded', function() {

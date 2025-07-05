@@ -72,3 +72,58 @@ function highlightMarker(roomId) {
         }, 2000);
     }
 }
+
+// Only keep this ONCE in your file!
+const realisticAffluence = [
+  // 0-5: early morning (very low)
+  2, 2, 2, 3, 4, 6,
+  // 6-8: morning (increasing)
+  12, 22, 38,
+  // 9-11: late morning (peak)
+  60, 75, 85,
+  // 12-13: lunch (decrease)
+  50, 35,
+  // 14-17: afternoon (increase again)
+  55, 65, 75, 80,
+  // 18-19: stabilize (high)
+  80, 75,
+  // 20-23: evening/night (decrease)
+  40, 20, 10, 5
+];
+
+// Returns an array of 24 values, updating only if 24h have passed for each hour
+function getTICAffluence24h() {
+  const key = 'tic_affluence_histogram';
+  const now = Date.now();
+  let data = JSON.parse(localStorage.getItem(key));
+  if (!data || !Array.isArray(data.values) || !Array.isArray(data.timestamps)) {
+    data = {
+      values: realisticAffluence.slice(),
+      timestamps: Array(24).fill(now)
+    };
+    localStorage.setItem(key, JSON.stringify(data));
+  } else {
+    for (let hour = 0; hour < 24; hour++) {
+      if (now - data.timestamps[hour] > 24 * 60 * 60 * 1000) {
+        // Keep in 0-100 range
+        let newVal = realisticAffluence[hour] + Math.floor(Math.random() * 11 - 5); // +/-5%
+        newVal = Math.max(0, Math.min(100, newVal));
+        data.values[hour] = newVal;
+        data.timestamps[hour] = now;
+      }
+    }
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+  return data.values;
+}
+
+// Usage in your histogram rendering logic:
+function getAffluenceForRoom(roomName) {
+  if (roomName === "TIC") {
+    return getTICAffluence24h();
+  }
+  // ...your logic for other rooms...
+}
+
+// Example: in your renderHourlyChart or splitview logic
+// let averages = getAffluenceForRoom(roomData.name);
